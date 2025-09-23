@@ -1,0 +1,33 @@
+export const URLs = {
+  home: "/",
+  admin: {
+    dashboard: "/admin/dashboard/",
+    users: "/admin/users/",
+  },
+  auth: {
+    register: "/register/",
+    login: "/",
+    forgotPassword: "/reset/password/",
+    resetPassword: "/reset-password/",
+    confirmation: "/phone-confirmation/",
+    invite: "/invitation/",
+    waitlist: "/waitlist/",
+  },
+};
+
+export function getUrl(
+  path: string,
+  lang?: string,
+  props?: Record<string, string> | undefined
+) {
+  if (props) {
+    for (const prop in props) {
+      path = path.replaceAll(`{${prop}}`, props[prop]);
+    }
+  }
+  if (lang) {
+    path = `/${lang}/${path}`;
+  }
+
+  return path.replaceAll("//", "/"); // just in case anyone formats Urls in a wrong way.
+}
