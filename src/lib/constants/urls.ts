@@ -6,7 +6,7 @@ export const URLs = {
   },
   auth: {
     register: "/register/",
-    login: "/",
+    login: "/login",
     forgotPassword: "/reset/password/",
     resetPassword: "/reset-password/",
     confirmation: "/phone-confirmation/",

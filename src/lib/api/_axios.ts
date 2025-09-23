@@ -13,7 +13,6 @@ _axios.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("AFW_token");
     const preference = localStorage.getItem("preferences-storage");
-    const preferredCurrency = getCookie("preferredCurrency");
 
     if (token) {
       const parsedToken = JSON.parse(token);
@@ -23,10 +22,6 @@ _axios.interceptors.request.use(
     if (preference) {
       const preference_parsed = JSON.parse(preference);
       config.headers["X-Session-ID"] = preference_parsed?.state?.session_id || null;
-    }
-
-    if (preferredCurrency) {
-      config.headers["X-Currency-Id"] = preferredCurrency;
     }
 
     return config;
