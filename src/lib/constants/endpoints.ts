@@ -1,3 +1,4 @@
+import { FORM_SUBMISSION_COL } from './tables';
 export const AUTH_ENDPOINTS = {
   LOGIN: "/api/v1/auth/login",
   REGISTER: "/api/v1/auth/register",
@@ -18,3 +19,16 @@ export const USER_ENDPOINTS = {
   ADMIN_UPDATE: "/api/v1/admin/users/:id",
   DELETE: "/api/v1/admin/users/:id",
 };
+
+export const FORM_ENDPOINTS = {
+  GET_ALL: "/api/v1/admin/forms",
+  GET_ID: "/api/v1/admin/forms/:id",
+  CREATE: "/api/v1/admin/forms",
+  UPDATE: "/api/v1/admin/forms/:id",
+  DELETE: "/api/v1/admin/forms/:id",
+  GET_ANALYTICS: "/api/v1/admin/analytics/forms/:slug",
+};
+
+export const FORM_SUBMISSION_ENDPOINTS = {
+  GET_ALL_BY_FORM: "/api/v1/form/form-submissions/:slug",
+}

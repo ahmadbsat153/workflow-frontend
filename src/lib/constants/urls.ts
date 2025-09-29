@@ -1,8 +1,15 @@
+import { create } from "domain";
+
 export const URLs = {
   home: "/",
   admin: {
     dashboard: "/admin/dashboard/",
     users: "/admin/users/",
+    forms: {
+      index: "/admin/forms/",
+      detail: "/admin/forms/:slug",
+      create: "/admin/forms/create/",
+    },
   },
   auth: {
     register: "/register/",

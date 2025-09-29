@@ -10,21 +10,23 @@ import {
 } from "nuqs";
 
 import { toast } from "sonner";
-import UserSheet from "./UsersSheet";
 import { Badge } from "@/lib/ui/badge";
+import { ErrorResponse } from "@/lib/types/common";
+import { handleServerError } from "@/lib/api/_axios";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { formatDatesWithYear } from "@/utils/common";
+import { INITIAL_META } from "@/lib/constants/initials";
+import { CellRenderer, DataTable } from "../../Table/DataTable";
+import {
+  FORM_COLUMNS,
+  FORM_VISIBLE_COL,
+} from "@/lib/constants/tables";
 import { Button } from "@/lib/ui/button";
 import { PencilIcon } from "lucide-react";
-import { ErrorResponse } from "@/lib/types/common";
-import { formatDatesWithYear } from "@/utils/common";
-import { handleServerError } from "@/lib/api/_axios";
-import { INITIAL_META } from "@/lib/constants/initials";
-import { User, UserTable } from "@/lib/types/user/user";
-import { API_USER } from "@/lib/services/User/user_service";
-import { CellRenderer, DataTable } from "../../Table/DataTable";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { USER_COLUMNS, USER_VISIBLE_COL } from "@/lib/constants/tables";
+import { Form, FormList } from "@/lib/types/form/form";
+import { API_FORM } from "@/lib/services/Form/form_service";
 
-const UsersTable = () => {
+const FormsTable = () => {
   const searchParams = {
     page: parseAsInteger,
     limit: parseAsInteger,
@@ -33,11 +35,11 @@ const UsersTable = () => {
     sortOrder: parseAsString,
   };
 
-  const [users, setUsers] = useState<UserTable>({
+  const [forms, setForms] = useState<FormList>({
     data: [],
     meta: INITIAL_META,
   });
-  
+
   const [query, setQuery] = useQueryStates(
     {
       page: parseAsInteger.withDefault(1),
@@ -50,28 +52,28 @@ const UsersTable = () => {
       history: "push",
     }
   );
-  
-  const [visibleColumns] = useState<Set<string>>(new Set(USER_VISIBLE_COL));
+
+  const [visibleColumns] = useState<Set<string>>(new Set(FORM_VISIBLE_COL));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const headerColumns = useMemo(() => {
     if (typeof visibleColumns === "string" && visibleColumns === "all")
-      return USER_COLUMNS;
+      return FORM_COLUMNS;
 
-    return USER_COLUMNS.filter((column) =>
+    return FORM_COLUMNS.filter((column) =>
       Array.from(visibleColumns as unknown as Set<string>).includes(column.uid)
     );
   }, [visibleColumns]);
 
-  const getUsers = useCallback(async () => {
+  const getForms = useCallback(async () => {
     try {
       setLoading(true);
       const serialize = createSerializer(searchParams);
       const request = serialize(query);
 
-      const res = await API_USER.getAllUsers(request);
-      setUsers(res);
+      const res = await API_FORM.getAllForms(request);
+      setForms(res);
     } catch (error) {
       handleServerError(error as ErrorResponse, (err_msg) => {
         toast.error(err_msg);
@@ -83,52 +85,52 @@ const UsersTable = () => {
   }, [query]);
 
   useEffect(() => {
-    getUsers();
-  }, [getUsers]);
+    getForms();
+  }, [getForms]);
 
   // Server-side pagination handlers
-  const handlePageChange = useCallback((page: number) => {
-    setQuery({ page });
-  }, [setQuery]);
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setQuery({ page });
+    },
+    [setQuery]
+  );
 
-  const handlePageSizeChange = useCallback((size: number) => {
-    setQuery({ limit: size, page: 1 }); // Reset to first page when changing page size
-  }, [setQuery]);
+  const handlePageSizeChange = useCallback(
+    (size: number) => {
+      setQuery({ limit: size, page: 1 }); // Reset to first page when changing page size
+    },
+    [setQuery]
+  );
 
-  const handleSearch = useCallback((search: string) => {
-    setQuery({ search: search || null, page: 1 }); // Reset to first page when searching
-  }, [setQuery]);
+  const handleSearch = useCallback(
+    (search: string) => {
+      setQuery({ search: search || null, page: 1 }); // Reset to first page when searching
+    },
+    [setQuery]
+  );
 
-  const handleSort = useCallback((field: string, order: "asc" | "desc") => {
-    setQuery({ 
-      sortField: field, 
-      sortOrder: order,
-      page: 1 // Reset to first page when sorting
-    });
-  }, [setQuery]);
+  const handleSort = useCallback(
+    (field: string, order: "asc" | "desc") => {
+      setQuery({
+        sortField: field,
+        sortOrder: order,
+        page: 1, // Reset to first page when sorting
+      });
+    },
+    [setQuery]
+  );
 
-  const cellRenderers: Partial<Record<string, CellRenderer<User>>> = {
-    firstname: (value, row) => (
-      <span className="font-medium">
-        {row.firstname} {row.lastname}
-      </span>
-    ),
-
-    email: (value) => (
-      <a href={`mailto:${value}`} className="text-blue-600 hover:underline">
-        {value}
-      </a>
-    ),
-
+  const cellRenderers: Partial<Record<string, CellRenderer<Form>>> = {
     createdAt: (value) => {
       return <span>{formatDatesWithYear(value)}</span>;
     },
-    
+
     updatedAt: (value) => {
       return <span>{formatDatesWithYear(value)}</span>;
     },
-    
-    is_active: (value) => (
+
+    isActive: (value) => (
       <div className="">
         {value ? (
           <Badge variant="active">Active</Badge>
@@ -137,13 +139,11 @@ const UsersTable = () => {
         )}
       </div>
     ),
-    
+
     actions: (value, row) => (
-      <UserSheet user={row} callback={getUsers}>
-        <Button variant="ghost" size="sm">
-          <PencilIcon className="size-4 text-blue-500" />
-        </Button>
-      </UserSheet>
+      <Button variant="ghost" size="sm">
+        <PencilIcon className="size-4 text-blue-500" />
+      </Button>
     ),
   };
 
@@ -151,29 +151,25 @@ const UsersTable = () => {
     <>
       <div className="flex flex-col gap-4 w-full">
         <DataTable
-          data={users?.data}
+          data={forms?.data}
           columns={headerColumns}
-          
           // Server-side configuration
           serverSide={true}
           loading={loading}
-          meta={users?.meta}
+          meta={forms?.meta}
           onPageChange={handlePageChange}
           onPageSizeChange={handlePageSizeChange}
           onSearch={handleSearch}
           onSort={handleSort}
-          
           // Features
           enableSelection={false}
           enablePagination={true}
           enableSorting={true}
           enableGlobalSearch={true}
           enableColumnVisibility={true}
-          
           // Customization
-          searchPlaceholder="Search users..."
-          emptyStateMessage="No users found."
-          
+          searchPlaceholder="Search forms..."
+          emptyStateMessage="No forms found."
           // Custom renderers
           cellRenderers={cellRenderers}
         />
@@ -182,4 +178,4 @@ const UsersTable = () => {
   );
 };
 
-export default UsersTable;
+export default FormsTable;

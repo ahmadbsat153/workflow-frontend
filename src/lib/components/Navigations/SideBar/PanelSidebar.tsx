@@ -16,6 +16,7 @@ import {
 import { Separator } from "@/lib/ui/separator";
 import { ADMIN_NAVIGATION } from "@/lib/constants/menu";
 import PanelSidebarAccount from "./PanelSidebarAccount";
+import { BellIcon } from "lucide-react";
 
 export function PanelSidebar({
   children,
@@ -57,11 +58,8 @@ export function PanelSidebar({
       </Sidebar>
 
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 w-full">
-          <Separator
-            orientation="vertical"
-            className="mr-2 data-[orientation=vertical]:h-4 w-full"
-          />
+        <header className="flex h-16 shrink-0 items-center justify-end gap-2 border-b w-full px-2 xl:px-8 2xl:px-16 mb-2" >
+          <BellIcon className="size-5 text-default-500" />
         </header>
         {children}
       </SidebarInset>

@@ -1,5 +1,5 @@
 import { URLs } from "./urls";
-import { ChartPie, UsersRound } from "lucide-react";
+import { ChartPie, LibraryBigIcon, UsersRound } from "lucide-react";
 export const ADMIN_NAVIGATION = [
   {
     title: "General",
@@ -15,6 +15,12 @@ export const ADMIN_NAVIGATION = [
         name: "Users",
         link: URLs.admin.users,
         icon: UsersRound,
+      },
+      {
+        key: "forms",
+        name: "Forms",
+        link: URLs.admin.forms.index,
+        icon: LibraryBigIcon,
       },
     ],
   },
