@@ -113,22 +113,6 @@ export default function Login() {
           <FadeIn>
             <form className="mt-8" onSubmit={(e) => handleSignIn(e)}>
               <div className="space-y-3 sm:space-y-5">
-                {/* {error && (
-                  <Chip
-                    size="lg"
-                    radius="md"
-                    variant="flat"
-                    color="danger"
-                    className="py-6 px-2 w-full"
-                    classNames={{
-                      base: "max-w-full w-full",
-                      content: "font-semibold text-sm",
-                    }}
-                  >
-                    {error}
-                  </Chip>
-                )} */}
-
                 <div className="space-y-2 relative sm:mt-2.5">
                   <Label htmlFor="email">Email</Label>
                   <Input
