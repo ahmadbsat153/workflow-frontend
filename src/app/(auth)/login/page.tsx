@@ -19,6 +19,7 @@ import { Label } from "@/lib/ui/label";
 export default function Login() {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const [loadingAzure, setLoadingAzure] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
   const [isVisible, setIsVisible] = useState(false);
@@ -49,6 +50,7 @@ export default function Login() {
     setCredentials(temp);
   };
 
+  //TODO: Check how we're going to handle azure login
   const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -88,38 +90,36 @@ export default function Login() {
   }
 
   return (
-    <>
-      <div className="flex items-center justify-center px-4 py-10 sm:px-6 lg:px-8 sm:py-16 lg:py-24 w-full h-full">
-        <FadeInStagger className="w-full sm:max-w-md xl:mx-auto">
+    <div className="h-screen w-full flex items-center justify center">
+      <div className="h-full flex items-center justify-center w-full rounded-lg shadow-sm">
+        <div className="w-1/2 h-full bg-muted relative hidden lg:block">
+            <img
+              src="/images/login.png"
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover"
+              />
+        </div>
+        <div className="w-1/2 h-full flex items-center">
+        <FadeInStagger className="w-full sm:max-w-md xl:mx-auto ">
           <FadeIn>
-            <h2 className="text-3xl font-bold leading-tight sm:text-4xl">
+            <h1 className="font-bold leading-tight text-2xl text-center">
               Log In
-            </h2>
+            </h1>
 
-            <p className="mt-2 text-base font-medium">
-              <Link
-                href={
-                  callback
-                    ? redirect(URLs.auth.register, callback)
-                    : getUrl(URLs.auth.register)
-                }
-                className="font-medium mx-1.5 text-blue-600 transition-all duration-200 hover:text-blue-700 hover:underline focus:text-blue-700 text-sm"
-              >
-                Create an account
-              </Link>
-            </p>
           </FadeIn>
 
           <FadeIn>
             <form className="mt-8" onSubmit={(e) => handleSignIn(e)}>
-              <div className="space-y-3 sm:space-y-5">
+              <div className="">
                 <div className="space-y-2 relative sm:mt-2.5">
-                  <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
                     name="email"
                     type="email"
                     required
+                    size="sm"
+                    label="Email"
+                    variant="default"
                     placeholder="example@example.com"
                     className="w-full"
                     value={credentials.email}
@@ -128,7 +128,6 @@ export default function Login() {
                 </div>
 
                 <div className="space-y-2 relative sm:mt-2.5">
-                  <Label htmlFor="password">Password</Label>
                   <div className="relative">
                     <Input
                       id="password"
@@ -136,24 +135,22 @@ export default function Login() {
                       type={isVisible ? "text" : "password"}
                       required
                       placeholder="Password"
+                      label="Password"
+                      size="sm"
+                      errorMessage=""
                       className="w-full pr-10" // Add padding to the right for the icon
                       value={credentials.password}
                       onChange={(e) => handleChange("password", e.target.value)}
-                    />
-                    <button
-                      type="button"
-                      onClick={toggleVisibility}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-2xl text-gray-400 focus:outline-none"
-                    >
-                      {isVisible ? (
+                      postFixIcon={isVisible ? (
                         <AiFillEyeInvisible className="pointer-events-none" />
                       ) : (
                         <AiFillEye className="pointer-events-none" />
                       )}
-                    </button>
+                      onPostFixIconClick={toggleVisibility}
+                    />
                   </div>
 
-                  <div className="sm:mt-2 text-sm font-medium flex justify-end">
+                  <div className="sm:mt-2 sm:mb-6 text-sm font-medium flex justify-end">
                     <Link
                       href={
                         callback
@@ -168,21 +165,30 @@ export default function Login() {
 
                   <div>
                     <Button
-                      size="lg"
+                      size="sm"
                       color={success ? "success" : "primary"}
                       type="submit"
-                      disabled={success || loading}
-                      className="w-full px-4 py-4 text-base font-semibold"
+                      isLoading={loading}
+                      isDisabled={success || loading || loadingAzure}
+                      className="w-full"
                     >
                       {success ? "Success" : "Log In"}
                     </Button>
+                     <div className="my-[3vh] w-full flex justify-center items-center h-[1px] bg-gray-400 relative">
+                      <span className="text-gray-400 text-sm bg-white px-4">OR CONTINUE WITH</span>
+                     </div>
+                     <Button size="sm" isLoading={loadingAzure} isDisabled={loading || loadingAzure} className="w-full text-base">
+                      Microsoft
+                     </Button>
+                     <span className="text-destructive text-lg">{error}</span>
                   </div>
                 </div>
               </div>
             </form>
           </FadeIn>
         </FadeInStagger>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
