@@ -14,6 +14,7 @@ import UserSheet from "./UsersSheet";
 import { Badge } from "@/lib/ui/badge";
 import { Button } from "@/lib/ui/button";
 import { PencilIcon } from "lucide-react";
+import { useRouter } from 'next/navigation';
 import { ErrorResponse } from "@/lib/types/common";
 import { formatDatesWithYear } from "@/utils/common";
 import { handleServerError } from "@/lib/api/_axios";
@@ -51,9 +52,9 @@ const UsersTable = () => {
     }
   );
   
+  const router = useRouter();
   const [visibleColumns] = useState<Set<string>>(new Set(USER_VISIBLE_COL));
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
   const headerColumns = useMemo(() => {
     if (typeof visibleColumns === "string" && visibleColumns === "all")
@@ -75,7 +76,6 @@ const UsersTable = () => {
     } catch (error) {
       handleServerError(error as ErrorResponse, (err_msg) => {
         toast.error(err_msg);
-        setError(err_msg as string);
       });
     } finally {
       setLoading(false);
@@ -107,9 +107,12 @@ const UsersTable = () => {
     });
   }, [setQuery]);
 
+  const navigateToDetails = ((user: User) => {
+    router.push(`/admin/users/${user._id}`);
+  })
   const cellRenderers: Partial<Record<string, CellRenderer<User>>> = {
     firstname: (value, row) => (
-      <span className="font-medium">
+      <span onClick={()=>navigateToDetails(row)} className="font-medium">
         {row.firstname} {row.lastname}
       </span>
     ),

@@ -15,6 +15,7 @@ export const AUTH_ENDPOINTS = {
 export const USER_ENDPOINTS = {
   GET_ALL: "/api/v1/admin/users",
   GET_ID: "/api/v1/admin/users/:id",
+  GET_ANALYTICS: "/api/v1/admin/users/analytics/:id",
   CREATE: "/api/v1/admin/users",
   ADMIN_UPDATE: "/api/v1/admin/users/:id",
   DELETE: "/api/v1/admin/users/:id",
