@@ -1,7 +1,7 @@
+import Link from "next/link";
 import { Button } from "@/lib/ui/button";
 import { FadeIn, FadeInStagger } from "../Motion/FadeIn";
-import Link from "next/link";
-import { URLs } from "@/lib/constants/urls";
+import Image from "next/image";
 
 type Props = {
   title?: string;
@@ -22,7 +22,7 @@ const NotFound = ({
     <FadeInStagger className="w-full h-full">
       <div className="w-full h-full flex flex-col items-center justify-center lg:pt-24 lg:pb-36 py-24">
         <FadeIn className="lg:w-[320px] sm:w-[300px] max-w-[400px]">
-          <img
+          <Image
             src={"/images/404.png"}
             alt={"not found"}
             className="object-bottom"

@@ -15,14 +15,14 @@ import { FadeIn, FadeInStagger } from "@/lib/components/Motion/FadeIn";
 import { Button } from "@/lib/ui/button";
 import { Input } from "@/lib/ui/input";
 import { Label } from "@/lib/ui/label";
+import { toast } from "sonner";
 
 export default function Login() {
-  const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [loadingAzure, setLoadingAzure] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
   const [isVisible, setIsVisible] = useState(false);
+  const [credentials, setCredentials] = useState({ email: "", password: "" });
 
   const router = useRouter();
   const searchparams = useSearchParams();
@@ -53,8 +53,6 @@ export default function Login() {
   //TODO: Check how we're going to handle azure login
   const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    setError("");
     setLoading(true);
 
     try {
@@ -74,7 +72,7 @@ export default function Login() {
       }
     } catch (e) {
       handleServerError(e as ErrorResponse, (err_msg) => {
-        setError(err_msg as string);
+        toast.error(err_msg as string)
       });
     } finally {
       setLoading(false);

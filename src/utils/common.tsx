@@ -26,7 +26,13 @@ export const getInitials = (userName?: string) => {
 };
 
 export const isLinkActive = (url: string, pathname: string) => {
-  return `${pathname}/`.includes(url) && pathname.length === url.length;
+  let link = url;
+
+  if (link.endsWith("/")) {
+    link = link.slice(0, -1);
+  }
+
+  return `${pathname}/`.includes(url);
 };
 
 export const formatDates = (date: string) => {
@@ -96,7 +102,10 @@ export const redirect = (url: string, callback: string) => {
 };
 
 export const format_pricing = (price: number) => {
-  return price.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return price
+    .toFixed(0)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
 export const formatDatesWithYear = (date: string) => {

@@ -1,5 +1,4 @@
 import { PanelSidebar } from "@/lib/components/Navigations/SideBar/PanelSidebar";
-import { SidebarProvider } from "@/lib/ui/sidebar";
 import AuthGuardProvider from "@/provider-guard";
 
 type Props = {
