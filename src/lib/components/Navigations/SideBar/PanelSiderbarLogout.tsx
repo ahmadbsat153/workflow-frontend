@@ -8,7 +8,7 @@ const PanelSidebarLogout = () => {
   return (
     <div className="w-full">
       <Button color="primary" onClick={logout} className="w-full">
-        <LogOut /> Logout
+        <LogOut color="white"/> Logout
       </Button>
     </div>
   );

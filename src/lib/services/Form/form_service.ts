@@ -1,13 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { build_path } from "@/utils/common";
 import { handleErrors, _axios } from "../../api/_axios";
-import {
-  AUTH_ENDPOINTS,
-  FORM_ENDPOINTS,
-  USER_ENDPOINTS,
-} from "../../constants/endpoints";
+import { FORM_ENDPOINTS } from "../../constants/endpoints";
 import { SuccessResponse } from "../../types/common";
-import { User, UserTable } from "../../types/user/user";
 import { Form, FormDetails, FormList } from "@/lib/types/form/form";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace

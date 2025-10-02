@@ -1,11 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { createContext, useContext, useState, useEffect } from "react";
 import { _axios } from "../api/_axios";
-import { getUrl, URLs } from "../constants/urls";
-import { AUTH_ENDPOINTS } from "../constants/endpoints";
 import { Authentication } from "../types/auth";
+import { AUTH_ENDPOINTS } from "../constants/endpoints";
+import { createContext, useContext, useState, useEffect } from "react";
 
 type AuthContextType = {
   user: Authentication | null;
@@ -32,8 +30,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const TOKEN_KEY = "AFW_token";
 
-  const router = useRouter();
-
   useEffect(() => {
     checkSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -44,7 +40,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLogged(true);
       setIsAdmin(user.user.is_super_admin);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const logout = () => {

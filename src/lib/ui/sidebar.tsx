@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, VariantProps } from "class-variance-authority";
-import { ChevronLeft, ChevronRight, PanelLeftIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -155,6 +155,7 @@ function Sidebar({
   side = "left",
   variant = "sidebar",
   collapsible = "offcanvas",
+  isNested = false,
   className,
   children,
   ...props
@@ -162,7 +163,60 @@ function Sidebar({
   side?: "left" | "right";
   variant?: "sidebar" | "floating" | "inset";
   collapsible?: "offcanvas" | "icon" | "none";
+  isNested?: boolean;
 }) {
+  const context = React.useContext(SidebarContext);
+  const [nestedOpen, setNestedOpen] = React.useState(true);
+
+  if (isNested) {
+    const width = nestedOpen ? "16rem" : "3rem";
+
+    return (
+      <div
+        data-slot="sidebar"
+        data-nested="true"
+        data-state={nestedOpen ? "expanded" : "collapsed"}
+        data-collapsible={nestedOpen ? "" : "icon"}
+        className={cn(
+          "bg-sidebar text-sidebar-foreground flex h-full flex-col border-r transition-all duration-200 group",
+          className
+        )}
+        style={{ width }}
+        {...props}
+      >
+        {/* Toggle button */}
+        <div className="flex items-center justify-end p-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setNestedOpen(!nestedOpen)}
+            className="size-8"
+          >
+            {nestedOpen ? (
+              <ChevronLeft className="size-4" />
+            ) : (
+              <ChevronRight className="size-4" />
+            )}
+          </Button>
+        </div>
+
+        {/* Content - uses the same group-data-[collapsible=icon] patterns */}
+        <div
+          className={cn(
+            "flex-1 overflow-auto",
+            !nestedOpen && "group-data-[collapsible=icon]:overflow-hidden"
+          )}
+        >
+          {children}
+        </div>
+      </div>
+    );
+  }
+
+  if (!context) {
+    throw new Error("Sidebar must be used within a SidebarProvider.");
+  }
+
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
 
   if (collapsible === "none") {

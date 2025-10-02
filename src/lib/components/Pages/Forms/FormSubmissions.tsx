@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {
@@ -10,7 +9,6 @@ import {
 } from "nuqs";
 
 import { toast } from "sonner";
-import { Badge } from "@/lib/ui/badge";
 import { ErrorResponse } from "@/lib/types/common";
 import { handleServerError } from "@/lib/api/_axios";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -21,8 +19,6 @@ import {
   FORM_SUBMISSION_COL,
   FORM_SUBMISSION_VISIBLE_COL,
 } from "@/lib/constants/tables";
-import { Button } from "@/lib/ui/button";
-import { PencilIcon } from "lucide-react";
 import { API_FORM_SUBMISSION } from "@/lib/services/Form/form_submissions_service";
 import {
   FormSubmission,
@@ -79,7 +75,6 @@ const FormsSubmissionsTable = () => {
       const serialize = createSerializer(searchParams);
       const request = serialize(query);
 
-      console.log(form_slug);
       const res = await API_FORM_SUBMISSION.getAllSubmissionsByForm(
         request,
         form_slug
@@ -92,7 +87,7 @@ const FormsSubmissionsTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [query]);
+  }, [query, form_slug]);
 
   useEffect(() => {
     getForms();

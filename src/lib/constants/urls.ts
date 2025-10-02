@@ -1,5 +1,3 @@
-import { create } from "domain";
-
 export const URLs = {
   home: "/",
   admin: {

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { z } from "zod";
@@ -19,7 +18,7 @@ import {
 import { Button } from "@/lib/ui/button";
 import { Input } from "@/lib/ui/input";
 import { Switch } from "@/lib/ui/switch";
-import { 
+import {
   Form,
   FormControl,
   FormField,
@@ -28,7 +27,7 @@ import {
   FormMessage,
 } from "@/lib/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { User, UserAuthenticated } from "@/lib/types/user/user";
+import { UserAuthenticated } from "@/lib/types/user/user";
 import { API_USER } from "@/lib/services/User/user_service";
 import { Loader2 } from "lucide-react";
 
@@ -67,7 +66,9 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
     },
   });
 
-  const { formState: { errors, isDirty } } = form;
+  const {
+    formState: { errors, isDirty },
+  } = form;
 
   const getUser = async () => {
     if (!user || !open) return;
@@ -120,7 +121,7 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
     if (open) {
       getUser();
     }
-  }, [user, open]);
+  }, [user, open, getUser]);
 
   return (
     <Sheet
@@ -145,7 +146,10 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
 
         <div className="flex-1 overflow-y-auto py-4">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(updateUser)} className="space-y-6">
+            <form
+              onSubmit={form.handleSubmit(updateUser)}
+              className="space-y-6"
+            >
               {loading && (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-6 w-6 animate-spin" />
@@ -162,9 +166,9 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
                       <FormItem>
                         <FormLabel>First Name</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="Enter first name" 
-                            {...field} 
+                          <Input
+                            placeholder="Enter first name"
+                            {...field}
                             disabled={loading}
                           />
                         </FormControl>
@@ -180,9 +184,9 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
                       <FormItem>
                         <FormLabel>Last Name</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="Enter last name" 
-                            {...field} 
+                          <Input
+                            placeholder="Enter last name"
+                            {...field}
                             disabled={loading}
                           />
                         </FormControl>
@@ -198,10 +202,10 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input 
+                          <Input
                             type="email"
-                            placeholder="Enter email address" 
-                            {...field} 
+                            placeholder="Enter email address"
+                            {...field}
                             disabled={loading}
                           />
                         </FormControl>
@@ -241,11 +245,7 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
 
         <SheetFooter className="flex gap-2 sm:space-x-0 w-full">
           <SheetClose asChild>
-            <Button 
-              variant="outline" 
-              className="w-full"
-              disabled={loading}
-            >
+            <Button variant="outline" className="w-full" disabled={loading}>
               Cancel
             </Button>
           </SheetClose>
@@ -257,7 +257,9 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
             className={`w-full font-semibold ${
               success ? "bg-green-600 hover:bg-green-700" : ""
             }`}
-            disabled={!isDirty || Object.keys(errors).length > 0 || loading || success}
+            disabled={
+              !isDirty || Object.keys(errors).length > 0 || loading || success
+            }
           >
             {loading ? (
               <>

@@ -67,7 +67,6 @@ export function handleErrors(error: unknown): Error {
 }
 
 export const handleServerError = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   error: any,
   handleMessage: (message: null | string | Array<string>, json?: any) => void
 ) => {
@@ -75,10 +74,6 @@ export const handleServerError = (
   if (detailedError.cause) {
     const axiosErr = detailedError.cause;
     if (axiosErr?.response?.data) {
-      // const errorMessages: Array<string> = [
-      //   detailedError.cause.message,
-      //   (axiosErr.response.data as { message: string }).message,
-      // ];
 
       const errorMessages: string = (
         axiosErr.response.data as { message: string }

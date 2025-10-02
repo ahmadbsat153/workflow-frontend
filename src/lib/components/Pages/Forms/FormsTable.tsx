@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {
@@ -17,10 +16,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatDatesWithYear } from "@/utils/common";
 import { INITIAL_META } from "@/lib/constants/initials";
 import { CellRenderer, DataTable } from "../../Table/DataTable";
-import {
-  FORM_COLUMNS,
-  FORM_VISIBLE_COL,
-} from "@/lib/constants/tables";
+import { FORM_COLUMNS, FORM_VISIBLE_COL } from "@/lib/constants/tables";
 import { Button } from "@/lib/ui/button";
 import { PencilIcon } from "lucide-react";
 import { Form, FormList } from "@/lib/types/form/form";
@@ -82,7 +78,7 @@ const FormsTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [query]);
+  }, [query, searchParams]);
 
   useEffect(() => {
     getForms();

@@ -1,4 +1,10 @@
+import FormBuilder from "@/lib/components/Pages/Forms/CreateForm/FormBuilder";
+
 const Page = () => {
-  return <div>Create Form Page</div>;
+  return (
+    <div className="h-full">
+      <FormBuilder />
+    </div>
+  );
 };
 export default Page;

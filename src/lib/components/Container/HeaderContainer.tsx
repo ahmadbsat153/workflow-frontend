@@ -24,7 +24,11 @@ const HeaderContainer = ({ children, title, description }: Props) => {
       )}
 
       {children && (
-        <div className={cn(!title && "w-full", "md:px-4")}>{children}</div>
+        <div
+          className={cn(!title && "w-full", "md:px-4 flex items-center gap-4")}
+        >
+          {children}
+        </div>
       )}
     </div>
   );

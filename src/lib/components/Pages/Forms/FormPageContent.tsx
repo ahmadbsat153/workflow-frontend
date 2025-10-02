@@ -1,15 +1,19 @@
 // lib/components/Pages/Forms/FormsPageContent.tsx
 "use client";
 
-import HeaderContainer from "@/lib/components/Container/HeaderContainer";
-import FormsTable from "@/lib/components/Pages/Forms/FormsTable";
-import { TableIcon, GridIcon } from "lucide-react";
 import {
   LayoutOption,
   LayoutSelector,
 } from "@/lib/components/Common/LayoutSelector";
-import { useLayoutState } from "@/lib/components/Common/ConditionalSelector";
+
+import Link from "next/link";
 import FormCardList from "./FormCardList";
+import { URLs } from "@/lib/constants/urls";
+import { TableIcon, GridIcon } from "lucide-react";
+import FormsTable from "@/lib/components/Pages/Forms/FormsTable";
+import HeaderContainer from "@/lib/components/Container/HeaderContainer";
+import { useLayoutState } from "@/lib/components/Common/ConditionalSelector";
+import { Button } from "@/lib/ui/button";
 
 type LayoutType = "table" | "grid";
 
@@ -27,6 +31,10 @@ export default function FormsPageContent() {
         title="Forms"
         description="Manage all platform forms from here"
       >
+        <Button asChild variant="default" size="sm">
+          <Link href={URLs.admin.forms.create}>Create Form</Link>
+        </Button>
+
         <LayoutSelector
           options={layoutOptions}
           defaultValue="grid"
