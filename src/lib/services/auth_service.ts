@@ -89,4 +89,15 @@ export namespace API_AUTH {
       throw handleErrors(error);
     }
   }
+
+  export async function sendMagicLink(email: string) {
+    try {
+      const temp = { email };
+      const response = await _axios.post(AUTH_ENDPOINTS.MAGIC_LINK, temp);
+
+      return response.data as SuccessResponse;
+    } catch (error: unknown) {
+      throw handleErrors(error);
+    }
+  }
 }

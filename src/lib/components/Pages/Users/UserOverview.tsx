@@ -29,12 +29,12 @@ const UserOverview = ({ data }: { data: any }) => {
               {data.firstname} {data.lastname}
             </span>
             {data.is_archived ? (
-              <span className="flex items-center gap-1 bg-yellow-100 text-yellow-700 px-2 py-1 rounded-md text-xs">
+              <span className="flex items-center gap-1 bg-archived-foreground text-archived px-2 py-1 rounded-md text-xs">
                 <ArchiveIcon className="size-3" />
                 Archived
               </span>
             ) : (
-              <span className="flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-1 rounded-md text-xs">
+              <span className="flex items-center gap-1 bg-unarchived-foreground text-unarchived px-2 py-1 rounded-md text-xs">
                 <LockIcon className="size-[9px]" />
                 Not Archived
               </span>
@@ -42,12 +42,12 @@ const UserOverview = ({ data }: { data: any }) => {
           </div>
           <div className="flex items-center gap-5">
             {data.is_active ? (
-              <span className="text-xs text-green-700 flex items-center gap-1">
+              <span className="text-xs text-active flex items-center gap-1">
                 <CheckCircle className="size-3" />
                 Active
               </span>
             ) : (
-              <span className="text-xs text-red-700 items-center gap-1">
+              <span className="text-xs text-destructive items-center gap-1">
                 <CircleXIcon className="size-3" />
                 Inactive
               </span>
@@ -75,7 +75,7 @@ const UserOverview = ({ data }: { data: any }) => {
       </div>
       {/* ORGANIZATION INFO SECTION */}
       <div className="text-dark border-b-2 border-b-gray-100 pb-5 w-full">
-        <h2 className="flex flex-col justify-center text-lg font-semibold bg-blue-50 p-4 rounded-t-md">
+        <h2 className="flex flex-col justify-center text-lg font-semibold bg-archived-foreground p-4 rounded-t-md">
             <span>Organization</span>
             <span className="text-xs font-normal">View user's organization details</span>
         </h2>

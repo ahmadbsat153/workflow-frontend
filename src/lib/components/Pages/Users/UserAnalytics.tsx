@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { CellRenderer, DataTable } from "../../Table/DataTable";
+import { DataTable } from "../../Table/DataTable";
 import {
   USER_ACTIVITY_COLUMNS,
   USER_ACTIVITY_VISIBLE_COL,
@@ -8,6 +8,7 @@ import { formatDatesWithYear } from "@/utils/common";
 import { Badge } from "@/lib/ui/badge";
 import ChartPieDonutText from "@/lib/ui/pie-chart";
 import { ChartBarMultiple } from "@/lib/ui/bar-chart";
+import { CellRenderer } from "@/lib/types/table/table_data";
 
 const UserAnalytics = ({ data }: { data: any }) => {
   const [visibleColumns] = useState<Set<string>>(
@@ -46,10 +47,10 @@ const UserAnalytics = ({ data }: { data: any }) => {
     ),
   };
 
-  const footer = () => {
+  const footer = (description: string) => {
     return (
       <div className="text-muted-foreground leading-none">
-        Showing total forms and workflows created and submitted
+        {description}
       </div>
     );
   };
@@ -68,14 +69,6 @@ const UserAnalytics = ({ data }: { data: any }) => {
       color: "#ff637e",
     },
   };
-  const barChartData = [
-  { month: "January", workflows: 186, forms: 80 },
-  { month: "February", workflows: 305, forms: 200 },
-  { month: "March", workflows: 237, forms: 120 },
-  { month: "April", workflows: 73, forms: 190 },
-  { month: "May", workflows: 209, forms: 130 },
-  { month: "June", workflows: 214, forms: 140 },
-]
 
 const barChartConfig = {
   workflows: {
@@ -90,20 +83,23 @@ const barChartConfig = {
   return (
     <div className="grid grid-cols-1 gap-4 py-4">
       {/* CHARTS */}
-      <div className="flex flex-col lg:flex-row gap-2">
-        <ChartBarMultiple 
-            data={barChartData}
+      <div className="flex flex-col lg:flex-row gap-2 min-h-[30vh]">
+        <ChartBarMultiple
+            data={data.barChartAnalytics}
             chartConfig={barChartConfig}
+            footer={footer("Showing total forms and workflows created over last 6 months")}
         />
         <ChartPieDonutText
             chartConfig={pieChartConfig}
             content={{ label: "Total", value: data.total }}
             data={pieData}
-            footer={footer()}
+            nameKey="category"
+            dataKey="count"
+            footer={footer("Showing forms created and submitted over last 6 months")}
         />
 
       </div>
-      
+
       {/* RECENT ACTIVITY TABLE  */}
       <DataTable
         data={data.recentActivities}

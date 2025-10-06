@@ -16,26 +16,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "./chart";
+import { ChartColumnStackedIcon } from "lucide-react";
 
-
-// const chartData = [
-//   { month: "January", desktop: 186, mobile: 80 },
-//   { month: "February", desktop: 305, mobile: 200 },
-//   { month: "March", desktop: 237, mobile: 120 },
-//   { month: "April", desktop: 73, mobile: 190 },
-//   { month: "May", desktop: 209, mobile: 130 },
-//   { month: "June", desktop: 214, mobile: 140 },
-// ]
-// const chartConfig = {
-//   desktop: {
-//     label: "Desktop",
-//     color: "var(--chart-1)",
-//   },
-//   mobile: {
-//     label: "Mobile",
-//     color: "var(--chart-2)",
-//   },
-// }
 export function ChartBarMultiple({
   title,
   subtitle,
@@ -49,50 +31,56 @@ export function ChartBarMultiple({
   chartConfig?: ChartConfig;
   footer?: React.ReactNode;
 }) {
-
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{subtitle}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig || {}}>
-          <BarChart accessibilityLayer data={data}>
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="dashed" />}
-            />
-            {Object.values(chartConfig || {}).map((item, index) => (
-              <Bar
-                key={index}
-                dataKey={typeof item.label === 'string' ? item.label.toLowerCase() : ''}
-                fill={item.color}
-
-                radius={4}
-              />
-            ))}
-            <Bar dataKey="workflows" fill="#8ec5ff" radius={4} />
-            <Bar dataKey="forms" fill="#2b7fff" radius={4} />
-          </BarChart>
-        </ChartContainer>
-      </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 leading-none font-medium">
-          Trending up by 5.2% this month
+    <div className="w-full lg:w-[40vw] h-full">
+      {data?.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>{title}</CardTitle>
+            <CardDescription>{subtitle}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer config={chartConfig || {}}>
+              <BarChart accessibilityLayer data={data}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
+                  tickMargin={10}
+                  axisLine={false}
+                  tickFormatter={(value) => value.slice(0, 3)}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent indicator="dashed" />}
+                />
+                {Object.values(chartConfig || {}).map((item, index) => (
+                  <Bar
+                    key={index}
+                    dataKey={
+                      typeof item.label === "string"
+                        ? item.label.toLowerCase()
+                        : ""
+                    }
+                    fill={item.color}
+                    radius={4}
+                  />
+                ))}
+                <Bar dataKey="workflows" fill="#8ec5ff" radius={4} />
+                <Bar dataKey="forms" fill="#2b7fff" radius={4} />
+              </BarChart>
+            </ChartContainer>
+          </CardContent>
+          <CardFooter className="flex-col items-start gap-2 text-sm">
+            {footer}
+          </CardFooter>
+        </Card>
+      ) : (
+        <div className="h-full text-lg sm:text-sm border rounded-md text-center flex flex-col items-center justify-center text-primary gap-2">
+          <ChartColumnStackedIcon size={40} />
+          <div>No Data Available</div>
         </div>
-        <div className="text-muted-foreground leading-none">
-          Showing total visitors for the last 6 months
-        </div>
-      </CardFooter>
-    </Card>
+      )}
+    </div>
   );
 }

@@ -9,6 +9,8 @@ export const AUTH_ENDPOINTS = {
   VERIFY_PHONE: "/api/v1/auth/verify/phone",
   VERIFY_EMAIL: "/api/v1/auth/verify/email",
   RESEND_EMAIL: "/api/v1/auth/resend/email",
+  MAGIC_LINK: "/api/v1/auth/magic-link",
+  VALIDATE_RECOVERY_TOKEN: "/api/v1/auth/validate/recovery-token",
   PLATFORM_INVITE: "/api/v1/auth/platform_invite",
 };
 

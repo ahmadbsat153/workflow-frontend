@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import UserSheet from "./UsersSheet";
 import { Badge } from "@/lib/ui/badge";
 import { Button } from "@/lib/ui/button";
+import { UserRoundPlusIcon } from "lucide-react";
 import { PencilIcon } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { ErrorResponse } from "@/lib/types/common";
@@ -21,7 +22,8 @@ import { handleServerError } from "@/lib/api/_axios";
 import { INITIAL_META } from "@/lib/constants/initials";
 import { User, UserTable } from "@/lib/types/user/user";
 import { API_USER } from "@/lib/services/User/user_service";
-import { CellRenderer, DataTable } from "../../Table/DataTable";
+import { DataTable } from "../../Table/DataTable";
+import { CellRenderer, AdditionalButton } from "@/lib/types/table/table_data";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { USER_COLUMNS, USER_VISIBLE_COL } from "@/lib/constants/tables";
 
@@ -150,13 +152,23 @@ const UsersTable = () => {
     ),
   };
 
+  const additionalButtons: AdditionalButton[] = [
+    {
+      label: "Add User",
+      icon: UserRoundPlusIcon,
+      style: "bg-primary text-primary-foreground hover:bg-primary/60",
+      onClick: () => {
+        router.push("/admin/users/create");
+      },
+    },
+  ]
   return (
     <>
       <div className="flex flex-col gap-4 w-full">
         <DataTable
           data={users?.data}
           columns={headerColumns}
-          
+
           // Server-side configuration
           serverSide={true}
           loading={loading}
@@ -165,7 +177,7 @@ const UsersTable = () => {
           onPageSizeChange={handlePageSizeChange}
           onSearch={handleSearch}
           onSort={handleSort}
-          
+
           // Features
           enableSelection={false}
           enablePagination={true}
@@ -179,6 +191,7 @@ const UsersTable = () => {
           
           // Custom renderers
           cellRenderers={cellRenderers}
+          additionalButtons={additionalButtons}
         />
       </div>
     </>

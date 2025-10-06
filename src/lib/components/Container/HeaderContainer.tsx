@@ -16,7 +16,7 @@ const HeaderContainer = ({ children, title, description }: Props) => {
             {title}
           </div>
           {description && (
-            <p className="text-xs sm:text-sm lg:text-lg text-default-500">
+            <p className="text-xs sm:text-sm lg:text-md text-gray-600">
               {description}
             </p>
           )}

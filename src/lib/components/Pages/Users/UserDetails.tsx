@@ -21,6 +21,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/lib/ui/tabs";
 import DotsLoader from "../../Loader/DotsLoader";
 import UserOverview from "./UserOverview";
 import UserAnalytics from "./UserAnalytics";
+import { Button } from "@/lib/ui/button";
 
 const UserDetails = () => {
   const params = useParams();
@@ -36,7 +37,8 @@ const UserDetails = () => {
     details: [],
     analytics: [],
   });
-  console.log("data", userDetails);
+
+  // TODO: Change rendering based on user permissions/role
   const tabsList = [
     {
       value: "0",
@@ -55,12 +57,9 @@ const UserDetails = () => {
     },
   ];
   const [activeTab, setActiveTab] = useState<string>(tabsList[0].value);
-
   const getUserDetails = useCallback(async () => {
     try {
       setLoading(true);
-      //   const serialize = createSerializer(user_slug);
-      //   const request = serialize(query);
 
       const res_analytics = await API_USER.getUserAnalytics(user_slug);
       const res_details = await API_USER.getUserById(user_slug);
@@ -88,10 +87,11 @@ const UserDetails = () => {
         <DotsLoader />
       ) : (
         <div>
-          <button className="flex items-center gap-1 hover:bg-pink-50 py-2 px-3 rounded-lg text-sm mb-4" onClick={handleGoBack}>
-            <MoveLeftIcon className="size-4" />
-            Users
-          </button>
+          <Button onClick={handleGoBack} className="bg-gray-50 text-default hover:bg-primary/20 mb-4">
+             <MoveLeftIcon className="size-4" />
+              Back
+          </Button>
+
         <Tabs defaultValue={activeTab}>
           <TabsList>
             {tabsList.map((tab) => (
