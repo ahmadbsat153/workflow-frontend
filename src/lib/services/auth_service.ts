@@ -46,6 +46,16 @@ export namespace API_AUTH {
     }
   }
 
+  export async function validateRecoveryToken(data: any) {
+    try {
+      const response = await _axios.post(AUTH_ENDPOINTS.VALIDATE_RECOVERY_TOKEN, data);
+
+      return response.data as Authentication;
+    } catch (error: unknown) {
+      throw handleErrors(error);
+    }
+  }
+
   export async function verifyEmail(data: any) {
     try {
       const response = await _axios.post(AUTH_ENDPOINTS.VERIFY_EMAIL, data);

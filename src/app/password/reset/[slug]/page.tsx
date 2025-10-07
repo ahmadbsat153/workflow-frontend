@@ -11,7 +11,9 @@ import { API_AUTH } from "@/lib/services/auth_service";
 import { URLs } from "@/lib/constants/urls";
 import { handleServerError } from "@/lib/api/_axios";
 import { ErrorResponse } from "@/lib/types/common";
-import { EyeIcon, EyeClosedIcon } from "lucide-react";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { toast } from "sonner";
+
 const page = () => {
     // This page is used to reset the password
   const router = useRouter();
@@ -22,12 +24,14 @@ const page = () => {
     "password": "",
     "confirm_password": "",
   });
+  const [isDisabled, setIsDisabled] = useState(true);
   const [passwordVisibility, setPasswordVisibility] = useState<{ [key: string]: boolean }>({
     "password": false,
     "confirm_password": false,
   });
   const [error, setError] = useState("");
   const changePasswordVisibility = (key: string) => {
+    setError("");
     setPasswordVisibility({
       ...passwordVisibility,
       [key]: !passwordVisibility[key],
@@ -37,22 +41,27 @@ const page = () => {
     e.preventDefault();
     e.stopPropagation();
     try {
-    //   await API_AUTH.forgotPassword(inputValues);
+      await API_AUTH.resetPassword(inputValues.password, pass_slug);
       router.push(URLs.auth.login);
     } catch (e) {
-      console.log(e);
       handleServerError(e as ErrorResponse, (err_msg) => {
         setError(err_msg as string);
+        toast.error(err_msg);
       });
     }
   };
+
   const validateToken = async() => {
     try{
-      const res = await API_AUTH.validate();
-      console.log(res)
+      const data = {
+        "recovery_token": pass_slug
+      }
+      const res = await API_AUTH.validateRecoveryToken(data);
+      return res.status == 200
     }catch(e){
       handleServerError(e as ErrorResponse, (err_msg) => {
         setError(err_msg as string);
+        return false
       });
     }
     
@@ -60,8 +69,20 @@ const page = () => {
   const GoBack = () => router.back();
 
   useEffect(() => {
+    if(inputValues.password.trim() !== "" && inputValues.confirm_password.trim() !== ""){
+      if(inputValues.password == inputValues.confirm_password){
+        setIsDisabled(false);
+      }else{
+        setIsDisabled(true);
+      }
+    }
+  },[inputValues])
+  useEffect(() => {
     //Check if the token is valid
-    validateToken();
+    if(!validateToken()){
+      //TODO: Handle the case where the token is invalid ex: redirect to 404
+      router.push(URLs.auth.login);
+    }
   }, []);
   return (
     <div className="h-screen w-full flex items-center justify center">
@@ -100,38 +121,42 @@ const page = () => {
                   <Input
                     id="password"
                     name="password"
-                    type="password"
+                    type={passwordVisibility.password ? "text" : "password"}
                     required
                     size="sm"
                     label="Password"
                     variant="default"
                     placeholder=""
                     className="w-full"
-                    postFixIcon={<button onClick={() => changePasswordVisibility("password")}>{passwordVisibility.password ? <EyeIcon /> : <EyeClosedIcon  />}</button>}
+                    onPostFixIconClick={() => changePasswordVisibility("password")}
+                    postFixIcon={passwordVisibility.password ? <EyeIcon size={22} /> : <EyeOffIcon size={22} />}
                     value={inputValues.password}
                     onChange={(e) => setInputValues({ ...inputValues, password: e.target.value })}
                   />
                   <Input
                     id="confirm_password"
                     name="confirm_password"
-                    type="password"
+                    type={passwordVisibility.confirm_password ? "text" : "password"}
                     required
                     size="sm"
                     label="Confirm password"
                     variant="default"
                     placeholder=""
                     className="w-full"
-                    postFixIcon={<button onClick={() => changePasswordVisibility("confirm_password")}>{passwordVisibility.confirm_password ? <EyeIcon /> : <EyeClosedIcon  />}</button>}
+                    onPostFixIconClick={() => changePasswordVisibility("confirm_password")}
+                    postFixIcon={passwordVisibility.confirm_password ? <EyeIcon size={22} /> : <EyeOffIcon size={22} />}
                     value={inputValues.confirm_password}
                     onChange={(e) => setInputValues({ ...inputValues, confirm_password: e.target.value })}
                   />
                   <Button
                     className="w-full disabled:cursor-not-allowed disabled:opacity-50"
                     type="submit"
+                    isDisabled={isDisabled}
                   >
                     <FileLock2Icon size="5" />
                     Reset
                   </Button>
+                  {error && <p className="text-destructive">{error}</p>}
                 </div>
               </form>
             </FadeIn>
