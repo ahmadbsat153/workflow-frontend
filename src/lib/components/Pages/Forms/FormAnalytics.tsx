@@ -32,7 +32,7 @@ const FormAnalytics = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [form_slug]);
 
   useEffect(() => {
     getFormId();

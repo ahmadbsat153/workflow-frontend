@@ -1,4 +1,3 @@
-import { FORM_SUBMISSION_COL } from './tables';
 export const AUTH_ENDPOINTS = {
   LOGIN: "/api/v1/auth/login",
   REGISTER: "/api/v1/auth/register",
@@ -34,4 +33,4 @@ export const FORM_ENDPOINTS = {
 
 export const FORM_SUBMISSION_ENDPOINTS = {
   GET_ALL_BY_FORM: "/api/v1/form/form-submissions/:slug",
-}
+};

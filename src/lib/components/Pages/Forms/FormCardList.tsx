@@ -66,7 +66,7 @@ const FormCardList = () => {
     } finally {
       setLoading(false);
     }
-  }, [query]);
+  }, [query, searchParams]);
 
   useEffect(() => {
     getForms();
