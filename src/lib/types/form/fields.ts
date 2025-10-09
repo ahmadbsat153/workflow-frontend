@@ -15,15 +15,7 @@ export type FieldStyle = {
   width?: FieldWidth;
 };
 
-export type ValidationRule = {
-  minLength?: number;
-  maxLength?: number;
-  pattern?: string;
-  min?: number;
-  max?: number;
-};
-
-export interface Field {
+export type Field = {
   _id: string;
   name: string;
   label: string;
@@ -33,11 +25,12 @@ export interface Field {
   defaultValue?: any;
   options?: FormFieldOption[] | null;
   validation?: FormFieldValidation;
+  display?: FormFieldDisplay;
   order: number;
   style: FieldStyle;
-}
+};
 
-export interface FormFieldValidation {
+export type FormFieldValidation = {
   minLength?: number;
   maxLength?: number;
   pattern?: string;
@@ -45,9 +38,16 @@ export interface FormFieldValidation {
   max?: number;
   minSelections?: number;
   maxSelections?: number;
-}
+};
 
-export interface FormFieldOption {
+export type FormFieldOption = {
   label: string;
   value: string;
-}
+};
+
+export type FormFieldDisplay = {
+  showInTable: boolean;
+  showInForm: boolean;
+  showInDetail: boolean;
+  sensitiveInfo: boolean;
+};

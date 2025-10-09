@@ -26,6 +26,7 @@ const SubmissionDetails = () => {
     try {
       const res = await API_FORM_SUBMISSION.getSubmissionById(id);
 
+      console.log(res)
       setSubmission(res);
       setLoading(false);
     } catch (error) {

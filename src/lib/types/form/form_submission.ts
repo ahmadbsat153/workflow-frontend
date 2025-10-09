@@ -1,4 +1,5 @@
 import { Meta } from "../common";
+import { Field } from "./fields";
 import { Form } from "./form";
 
 export interface SubmittedBy {
@@ -18,5 +19,6 @@ export interface FormSubmission {
 
 export interface FormSubmissionList {
   data: FormSubmission[];
+  fields: Field[];
   meta: Meta;
 }

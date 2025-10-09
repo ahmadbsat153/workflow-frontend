@@ -19,7 +19,7 @@ type Props = {
   form: UseFormReturn<any>;
   loading: boolean;
 };
-const FieldSettings = ({ field, form, loading }: Props) => {
+const FieldValidation = ({ field, form, loading }: Props) => {
   const validationFields = getValidationFieldsForType(field.type);
 
   return (
@@ -64,4 +64,4 @@ const FieldSettings = ({ field, form, loading }: Props) => {
   );
 };
 
-export default FieldSettings;
+export default FieldValidation;
