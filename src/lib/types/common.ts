@@ -1,10 +1,10 @@
 import { AxiosError } from "axios";
 
 export type Meta = {
-  count: number;
-  page: number;
-  limit: number;
-  total_pages: number;
+  count: number; // All Documents
+  page: number; // Current Page
+  limit: number; // Current Displaying rows
+  total_pages: number; // Total Pages 
   has_next: boolean;
   has_previous: boolean;
 };

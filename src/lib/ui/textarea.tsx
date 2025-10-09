@@ -41,6 +41,8 @@ const textareaVariants = {
   },
 };
 
+
+//TODO: Add Support For width
 function Textarea({
   className,
   variant = "default",

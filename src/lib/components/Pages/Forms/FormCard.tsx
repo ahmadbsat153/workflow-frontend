@@ -3,26 +3,36 @@ import {
   CardContent,
   CardDescription,
   CardFooter,
+  CardHeader,
   CardTitle,
 } from "@/lib/ui/card";
-import { LucideIcon, Plus } from "lucide-react";
+import { LucideIcon, PencilIcon, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/lib/ui/button";
+import Link from "next/link";
+import { getUrl, URLs } from "@/lib/constants/urls";
+import { build_path } from "@/utils/common";
 
-interface FormCardProps {
+type FormCardProps = {
   title: string;
+  form_id?: string;
   description?: string;
   icon?: LucideIcon;
   iconColor?: string;
-  iconBackgroundColor?: string;
   onClick?: () => void;
   className?: string;
   disabled?: boolean;
+  iconBackgroundColor?: string;
   variant?: "default" | "create";
-}
+  editable?: boolean;
+};
 
 const FormCard = ({
   title,
+  form_id,
   description,
+
+  editable = false,
   icon: Icon = Plus,
   iconColor = "white",
   iconBackgroundColor = "bg-green-500",
@@ -37,7 +47,7 @@ const FormCard = ({
   return (
     <Card
       className={cn(
-        "h-full transition-all duration-200 pb-0",
+        "h-full transition-all duration-200 pb-0 pt-2",
         isClickable &&
           !disabled &&
           "cursor-pointer hover:shadow-md hover:border-gray-300",
@@ -47,7 +57,32 @@ const FormCard = ({
       )}
       onClick={!disabled ? onClick : undefined}
     >
-      <CardContent className="p-6 flex flex-col items-center text-center space-y-4 justify-center h-[50%]">
+      <CardHeader>
+        <div className="flex w-full justify-end ">
+          {editable && form_id ? (
+            <Button
+              variant={"ghost"}
+              size={"icon"}
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              <Link
+                href={getUrl(
+                  build_path(URLs.admin.forms.edit, {
+                    id: form_id,
+                  })
+                )}
+              >
+                <PencilIcon className="!size-4 text-blue-500" />
+              </Link>
+            </Button>
+          ) : (
+            <div></div>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent className="p-6 flex flex-col items-center text-center space-y-4 justify-center">
         {/* Icon */}
         <div
           className={cn(

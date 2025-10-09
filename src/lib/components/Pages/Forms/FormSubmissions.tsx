@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { ErrorResponse } from "@/lib/types/common";
 import { handleServerError } from "@/lib/api/_axios";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { formatDatesWithYear } from "@/utils/common";
+import { build_path, formatDatesWithYear } from "@/utils/common";
 import { INITIAL_META } from "@/lib/constants/initials";
 import { CellRenderer, DataTable } from "../../Table/DataTable";
 import {
@@ -24,10 +24,13 @@ import {
   FormSubmission,
   FormSubmissionList,
 } from "@/lib/types/form/form_submission";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { getUrl, URLs } from "@/lib/constants/urls";
+import DotsLoader from "../../Loader/DotsLoader";
 
 const FormsSubmissionsTable = () => {
   const params = useParams();
+  const router = useRouter();
   const form_slug = params.slug as string;
   const searchParams = {
     page: parseAsInteger,
@@ -138,6 +141,16 @@ const FormsSubmissionsTable = () => {
     submittedBy: (value) => <div className="">{value.email}</div>,
   };
 
+  const handleFormView = (submission: FormSubmission) => {
+    router.push(
+      getUrl(build_path(URLs.admin.submissions.view, { id: submission._id }))
+    );
+  };
+
+  if (loading) {
+    return <DotsLoader />;
+  }
+
   return (
     <>
       <div className="flex flex-col gap-4 w-full mt-5">
@@ -158,6 +171,7 @@ const FormsSubmissionsTable = () => {
           enableSorting={true}
           enableGlobalSearch={true}
           enableColumnVisibility={true}
+          onRowClick={(row) => handleFormView(row)}
           // Customization
           searchPlaceholder="Search Submissions..."
           emptyStateMessage="No Submissions found for this form."

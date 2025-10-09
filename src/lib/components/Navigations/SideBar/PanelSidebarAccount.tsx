@@ -28,10 +28,10 @@ const PanelSidebarAccount = () => {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground border-t-2"
             >
               <UserIcon className="!size-6" />
-              <div className="grid flex-1 text-left text-sm leading-tight">
+              <div className="grid flex-1 text-left text-sm leading-tight ">
                 <span className="truncate font-medium">
                   {user?.user.firstname} {user?.user.lastname}
                 </span>

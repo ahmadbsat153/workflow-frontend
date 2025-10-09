@@ -22,16 +22,32 @@ export type ValidationRule = {
   min?: number;
   max?: number;
 };
-export type Field = {
+
+export interface Field {
   _id: string;
   name: string;
   label: string;
   type: FieldsType;
-  required?: boolean;
+  required: boolean;
   placeholder?: string;
-  defaultValue?: string | number | boolean;
-  options?: string[];
-  validation?: ValidationRule;
+  defaultValue?: any;
+  options?: FormFieldOption[] | null;
+  validation?: FormFieldValidation;
   order: number;
   style: FieldStyle;
-};
+}
+
+export interface FormFieldValidation {
+  minLength?: number;
+  maxLength?: number;
+  pattern?: string;
+  min?: number;
+  max?: number;
+  minSelections?: number;
+  maxSelections?: number;
+}
+
+export interface FormFieldOption {
+  label: string;
+  value: string;
+}

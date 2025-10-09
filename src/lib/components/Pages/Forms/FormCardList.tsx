@@ -15,6 +15,7 @@ import DotsLoader from "../../Loader/DotsLoader";
 import { ErrorResponse } from "@/lib/types/common";
 import { BookCheckIcon, Plus } from "lucide-react";
 import { getUrl, URLs } from "@/lib/constants/urls";
+import { useAuth } from "@/lib/context/AuthContext";
 import { handleServerError } from "@/lib/api/_axios";
 import { Form, FormList } from "@/lib/types/form/form";
 import { INITIAL_META } from "@/lib/constants/initials";
@@ -23,6 +24,7 @@ import { API_FORM } from "@/lib/services/Form/form_service";
 
 const FormCardList = () => {
   const router = useRouter();
+  const { isAdmin } = useAuth();
   const [loading, setLoading] = useState(true);
 
   const searchParams = {
@@ -66,7 +68,7 @@ const FormCardList = () => {
     } finally {
       setLoading(false);
     }
-  }, [query, searchParams]);
+  }, []);
 
   useEffect(() => {
     getForms();
@@ -81,32 +83,44 @@ const FormCardList = () => {
   }
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      <FormCard
-        title="Create from scratch"
-        icon={Plus}
-        iconColor="white"
-        iconBackgroundColor="bg-green-500"
-        description="Start with a blank form and add your own questions."
-        onClick={() => {
-          const url = getUrl(build_path(URLs.admin.forms.create));
-          router.push(url);
-        }}
-        variant="create"
-      />
+      {isAdmin && (
+        <FormCard
+          title="Create from scratch"
+          icon={Plus}
+          iconColor="white"
+          iconBackgroundColor="bg-green-500"
+          description="Start with a blank form and add your own questions."
+          onClick={() => {
+            const url = getUrl(build_path(URLs.admin.forms.create));
+            router.push(url);
+          }}
+          variant="create"
+        />
+      )}
 
       {forms.data.map((form: Form) => {
         return (
           <FormCard
             key={form._id}
+            form_id={form._id}
             title={form.name}
-            description={form.description}
-            icon={BookCheckIcon}
             iconColor={"white"}
+            icon={BookCheckIcon}
+            editable={isAdmin}
+            description={form.description}
             iconBackgroundColor={"bg-blue-500"}
             onClick={() => {
-              const url = getUrl(
+              const admin_url = getUrl(
                 build_path(URLs.admin.forms.detail, { slug: form.slug })
               );
+
+              const user_url = getUrl(
+                build_path(URLs.app.submissions.submit, {
+                  form_slug: form.slug,
+                })
+              );
+
+              const url = isAdmin ? admin_url : user_url;
               router.push(url);
             }}
             disabled={!form.isActive}

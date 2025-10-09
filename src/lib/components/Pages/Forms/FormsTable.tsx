@@ -78,7 +78,7 @@ const FormsTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [query, searchParams]);
+  }, [query]);
 
   useEffect(() => {
     getForms();

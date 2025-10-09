@@ -25,3 +25,17 @@ export const ADMIN_NAVIGATION = [
     ],
   },
 ];
+
+export const USER_NAVIGATION = [
+  {
+    title: "general",
+    data: [
+      {
+        key: "forms",
+        name: "Forms",
+        link: URLs.app.forms.index,
+        icon: LibraryBigIcon,
+      },
+    ],
+  },
+];

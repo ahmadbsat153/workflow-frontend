@@ -1,4 +1,5 @@
 import { Meta } from "../common";
+import { Form } from "./form";
 
 export interface SubmittedBy {
   _id: string;
@@ -7,8 +8,9 @@ export interface SubmittedBy {
 
 export interface FormSubmission {
   _id: string;
-  formId: string;
+  form: Form;
   submittedBy: SubmittedBy;
+  submissionData: any;
   createdAt: string;
   updatedAt: string;
   __v: number;

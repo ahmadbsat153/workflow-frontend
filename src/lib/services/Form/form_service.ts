@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { build_path } from "@/utils/common";
 import { handleErrors, _axios } from "../../api/_axios";
-import { FORM_ENDPOINTS } from "../../constants/endpoints";
+import {
+  FORM_ENDPOINTS,
+  FORM_SUBMISSION_ENDPOINTS,
+} from "../../constants/endpoints";
 import { SuccessResponse } from "../../types/common";
 import { Form, FormDetails, FormList } from "@/lib/types/form/form";
 
@@ -27,7 +30,7 @@ export namespace API_FORM {
       const response = await _axios.get(
         build_path(FORM_ENDPOINTS.GET_ID, { id })
       );
-      return response.data as Form;
+      return response.data.data as Form;
     } catch (error: unknown) {
       throw handleErrors(error);
     }
@@ -44,7 +47,7 @@ export namespace API_FORM {
 
   export async function updateFormById(id: string, data: any) {
     try {
-      const response = await _axios.patch(
+      const response = await _axios.put(
         build_path(FORM_ENDPOINTS.UPDATE, { id }),
         data
       );
@@ -69,6 +72,29 @@ export namespace API_FORM {
         build_path(FORM_ENDPOINTS.GET_ANALYTICS, { slug })
       );
       return response.data as FormDetails;
+    } catch (error: unknown) {
+      throw handleErrors(error);
+    }
+  }
+
+  export async function getFormBySlug(slug: string) {
+    try {
+      const response = await _axios.get(
+        build_path(FORM_ENDPOINTS.GET_BY_SLUG, { slug })
+      );
+      return response.data.data as Form;
+    } catch (error: unknown) {
+      throw handleErrors(error);
+    }
+  }
+
+  export async function submitForm( data: any) {
+    try {
+      const response = await _axios.post(
+        build_path(FORM_SUBMISSION_ENDPOINTS.SUBMIT_FORM),
+        data
+      );
+      return response.data as SuccessResponse;
     } catch (error: unknown) {
       throw handleErrors(error);
     }

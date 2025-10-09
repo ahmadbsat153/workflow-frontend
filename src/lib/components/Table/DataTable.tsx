@@ -54,8 +54,8 @@ import {
   ChevronsRightIcon,
   Loader2,
 } from "lucide-react";
+import { Meta } from "@/lib/types/common";
 
-// Generic column definition interface
 export interface TableColumn<TData = any> {
   name: string;
   uid: keyof TData | string;
@@ -65,69 +65,48 @@ export interface TableColumn<TData = any> {
   align?: "left" | "center" | "right";
 }
 
-// Pagination metadata interface - make it flexible to match your existing Meta type
-export interface PaginationMeta {
-  total?: number;
-  per_page?: number;
-  current_page?: number;
-  last_page?: number;
-  from?: number;
-  to?: number;
-  // Allow any additional properties from your existing Meta type
-  [key: string]: any;
-}
-
-// Custom cell renderer type
 export type CellRenderer<TData = any> = (
   value: any,
   row: TData,
   column: TableColumn<TData>
 ) => React.ReactNode;
 
-// Table configuration interface
 interface DataTableProps<TData> {
   data: TData[];
   columns: TableColumn<TData>[];
   title?: string;
   description?: string;
 
-  // Server-side pagination - use generic meta type
   serverSide?: boolean;
   loading?: boolean;
-  meta?: any; // Accept any meta type to be compatible with existing implementations
+  meta?: Meta;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (size: number) => void;
   onSearch?: (search: string) => void;
   onSort?: (field: string, order: "asc" | "desc") => void;
 
-  // Feature toggles
   enableSelection?: boolean;
   enablePagination?: boolean;
   enableColumnVisibility?: boolean;
   enableSorting?: boolean;
   enableGlobalSearch?: boolean;
 
-  // Customization
   pageSize?: number;
   searchPlaceholder?: string;
   emptyStateMessage?: string;
 
-  // Actions
   onAddNew?: () => void;
   addNewLabel?: string;
   onRowClick?: (row: TData) => void;
   onSelectionChange?: (selectedRows: TData[]) => void;
   addButtonWrapper?: (children: React.ReactNode) => React.ReactNode;
 
-  // Custom renderers
   cellRenderers?: Partial<Record<string, CellRenderer<TData>>>;
 
-  // Styling
   className?: string;
   tableClassName?: string;
 }
 
-// Sortable header component
 const SortableHeader: React.FC<{
   column: any;
   title: string;
@@ -223,11 +202,10 @@ export function DataTable<TData extends Record<string, any>>({
   });
   const [globalFilter, setGlobalFilter] = React.useState("");
 
-  // Handle search with debounce
   const searchTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const handleSearchChange = (value: string) => {
     setGlobalFilter(value);
-    
+
     if (serverSide && onSearch) {
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current);
@@ -238,15 +216,14 @@ export function DataTable<TData extends Record<string, any>>({
     }
   };
 
-  // Convert user columns to react-table columns
   const columns = React.useMemo(() => {
     const reactTableColumns: ColumnDef<TData>[] = userColumns.map((col) => ({
       id: col.uid as string,
       accessorKey: col.uid as string,
       header: ({ column }) => (
-        <SortableHeader 
-          column={column} 
-          title={col.name} 
+        <SortableHeader
+          column={column}
+          title={col.name}
           align={col.align}
           serverSide={serverSide}
           onSort={onSort}
@@ -275,7 +252,6 @@ export function DataTable<TData extends Record<string, any>>({
       size: typeof col.width === "number" ? col.width : undefined,
     }));
 
-    // Add selection column if enabled
     if (enableSelection) {
       const selectionColumn: ColumnDef<TData> = {
         id: "select",
@@ -310,7 +286,14 @@ export function DataTable<TData extends Record<string, any>>({
     }
 
     return reactTableColumns;
-  }, [userColumns, enableSelection, enableSorting, cellRenderers, serverSide, onSort]);
+  }, [
+    userColumns,
+    enableSelection,
+    enableSorting,
+    cellRenderers,
+    serverSide,
+    onSort,
+  ]);
 
   const table = useReactTable({
     data,
@@ -320,10 +303,10 @@ export function DataTable<TData extends Record<string, any>>({
       columnVisibility,
       rowSelection: enableSelection ? rowSelection : {},
       columnFilters,
-      pagination: serverSide 
-        ? { 
-            pageIndex: (meta?.current_page || 1) - 1, 
-            pageSize: meta?.per_page || pageSize 
+      pagination: serverSide
+        ? {
+            pageIndex: (meta?.page || 1) - 1,
+            pageSize: meta?.limit || pageSize,
           }
         : pagination,
       globalFilter: enableGlobalSearch ? globalFilter : "",
@@ -333,7 +316,7 @@ export function DataTable<TData extends Record<string, any>>({
     manualPagination: serverSide,
     manualSorting: serverSide,
     manualFiltering: serverSide,
-    pageCount: serverSide ? meta?.last_page : undefined,
+    pageCount: serverSide ? meta?.total_pages : undefined,
     onRowSelectionChange: enableSelection ? setRowSelection : undefined,
     onSortingChange: enableSorting ? setSorting : undefined,
     onColumnFiltersChange: setColumnFilters,
@@ -342,16 +325,17 @@ export function DataTable<TData extends Record<string, any>>({
     onGlobalFilterChange: serverSide ? undefined : setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: serverSide ? getCoreRowModel() : getFilteredRowModel(),
-    getPaginationRowModel: enablePagination && !serverSide
-      ? getPaginationRowModel()
-      : getCoreRowModel(),
-    getSortedRowModel: enableSorting && !serverSide ? getSortedRowModel() : getCoreRowModel(),
+    getPaginationRowModel:
+      enablePagination && !serverSide
+        ? getPaginationRowModel()
+        : getCoreRowModel(),
+    getSortedRowModel:
+      enableSorting && !serverSide ? getSortedRowModel() : getCoreRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
     globalFilterFn: "includesString",
   });
 
-  // Handle selection changes
   React.useEffect(() => {
     if (onSelectionChange && enableSelection) {
       const selectedRows = table
@@ -361,7 +345,6 @@ export function DataTable<TData extends Record<string, any>>({
     }
   }, [rowSelection, onSelectionChange, enableSelection, table]);
 
-  // Server-side pagination handlers
   const handlePageChange = (page: number) => {
     if (serverSide && onPageChange) {
       onPageChange(page);
@@ -378,13 +361,14 @@ export function DataTable<TData extends Record<string, any>>({
     }
   };
 
-  // Calculate pagination values
-  const currentPage = serverSide ? meta?.current_page || 1 : table.getState().pagination.pageIndex + 1;
-  const totalPages = serverSide ? meta?.last_page || 1 : table.getPageCount();
-  const currentPageSize = serverSide ? meta?.per_page || pageSize : table.getState().pagination.pageSize;
-  const totalItems = serverSide ? meta?.total || 0 : data.length;
-  const fromItem = serverSide ? meta?.from || 0 : ((currentPage - 1) * currentPageSize) + 1;
-  const toItem = serverSide ? meta?.to || 0 : Math.min(currentPage * currentPageSize, totalItems);
+  const currentPage = serverSide
+    ? meta?.page || 1
+    : table.getState().pagination.pageIndex + 1;
+  const totalPages = serverSide ? meta?.total_pages || 1 : table.getPageCount();
+  const currentPageSize = serverSide
+    ? meta?.limit || pageSize
+    : table.getState().pagination.pageSize;
+  const totalItems = serverSide ? meta?.count || 0 : data.length;
 
   return (
     <div className={`w-full flex flex-col gap-4 ${className || ""}`}>
@@ -408,7 +392,10 @@ export function DataTable<TData extends Record<string, any>>({
           {enableSelection && (
             <div className="text-muted-foreground text-sm">
               {table.getFilteredSelectedRowModel().rows.length} of{" "}
-              {serverSide ? totalItems : table.getFilteredRowModel().rows.length} row(s) selected.
+              {serverSide
+                ? totalItems
+                : table.getFilteredRowModel().rows.length}{" "}
+              row(s) selected.
             </div>
           )}
         </div>
@@ -450,13 +437,23 @@ export function DataTable<TData extends Record<string, any>>({
             <>
               {addButtonWrapper ? (
                 addButtonWrapper(
-                  <Button variant="default" size="sm" onClick={onAddNew} disabled={loading}>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={onAddNew}
+                    disabled={loading}
+                  >
                     <PlusIcon className="h-4 w-4" />
                     <span className="hidden lg:inline">{addNewLabel}</span>
                   </Button>
                 )
               ) : (
-                <Button variant="default" size="sm" onClick={onAddNew} disabled={loading}>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={onAddNew}
+                  disabled={loading}
+                >
                   <PlusIcon className="h-4 w-4" />
                   <span className="hidden lg:inline">{addNewLabel}</span>
                 </Button>
@@ -465,13 +462,6 @@ export function DataTable<TData extends Record<string, any>>({
           )}
         </div>
       </div>
-
-      {/* Results info */}
-      {serverSide && meta && (
-        <div className="text-sm text-muted-foreground">
-          Showing {fromItem} to {toItem} of {totalItems} results
-        </div>
-      )}
 
       {/* Table */}
       <div className="overflow-hidden rounded-lg border relative">
@@ -485,7 +475,7 @@ export function DataTable<TData extends Record<string, any>>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} colSpan={header.colSpan}>
+                  <TableHead key={header.id} colSpan={header.colSpan} className="capitalize">
                     {header.isPlaceholder
                       ? null
                       : flexRender(

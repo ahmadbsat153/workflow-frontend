@@ -121,7 +121,7 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
     if (open) {
       getUser();
     }
-  }, [user, open, getUser]);
+  }, []);
 
   return (
     <Sheet

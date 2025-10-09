@@ -21,12 +21,16 @@ import { BellIcon } from "lucide-react";
 import { isLinkActive } from "@/utils/common";
 import { usePathname } from "next/navigation";
 import PanelSidebarAccount from "./PanelSidebarAccount";
-import { ADMIN_NAVIGATION } from "@/lib/constants/menu";
+import { ADMIN_NAVIGATION, USER_NAVIGATION } from "@/lib/constants/menu";
+import { useAuth } from "@/lib/context/AuthContext";
 
 export function PanelSidebar({
   children,
 }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
+  const { isAdmin } = useAuth();
+
+  const NAVIGATION = isAdmin ? ADMIN_NAVIGATION : USER_NAVIGATION;
   return (
     <SidebarProvider>
       <Sidebar collapsible="icon">
@@ -36,7 +40,7 @@ export function PanelSidebar({
           </SidebarMenu>
         </SidebarHeader>
         <SidebarContent>
-          {ADMIN_NAVIGATION.map((section) => (
+          {NAVIGATION.map((section) => (
             <SidebarGroup key={section.title}>
               <SidebarGroupLabel>{section.title}</SidebarGroupLabel>
               <SidebarMenu>

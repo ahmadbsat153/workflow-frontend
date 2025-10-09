@@ -12,7 +12,7 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/lib/ui/button";
 import DnDContainer from "./DnDContainer";
 import FieldsSidebar from "./FieldsSidebar";
@@ -25,13 +25,19 @@ import FormInformation, {
 } from "./FormInformation";
 import { API_FORM } from "@/lib/services/Form/form_service";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { getUrl, URLs } from "@/lib/constants/urls";
 import { handleServerError } from "@/lib/api/_axios";
 import { ErrorResponse } from "@/lib/types/common";
+import { title } from "process";
+import DotsLoader from "@/lib/components/Loader/DotsLoader";
 
 const FormBuilder = () => {
   const router = useRouter();
+
+  const params = useParams();
+  const form_id = params.id as string;
+
   const [loading, setLoading] = useState(false);
   const [droppedFields, setDroppedFields] = useState<Field[]>([]);
   const [activeField, setActiveField] = useState<FieldsType | null>(null);
@@ -41,6 +47,38 @@ const FormBuilder = () => {
     description: "",
     isActive: true,
   });
+
+  useEffect(() => {
+    getForm();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form_id]);
+
+  const getForm = async () => {
+    if (!form_id) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const result = await API_FORM.getFormById(form_id);
+      const info = {
+        title: result.name,
+        description: result.description,
+        isActive: result.isActive,
+      };
+
+      setFormInfo(info);
+
+      console.log(result);
+      setDroppedFields([...result.fields]);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const [formInfoErrors, setFormInfoErrors] = useState<
     Partial<Record<keyof FormInformationData, string>>
@@ -147,6 +185,53 @@ const FormBuilder = () => {
     }
   };
 
+  const handleUpdateForm = async () => {
+    const result = formInformationSchema.safeParse(formInfo);
+
+    if (!result.success) {
+      const errors: Partial<Record<keyof FormInformationData, string>> = {};
+      result.error.issues.forEach((issue) => {
+        if (issue.path[0]) {
+          errors[issue.path[0] as keyof FormInformationData] = issue.message;
+        }
+      });
+      setFormInfoErrors(errors);
+      return;
+    }
+
+    setFormInfoErrors({});
+
+    const data = {
+      name: formInfo.title,
+      description: formInfo.description,
+      isActive: formInfo.isActive,
+      fields: droppedFields,
+    };
+    setLoading(true);
+
+    const id = "form-create";
+
+    try {
+      await API_FORM.updateFormById(form_id, data);
+
+      toast.success("Form Updated Successfully", { id });
+      router.push(getUrl(URLs.admin.forms.index));
+    } catch (error) {
+      handleServerError(error as ErrorResponse, (msg) => {
+        toast.error(`${msg}`, { id });
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <DotsLoader />
+      </div>
+    );
+  }
+
   return (
     <DndContext
       sensors={sensors}
@@ -164,7 +249,7 @@ const FormBuilder = () => {
               isLoading={loading}
               type="submit"
               disabled={loading || droppedFields.length === 0}
-              onClick={handleSaveForm}
+              onClick={form_id ? handleUpdateForm : handleSaveForm}
               className="w-full px-4 py-4 text-base font-semibold"
             >
               {loading ? "Saving..." : "Save Form"}

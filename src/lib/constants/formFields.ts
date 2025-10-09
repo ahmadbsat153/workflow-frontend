@@ -10,12 +10,15 @@ import {
   TypeIcon,
 } from "lucide-react";
 
+
+// Default values of fields
 export const fieldConfigs: Record<FieldsType, Partial<Field>> = {
   [FieldsType.TEXT]: {
     label: "Text Input",
     placeholder: "Enter text...",
     required: false,
     defaultValue: "",
+    options: undefined,
     validation: {
       minLength: 1,
       maxLength: 100,
@@ -46,7 +49,7 @@ export const fieldConfigs: Record<FieldsType, Partial<Field>> = {
     placeholder: "Choose an option...",
     required: false,
     defaultValue: "",
-    options: ["Option 1", "Option 2", "Option 3"],
+    options: [],
     validation: {},
   },
   [FieldsType.RADIO]: {
@@ -54,7 +57,7 @@ export const fieldConfigs: Record<FieldsType, Partial<Field>> = {
     placeholder: undefined,
     required: false,
     defaultValue: "",
-    options: ["Yes", "No", "Maybe"],
+    options: [],
     validation: {},
   },
   [FieldsType.CHECKBOX]: {
