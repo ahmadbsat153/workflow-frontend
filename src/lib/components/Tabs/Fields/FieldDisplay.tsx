@@ -18,7 +18,6 @@ type Props = {
 };
 
 const FieldDisplay = ({ form, field, loading }: Props) => {
-  console.log(field);
 
   return (
     <div className="flex-1 space-y-4">
@@ -31,7 +30,6 @@ const FieldDisplay = ({ form, field, loading }: Props) => {
         control={form.control}
         name="display.showInTable"
         render={({ field }) => {
-          console.log(field);
           return (
             <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
               <div className="space-y-0.5">

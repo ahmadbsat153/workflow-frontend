@@ -107,7 +107,6 @@ const FormsSubmissionsTable = () => {
         form_slug
       );
 
-      console.log(res);
       
       // Extract fields and submissions
       setFields(res.fields || []);

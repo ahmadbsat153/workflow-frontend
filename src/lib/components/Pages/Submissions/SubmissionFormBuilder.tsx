@@ -29,7 +29,6 @@ const SubmissionFormBuilder = () => {
     try {
       setLoading(true);
       const res = await API_FORM.getFormBySlug(form_slug);
-      console.log("123")
       setForm(res);
     } catch (error) {
       handleServerError(error as ErrorResponse, (err_msg) => {
