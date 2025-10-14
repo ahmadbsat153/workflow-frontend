@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import {
@@ -15,10 +14,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { build_path, formatDatesWithYear } from "@/utils/common";
 import { INITIAL_META } from "@/lib/constants/initials";
 import { CellRenderer, DataTable } from "../../Table/DataTable";
-import {
-  FORM_SUBMISSION_COL,
-  FORM_SUBMISSION_VISIBLE_COL,
-} from "@/lib/constants/tables";
 import { API_FORM_SUBMISSION } from "@/lib/services/Form/form_submissions_service";
 import {
   FormSubmission,
@@ -28,10 +23,19 @@ import { useParams, useRouter } from "next/navigation";
 import { getUrl, URLs } from "@/lib/constants/urls";
 import DotsLoader from "../../Loader/DotsLoader";
 
+interface FormField {
+  name: string;
+  label: string;
+  type: string;
+  tableWidth?: number;
+  sortable?: boolean;
+}
+
 const FormsSubmissionsTable = () => {
   const params = useParams();
   const router = useRouter();
   const form_slug = params.slug as string;
+  
   const searchParams = {
     page: parseAsInteger,
     limit: parseAsInteger,
@@ -42,8 +46,11 @@ const FormsSubmissionsTable = () => {
 
   const [forms, setForms] = useState<FormSubmissionList>({
     data: [],
+    fields: [],
     meta: INITIAL_META,
   });
+
+  const [fields, setFields] = useState<FormField[]>([]);
 
   const [query, setQuery] = useQueryStates(
     {
@@ -58,19 +65,36 @@ const FormsSubmissionsTable = () => {
     }
   );
 
-  const [visibleColumns] = useState<Set<string>>(
-    new Set(FORM_SUBMISSION_VISIBLE_COL)
-  );
   const [loading, setLoading] = useState(true);
 
+  // Create dynamic columns from fields
   const headerColumns = useMemo(() => {
-    if (typeof visibleColumns === "string" && visibleColumns === "all")
-      return FORM_SUBMISSION_COL;
+    const baseColumns = [
+      {
+        name: "Submitted By",
+        uid: "submittedBy",
+        sortable: true,
+      },
+    ];
 
-    return FORM_SUBMISSION_COL.filter((column) =>
-      Array.from(visibleColumns as unknown as Set<string>).includes(column.uid)
-    );
-  }, [visibleColumns]);
+    // Add dynamic field columns
+    const fieldColumns = fields.map((field) => ({
+      name: field.label,
+      uid: field.name,
+      sortable: field.sortable ?? true,
+    }));
+
+    // Add timestamp columns
+    const timestampColumns = [
+      {
+        name: "Submitted At",
+        uid: "createdAt",
+        sortable: true,
+      },
+    ];
+
+    return [...baseColumns, ...fieldColumns, ...timestampColumns];
+  }, [fields]);
 
   const getForms = useCallback(async () => {
     try {
@@ -82,7 +106,15 @@ const FormsSubmissionsTable = () => {
         request,
         form_slug
       );
-      setForms(res);
+
+      
+      // Extract fields and submissions
+      setFields(res.fields || []);
+      setForms({
+        data: res.data,
+        fields: res.fields,
+        meta: res.meta,
+      });
     } catch (error) {
       handleServerError(error as ErrorResponse, (err_msg) => {
         toast.error(err_msg);
@@ -106,14 +138,14 @@ const FormsSubmissionsTable = () => {
 
   const handlePageSizeChange = useCallback(
     (size: number) => {
-      setQuery({ limit: size, page: 1 }); // Reset to first page when changing page size
+      setQuery({ limit: size, page: 1 });
     },
     [setQuery]
   );
 
   const handleSearch = useCallback(
     (search: string) => {
-      setQuery({ search: search || null, page: 1 }); // Reset to first page when searching
+      setQuery({ search: search || null, page: 1 });
     },
     [setQuery]
   );
@@ -123,7 +155,7 @@ const FormsSubmissionsTable = () => {
       setQuery({
         sortField: field,
         sortOrder: order,
-        page: 1, // Reset to first page when sorting
+        page: 1,
       });
     },
     [setQuery]
@@ -134,11 +166,32 @@ const FormsSubmissionsTable = () => {
       return <span>{formatDatesWithYear(value)}</span>;
     },
 
-    updatedAt: (value) => {
-      return <span>{formatDatesWithYear(value)}</span>;
-    },
+    submittedBy: (value) => <div>{value.email}</div>,
+    
+    // Dynamically handle all field columns
+    ...fields.reduce((acc, field) => {
+      acc[field.name] = (value, row) => {
 
-    submittedBy: (value) => <div className="">{value.email}</div>,
+        const fieldValue = row.submissionData?.[field.name];
+        
+        if (fieldValue === undefined || fieldValue === null || fieldValue === "") {
+          return <span className="text-gray-400 italic">-</span>;
+        }
+
+        // Handle different field types
+        switch (field.type) {
+          case "date":
+            return <span>{formatDatesWithYear(fieldValue)}</span>;
+          case "checkbox":
+            return fieldValue ? <span>✓</span> : <span>✗</span>;
+          case "email":
+            return <a href={`mailto:${fieldValue}`} className="text-blue-600 hover:underline">{fieldValue}</a>;
+          default:
+            return <span>{fieldValue}</span>;
+        }
+      };
+      return acc;
+    }, {} as Record<string, CellRenderer<FormSubmission>>),
   };
 
   const handleFormView = (submission: FormSubmission) => {
@@ -152,34 +205,32 @@ const FormsSubmissionsTable = () => {
   }
 
   return (
-    <>
-      <div className="flex flex-col gap-4 w-full mt-5">
-        <DataTable
-          data={forms?.data}
-          columns={headerColumns}
-          // Server-side configuration
-          serverSide={true}
-          loading={loading}
-          meta={forms?.meta}
-          onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
-          onSearch={handleSearch}
-          onSort={handleSort}
-          // Features
-          enableSelection={false}
-          enablePagination={true}
-          enableSorting={true}
-          enableGlobalSearch={true}
-          enableColumnVisibility={true}
-          onRowClick={(row) => handleFormView(row)}
-          // Customization
-          searchPlaceholder="Search Submissions..."
-          emptyStateMessage="No Submissions found for this form."
-          // Custom renderers
-          cellRenderers={cellRenderers}
-        />
-      </div>
-    </>
+    <div className="flex flex-col gap-4 w-full mt-5">
+      <DataTable
+        data={forms?.data}
+        columns={headerColumns}
+        // Server-side configuration
+        serverSide={true}
+        loading={loading}
+        meta={forms?.meta}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+        onSearch={handleSearch}
+        onSort={handleSort}
+        // Features
+        enableSelection={false}
+        enablePagination={true}
+        enableSorting={true}
+        enableGlobalSearch={true}
+        enableColumnVisibility={true}
+        onRowClick={(row) => handleFormView(row)}
+        // Customization
+        searchPlaceholder="Search Submissions..."
+        emptyStateMessage="No Submissions found for this form."
+        // Custom renderers
+        cellRenderers={cellRenderers}
+      />
+    </div>
   );
 };
 

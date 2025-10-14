@@ -20,8 +20,9 @@ import { EyeIcon, ListIcon, Settings2, SquareCheckBigIcon } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/lib/ui/tabs";
 import FieldProperties from "@/lib/components/Tabs/Fields/FieldProperties";
 import { buildFieldSettingsSchema } from "@/utils/Validation/fieldValidationSchema";
-import FieldSettings from "@/lib/components/Tabs/Fields/FieldSettings";
+import FieldValidation from "@/lib/components/Tabs/Fields/FieldValidation";
 import FieldOptions from "@/lib/components/Tabs/Fields/FieldOptions";
+import FieldDisplay from "@/lib/components/Tabs/Fields/FieldDisplay";
 
 type FieldSettingsSheetProps = {
   field: Field;
@@ -56,12 +57,17 @@ const FieldSettingsSheet = ({
         max: field.validation?.max,
         pattern: field.validation?.pattern,
       },
+      display: {
+        showInTable: field.display?.showInTable ?? true, 
+        showInForm: field.display?.showInForm ?? true, 
+        showInDetail: field.display?.showInDetail ?? true,
+        sensitiveInfo: field.display?.sensitiveInfo ?? false,
+      },
       options: field.options || [],
     } as FormValues,
   });
 
   const onSubmit = (values: FormValues) => {
-    console.log(values);
     setLoading(true);
 
     const updatedField: Field = {
@@ -73,9 +79,8 @@ const FieldSettingsSheet = ({
       defaultValue: values.defaultValue,
       validation: values.validation || {},
       options: (values as any).options || field.options,
+      display: values.display,
     };
-
-    console.log(updatedField);
 
     if (onUpdate) {
       onUpdate(updatedField);
@@ -130,7 +135,7 @@ const FieldSettingsSheet = ({
                 </TabsList>
 
                 <TabsContent value="setting">
-                  <div className="py-6">
+                  <div className="py-4">
                     <FieldProperties
                       field={field}
                       form={form}
@@ -140,8 +145,8 @@ const FieldSettingsSheet = ({
                 </TabsContent>
 
                 <TabsContent value="validation">
-                  <div className="py-6">
-                    <FieldSettings
+                  <div className="py-4">
+                    <FieldValidation
                       field={field}
                       form={form}
                       loading={loading}
@@ -158,7 +163,9 @@ const FieldSettingsSheet = ({
                 )}
 
                 <TabsContent value="display">
-                  <div className="py-6">Display</div>
+                  <div className="py-4">
+                    <FieldDisplay field={field} form={form} loading={loading} />
+                  </div>
                 </TabsContent>
               </Tabs>
             </div>

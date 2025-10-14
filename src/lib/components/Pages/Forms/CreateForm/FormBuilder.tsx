@@ -70,8 +70,6 @@ const FormBuilder = () => {
       };
 
       setFormInfo(info);
-
-      console.log(result);
       setDroppedFields([...result.fields]);
     } catch (error) {
       console.log(error);
@@ -79,7 +77,6 @@ const FormBuilder = () => {
       setLoading(false);
     }
   };
-
   const [formInfoErrors, setFormInfoErrors] = useState<
     Partial<Record<keyof FormInformationData, string>>
   >({});
@@ -207,6 +204,7 @@ const FormBuilder = () => {
       isActive: formInfo.isActive,
       fields: droppedFields,
     };
+
     setLoading(true);
 
     const id = "form-create";
