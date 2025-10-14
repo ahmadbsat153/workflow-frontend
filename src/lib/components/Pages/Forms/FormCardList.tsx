@@ -107,6 +107,8 @@ const FormCardList = () => {
             iconColor={"white"}
             icon={BookCheckIcon}
             editable={isAdmin}
+            createdAt={form.createdAt}
+            createdBy={form.createdBy?.firstname + " " + form.createdBy?.lastname}
             description={form.description}
             iconBackgroundColor={"bg-blue-500"}
             onClick={() => {

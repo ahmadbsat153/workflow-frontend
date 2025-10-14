@@ -1,6 +1,13 @@
 import { Meta } from "../common";
 import { Field } from "./fields";
 
+export interface FormCreatedBy {
+    _id: string;
+    firstname: string;
+    lastname: string;
+    email: string;
+}
+
 export interface Form {
   _id: string;
   name: string;
@@ -8,7 +15,7 @@ export interface Form {
   description?: string;
   fields: Field[];
   workflowId?: string | null;
-  createdBy: string;
+  createdBy: FormCreatedBy;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
