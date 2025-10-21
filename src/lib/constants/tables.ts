@@ -17,6 +17,22 @@ export const USER_VISIBLE_COL = [
   "email"
 ];
 
+export const USER_ACTIVITY_COLUMNS = [
+  { name: "id", uid: "_id", sortable: true },
+  { name: "Type", uid: "type", sortable: true },
+  { name: "Status", uid: "isActive", sortable: true },
+  { name: "Created", uid: "createdAt", sortable: true },
+  { name: "Updated", uid: "updatedAt", sortable: true },
+];
+
+export const USER_ACTIVITY_VISIBLE_COL = [
+  "createdAt",
+  "type",
+  "isActive",
+  "createdAt",
+  "updatedAt",
+];
+
 export const FORM_COLUMNS = [
   { name: "id", uid: "_id", sortable: true },
   { name: "name", uid: "name", sortable: true },

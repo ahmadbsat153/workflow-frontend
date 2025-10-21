@@ -90,7 +90,7 @@ function Input({
       {preFixIcon && <button
         type="button"
         onClick={onPreFixIconClick}
-        className={`${labelPlacement == "inside" ? errorMessage ?  "top-[20%]" : "top-[28%]" : "top-1/2"} absolute left-2 top-1/2 text-2xl text-gray-400 focus:outline-none`}
+        className={`${labelPlacement == "inside" ? errorMessage ?  "top-[20%]" : "top-[28%]" : "top-1/2"} absolute left-2 text-2xl text-gray-400 focus:outline-none`}
       >
         {preFixIcon}
       </button>}

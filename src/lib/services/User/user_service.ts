@@ -82,4 +82,15 @@ export namespace API_USER {
       throw handleErrors(error);
     }
   }
+
+    export async function getUserAnalytics(id: string) {
+    try {
+      const response = await _axios.get(
+        build_path(USER_ENDPOINTS.GET_ANALYTICS, { id })
+      );
+      return response.data as User;
+    } catch (error: unknown) {
+      throw handleErrors(error);
+    }
+  }
 }

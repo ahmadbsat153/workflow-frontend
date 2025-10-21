@@ -1,0 +1,114 @@
+import { useMemo, useState } from "react";
+import { DataTable } from "../../Table/DataTable";
+import {
+  USER_ACTIVITY_COLUMNS,
+  USER_ACTIVITY_VISIBLE_COL,
+} from "@/lib/constants/tables";
+import { formatDatesWithYear } from "@/utils/common";
+import { Badge } from "@/lib/ui/badge";
+import ChartPieDonutText from "@/lib/ui/pie-chart";
+import { ChartBarMultiple } from "@/lib/ui/bar-chart";
+import { CellRenderer } from "@/lib/types/table/table_data";
+
+const UserAnalytics = ({ data }: { data: any }) => {
+  const [visibleColumns] = useState<Set<string>>(
+    new Set(USER_ACTIVITY_VISIBLE_COL)
+  );
+  const [loading, setLoading] = useState(false);
+
+  const headerColumns = useMemo(() => {
+    if (typeof visibleColumns === "string" && visibleColumns === "all")
+      return USER_ACTIVITY_COLUMNS;
+
+    return USER_ACTIVITY_COLUMNS.filter((column) =>
+      Array.from(visibleColumns as unknown as Set<string>).includes(column.uid)
+    );
+  }, [visibleColumns]);
+
+  const cellRenderers: Partial<Record<string, CellRenderer<any>>> = {
+    type: (value, row) => <span className="font-medium">{row.type}</span>,
+
+    createdAt: (value) => {
+      return <span>{formatDatesWithYear(value)}</span>;
+    },
+
+    updatedAt: (value) => {
+      return <span>{formatDatesWithYear(value)}</span>;
+    },
+
+    is_active: (value) => (
+      <div className="">
+        {value ? (
+          <Badge variant="active">Active</Badge>
+        ) : (
+          <Badge variant="destructive">Inactive</Badge>
+        )}
+      </div>
+    ),
+  };
+
+  const footer = (description: string) => {
+    return (
+      <div className="text-muted-foreground leading-none">
+        {description}
+      </div>
+    );
+  };
+
+  const pieData = [
+    { category: "forms", count: data.forms, fill: "#7c86ff" },
+    { category: "submissions", count: data.submissions, fill: "#ff637e" },
+  ];
+  const pieChartConfig = {
+    forms: {
+      label: "Forms",
+      color: "#7c86ff",
+    },
+    submissions: {
+      label: "Submissions",
+      color: "#ff637e",
+    },
+  };
+
+const barChartConfig = {
+  workflows: {
+    label: "Workflows",
+    color: "#8ec5ff",
+  },
+  forms: {
+    label: "Forms",
+    color: "#2b7fff",
+  },
+};
+  return (
+    <div className="grid grid-cols-1 gap-4 py-4">
+      {/* CHARTS */}
+      <div className="flex flex-col lg:flex-row gap-2 min-h-[30vh]">
+        <ChartBarMultiple
+            data={data.barChartAnalytics}
+            chartConfig={barChartConfig}
+            footer={footer("Showing total forms and workflows created over last 6 months")}
+        />
+        <ChartPieDonutText
+            chartConfig={pieChartConfig}
+            content={{ label: "Total", value: data.total }}
+            data={pieData}
+            nameKey="category"
+            dataKey="count"
+            footer={footer("Showing forms created and submitted over last 6 months")}
+        />
+
+      </div>
+
+      {/* RECENT ACTIVITY TABLE  */}
+      <DataTable
+        data={data.recentActivities}
+        columns={headerColumns}
+        cellRenderers={cellRenderers}
+        loading={loading}
+      />
+    </div>
+  );
+};
+
+export default UserAnalytics;

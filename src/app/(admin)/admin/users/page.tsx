@@ -7,7 +7,7 @@ const page = () => {
     <PageContainer>
       <HeaderContainer
         title="Users"
-        description="Manage platform users from here"
+        description="Your central hub for platform users. Manage accounts, control roles and permissions."
       />
       <UsersTable />
     </PageContainer>
