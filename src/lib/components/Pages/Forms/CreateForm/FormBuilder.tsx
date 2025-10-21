@@ -5,32 +5,38 @@ import {
   DragEndEvent,
   DragStartEvent,
   DragOverlay,
+  DragOverEvent,
   closestCenter,
   PointerSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { arrayMove } from "@dnd-kit/sortable";
 
-import { useEffect, useState } from "react";
-import { Button } from "@/lib/ui/button";
-import DnDContainer from "./DnDContainer";
-import FieldsSidebar from "./FieldsSidebar";
-import FieldSidebarItem from "./FieldSidebarItem";
-import { Field, FieldsType } from "@/lib/types/form/fields";
-import { createFieldFromType } from "@/lib/constants/formFields";
 import FormInformation, {
   FormInformationData,
   formInformationSchema,
 } from "./FormInformation";
-import { API_FORM } from "@/lib/services/Form/form_service";
 import { toast } from "sonner";
-import { useParams, useRouter } from "next/navigation";
+import { Button } from "@/lib/ui/button";
+import DnDContainer from "./DnDContainer";
+import FieldsSidebar from "./FieldsSidebar";
+import { useEffect, useState } from "react";
+import { arrayMove } from "@dnd-kit/sortable";
+import FieldSidebarItem from "./FieldSidebarItem";
+import { ErrorResponse } from "@/lib/types/common";
 import { getUrl, URLs } from "@/lib/constants/urls";
 import { handleServerError } from "@/lib/api/_axios";
-import { ErrorResponse } from "@/lib/types/common";
-import { title } from "process";
+import { useParams, useRouter } from "next/navigation";
 import DotsLoader from "@/lib/components/Loader/DotsLoader";
+import { API_FORM } from "@/lib/services/Form/form_service";
+import { Field, FieldsType, FieldWidth } from "@/lib/types/form/fields";
+import {
+  createFieldFromType,
+  getFieldTypeIcon,
+  isDisplayElement,
+} from "@/lib/constants/formFields";
+import { ChevronLeftIcon, Trash2Icon } from "lucide-react";
+import AlertModal from "@/lib/components/Alert/AlertModal";
 
 const FormBuilder = () => {
   const router = useRouter();
@@ -42,6 +48,8 @@ const FormBuilder = () => {
   const [droppedFields, setDroppedFields] = useState<Field[]>([]);
   const [activeField, setActiveField] = useState<FieldsType | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
+  const [previewWidth, setPreviewWidth] = useState<FieldWidth>(100);
   const [formInfo, setFormInfo] = useState<FormInformationData>({
     title: "",
     description: "",
@@ -77,6 +85,7 @@ const FormBuilder = () => {
       setLoading(false);
     }
   };
+
   const [formInfoErrors, setFormInfoErrors] = useState<
     Partial<Record<keyof FormInformationData, string>>
   >({});
@@ -102,25 +111,153 @@ const FormBuilder = () => {
     }
   };
 
+  const handleDragOver = (event: DragOverEvent) => {
+    const { over } = event;
+    setOverId(over?.id as string | null);
+
+    if (
+      activeField &&
+      over?.id &&
+      over.id !== "drop-zone" &&
+      over.id !== "drop-zone-end"
+    ) {
+      const overIndex = droppedFields.findIndex((f) => f.name === over.id);
+      if (overIndex !== -1) {
+        if (overIndex > 0) {
+          const prevField = droppedFields[overIndex - 1];
+          const prevWidth = (prevField.style?.width as FieldWidth) ?? 100;
+
+          if (prevWidth < 100) {
+            const remainingSpace = 100 - prevWidth;
+            let calculatedWidth: FieldWidth = 100;
+
+            // TODO: fix 67 and 34 bug
+            // TODO:  Fix based on the Width from field type
+            if (remainingSpace >= 66) calculatedWidth = 66;
+            else if (remainingSpace >= 50) calculatedWidth = 50;
+            else if (remainingSpace >= 33) calculatedWidth = 33;
+            else calculatedWidth = 100;
+
+            setPreviewWidth(calculatedWidth);
+          } else {
+            setPreviewWidth(100);
+          }
+        } else {
+          setPreviewWidth(100);
+        }
+      }
+    } else if (
+      activeField &&
+      (over?.id === "drop-zone" || over?.id === "drop-zone-end")
+    ) {
+      if (droppedFields.length > 0) {
+        const lastField = droppedFields[droppedFields.length - 1];
+        const lastWidth = (lastField.style?.width as FieldWidth) ?? 100;
+
+        if (lastWidth < 100) {
+          const remainingSpace = 100 - lastWidth;
+          let calculatedWidth: FieldWidth = 100;
+
+          // TODO: fix 67 and 34 bug
+          // TODO:  Fix based on the Width from field type
+          if (remainingSpace >= 66) calculatedWidth = 66;
+          else if (remainingSpace >= 50) calculatedWidth = 50;
+          else if (remainingSpace >= 33) calculatedWidth = 33;
+          else calculatedWidth = 100;
+
+          setPreviewWidth(calculatedWidth);
+        } else {
+          setPreviewWidth(100);
+        }
+      } else {
+        setPreviewWidth(100);
+      }
+    } else {
+      setPreviewWidth(100);
+    }
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (!over) {
       setActiveField(null);
       setActiveId(null);
+      setOverId(null);
       return;
     }
 
-    if (activeField && over.id === "drop-zone") {
+    if (activeField) {
+      let insertIndex = droppedFields.length;
+      let calculatedWidth: FieldWidth = 100;
+
+      if (over.id !== "drop-zone" && over.id !== "drop-zone-end") {
+        const overIndex = droppedFields.findIndex((f) => f.name === over.id);
+        if (overIndex !== -1) {
+          insertIndex = overIndex;
+
+          if (insertIndex > 0) {
+            const prevField = droppedFields[insertIndex - 1];
+            const prevWidth = (prevField.style?.width as FieldWidth) ?? 100;
+
+            // TODO: fix 67 and 34 bug
+            // TODO:  Fix based on the Width from field type
+            if (prevWidth < 100) {
+              const remainingSpace = 100 - prevWidth;
+              if (remainingSpace >= 66) calculatedWidth = 66;
+              else if (remainingSpace >= 50) calculatedWidth = 50;
+              else if (remainingSpace >= 33) calculatedWidth = 33;
+              else calculatedWidth = 100;
+            } else {
+              calculatedWidth = 100;
+            }
+          } else {
+            calculatedWidth = 100;
+          }
+        }
+      } else {
+        insertIndex = droppedFields.length;
+
+        if (droppedFields.length > 0) {
+          const lastField = droppedFields[droppedFields.length - 1];
+          const lastWidth = (lastField.style?.width as FieldWidth) ?? 100;
+
+          // TODO: fix 67 and 34 bug
+          // TODO:  Fix based on the Width from field type
+          if (lastWidth < 100) {
+            const remainingSpace = 100 - lastWidth;
+            if (remainingSpace >= 66) calculatedWidth = 66;
+            else if (remainingSpace >= 50) calculatedWidth = 50;
+            else if (remainingSpace >= 33) calculatedWidth = 33;
+            else calculatedWidth = 100;
+          } else {
+            calculatedWidth = 100;
+          }
+        }
+      }
+
       const newField = createFieldFromType(activeField, {
         name: `${activeField}_${Date.now()}`,
-        order: droppedFields.length,
+        order: insertIndex,
+        style: { width: calculatedWidth },
       });
-      setDroppedFields((prev) => [...prev, newField]);
+
+      setDroppedFields((prev) => {
+        const newFields = [...prev];
+        newFields.splice(insertIndex, 0, newField);
+        return newFields.map((field, index) => ({
+          ...field,
+          order: index,
+        }));
+      });
     } else if (activeId && active.id !== over.id) {
       setDroppedFields((items) => {
         const oldIndex = items.findIndex((item) => item.name === active.id);
-        const newIndex = items.findIndex((item) => item.name === over.id);
+        let newIndex = items.findIndex((item) => item.name === over.id);
+
+        if (String(over.id) === "drop-zone-end") {
+          newIndex = items.length - 1;
+        }
 
         if (oldIndex === -1 || newIndex === -1) return items;
 
@@ -135,13 +272,150 @@ const FormBuilder = () => {
 
     setActiveField(null);
     setActiveId(null);
+    setOverId(null);
+  };
+
+  const handleDoubleClickField = (fieldType: FieldsType) => {
+    let calculatedWidth: FieldWidth = 100;
+
+    if (droppedFields.length > 0) {
+      let currentRowWidth = 0;
+      let lastCompleteRowIndex = -1;
+
+      let cumulativeWidth = 0;
+      for (let i = 0; i < droppedFields.length; i++) {
+        const fieldWidth = (droppedFields[i].style?.width as FieldWidth) ?? 100;
+
+        if (fieldWidth === 100) {
+          lastCompleteRowIndex = i;
+          cumulativeWidth = 0;
+        } else {
+          cumulativeWidth += fieldWidth;
+          if (cumulativeWidth >= 100) {
+            lastCompleteRowIndex = i;
+            cumulativeWidth = 0;
+          }
+        }
+      }
+
+      for (let i = lastCompleteRowIndex + 1; i < droppedFields.length; i++) {
+        const fieldWidth = (droppedFields[i].style?.width as FieldWidth) ?? 100;
+        currentRowWidth += fieldWidth;
+      }
+
+      if (currentRowWidth > 0 && currentRowWidth < 100) {
+        let remainingSpace = 100 - currentRowWidth;
+
+        if (remainingSpace === 67) remainingSpace = 66;
+        if (remainingSpace === 34) remainingSpace = 33;
+
+        if ([25, 33, 50, 66, 75].includes(remainingSpace)) {
+          calculatedWidth = remainingSpace as FieldWidth;
+        } else {
+          calculatedWidth = 100;
+        }
+      }
+    }
+
+    const newField = createFieldFromType(fieldType, {
+      name: `${fieldType}_${Date.now()}`,
+      order: droppedFields.length,
+      style: { width: calculatedWidth },
+    });
+
+    setDroppedFields((prev) => [...prev, newField]);
   };
 
   const handleDragCancel = () => {
     setActiveField(null);
     setActiveId(null);
+    setOverId(null);
   };
 
+  const cleanFieldForSubmission = (field: Field): any => {
+    const isDisplay = isDisplayElement(field.type);
+
+    // Remove undefined and empty string values
+    const removeEmpty = (obj: any) => {
+      return Object.fromEntries(
+        Object.entries(obj).filter(([_, v]) => v !== undefined && v !== "")
+      );
+    };
+
+    if (isDisplay) {
+      // For display elements, only keep these properties
+      const cleanField: any = {
+        name: field.name,
+        type: field.type,
+        order: field.order,
+      };
+
+      // Only add _id if it exists (for updates)
+      if (field._id) {
+        cleanField._id = field._id;
+      }
+
+      // Add content if it exists and has values
+      if (field.content && Object.keys(field.content).length > 0) {
+        cleanField.content = removeEmpty(field.content);
+      }
+
+      // Add style if it exists and has values
+      if (field.style) {
+        const cleanStyle = removeEmpty(field.style);
+        if (Object.keys(cleanStyle).length > 0) {
+          cleanField.style = cleanStyle;
+        }
+      }
+
+      return cleanField;
+    } else {
+      // For input fields, keep all input-related properties
+      const cleanField: any = {
+        name: field.name,
+        label: field.label,
+        type: field.type,
+        required: field.required ?? false,
+        order: field.order,
+      };
+
+      // Only add _id if it exists (for updates)
+      if (field._id) {
+        cleanField._id = field._id;
+      }
+
+      // Add optional properties only if they have values
+      if (field.placeholder) {
+        cleanField.placeholder = field.placeholder;
+      }
+
+      if (field.defaultValue !== undefined && field.defaultValue !== "") {
+        cleanField.defaultValue = field.defaultValue;
+      }
+
+      if (field.options && field.options.length > 0) {
+        cleanField.options = field.options;
+      }
+
+      if (field.validation && Object.keys(field.validation).length > 0) {
+        cleanField.validation = removeEmpty(field.validation);
+      }
+
+      if (field.display) {
+        cleanField.display = field.display;
+      }
+
+      // Add style if it exists
+      if (field.style) {
+        const cleanStyle = removeEmpty(field.style);
+        if (Object.keys(cleanStyle).length > 0) {
+          cleanField.style = cleanStyle;
+        }
+      }
+
+      return cleanField;
+    }
+  };
   const handleSaveForm = async () => {
     const result = formInformationSchema.safeParse(formInfo);
 
@@ -158,19 +432,21 @@ const FormBuilder = () => {
 
     setFormInfoErrors({});
 
+    // Clean fields before submission
+    const cleanedFields = droppedFields.map(cleanFieldForSubmission);
+
     const data = {
       name: formInfo.title,
       description: formInfo.description,
       isActive: formInfo.isActive,
-      fields: droppedFields,
+      fields: cleanedFields,
     };
-    setLoading(true);
 
+    setLoading(true);
     const id = "form-create";
 
     try {
       await API_FORM.createForm(data);
-
       toast.success("Form Created Successfully", { id });
       router.push(getUrl(URLs.admin.forms.index));
     } catch (error) {
@@ -198,20 +474,21 @@ const FormBuilder = () => {
 
     setFormInfoErrors({});
 
+    // Clean fields before submission
+    const cleanedFields = droppedFields.map(cleanFieldForSubmission);
+
     const data = {
       name: formInfo.title,
       description: formInfo.description,
       isActive: formInfo.isActive,
-      fields: droppedFields,
+      fields: cleanedFields,
     };
 
     setLoading(true);
-
-    const id = "form-create";
+    const id = "form-update";
 
     try {
       await API_FORM.updateFormById(form_id, data);
-
       toast.success("Form Updated Successfully", { id });
       router.push(getUrl(URLs.admin.forms.index));
     } catch (error) {
@@ -222,6 +499,7 @@ const FormBuilder = () => {
       setLoading(false);
     }
   };
+
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -235,55 +513,109 @@ const FormBuilder = () => {
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <div className="flex h-full">
-        <FieldsSidebar />
-        <div className="p-2 h-full overflow-y-scroll flex-1 bg-gray-50 px-20 py-5">
-          <div className="flex justify-end mb-4">
-            <Button
-              size="lg"
-              isLoading={loading}
-              type="submit"
-              disabled={loading || droppedFields.length === 0}
-              onClick={form_id ? handleUpdateForm : handleSaveForm}
-              className="w-full px-4 py-4 text-base font-semibold"
-            >
-              {loading ? "Saving..." : "Save Form"}
-            </Button>
-          </div>
-
-          <FormInformation
-            formInfo={formInfo}
-            setFormInfo={setFormInfo}
-            errors={formInfoErrors}
-          />
-
-          <DnDContainer
-            droppedFields={droppedFields}
-            setDroppedFields={setDroppedFields}
-          />
+      <div className="px-20 mx-auto">
+        <div className="py-5">
+          <Button
+            variant={"secondary"}
+            onClick={() => router.back()}
+            size={"sm"}
+          >
+            <ChevronLeftIcon /> Go Back
+          </Button>
         </div>
-      </div>
-
-      <DragOverlay>
-        {activeField ? (
-          <DragPreview type={activeField} />
-        ) : activeId ? (
-          <div className="bg-white border-2 border-blue-500 rounded-lg p-4 shadow-xl opacity-90">
-            <p className="text-sm font-medium">Reordering field...</p>
+        <div className="flex h-full bg-gray-50 flex-1  ">
+          <div className="flex-1/6">
+            <FieldsSidebar onDoubleClick={handleDoubleClickField} />
           </div>
-        ) : null}
-      </DragOverlay>
+          <div className="h-full px-5 flex-4/6">
+            <DnDContainer
+              droppedFields={droppedFields}
+              setDroppedFields={setDroppedFields}
+              overId={overId}
+              activeId={activeId}
+            />
+
+            <div className="flex justify-end mt-4">
+              <AlertModal
+                title="Remove all fields"
+                description="Are you sure you want to remove all fields? This action cannot be undone."
+                handleAction={() => setDroppedFields([])}
+              >
+                <div className="flex text-sm text-destructive items-center justify-center gap-2 cursor-pointer select-none">
+                  <Trash2Icon className="!size-5" /> Remove all fields
+                </div>
+              </AlertModal>
+            </div>
+          </div>
+          <div className="flex-1/6">
+            <FormInformation
+              formInfo={formInfo}
+              setFormInfo={setFormInfo}
+              errors={formInfoErrors}
+            />
+            <div className="flex justify-end mt-4">
+              <Button
+                size="sm"
+                isLoading={loading}
+                type="submit"
+                disabled={loading || droppedFields.length === 0}
+                onClick={form_id ? handleUpdateForm : handleSaveForm}
+                className="w-full px-4 py-4 font-semibold text-xs"
+              >
+                {loading ? "Saving..." : "Save Form"}
+              </Button>
+            </div>
+          </div>
+        </div>
+        <DragOverlay>
+          {activeField ? (
+            <DragPreview type={activeField} width={previewWidth} />
+          ) : activeId ? (
+            <DragPreviewField
+              field={droppedFields.find((f) => f.name === activeId)!}
+            />
+          ) : null}
+        </DragOverlay>
+      </div>
     </DndContext>
   );
 };
 
-const DragPreview = ({ type }: { type: FieldsType }) => {
+const DragPreview = ({
+  type,
+  width,
+}: {
+  type: FieldsType;
+  width: FieldWidth;
+}) => {
   return (
-    <div className="opacity-80">
+    <div className="opacity-90 bg-white border-2 border-blue-500 rounded-lg p-3 shadow-xl max-w-[400px]">
       <FieldSidebarItem type={type} />
+      <div className="mt-2 text-xs text-blue-500 font-medium text-center">
+        Will be placed at {width}% width
+      </div>
+    </div>
+  );
+};
+
+const DragPreviewField = ({ field }: { field: Field }) => {
+  const Icon = getFieldTypeIcon(field.type);
+  const width = (field.style?.width as FieldWidth) ?? 100;
+
+  return (
+    <div className="bg-white border-2 border-blue-500 rounded-lg p-4 shadow-xl opacity-90 max-w-[400px]">
+      <div className="flex items-center gap-2 mb-2">
+        <Icon className="size-5" />
+        <label className="font-medium">
+          {field.label}
+          {field.required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+      </div>
+      <div className="text-xs text-blue-500 font-medium">Width: {width}%</div>
     </div>
   );
 };

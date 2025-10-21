@@ -1,5 +1,6 @@
 import { Field, FieldsType, FormFieldOption } from "@/lib/types/form/fields";
 import { z } from "zod";
+import { isDisplayElement } from "@/lib/constants/formFields";
 
 const optionSchema = z.object({
   label: z.string().min(1, "Label cannot be empty"),
@@ -95,6 +96,11 @@ export const buildValidationSchema = (fields: Field[]) => {
   const schemaFields: Record<string, z.ZodTypeAny> = {};
 
   fields.forEach((field) => {
+    // Skip display elements - they don't collect user input
+    if (isDisplayElement(field.type)) {
+      return;
+    }
+
     let fieldSchema: z.ZodTypeAny;
 
     switch (field.type) {
@@ -293,9 +299,8 @@ export const buildValidationSchema = (fields: Field[]) => {
  * @param field - The field object containing type and current configuration
  *
  * @returns A Zod schema object that validates:
- * - Basic field properties (name, label, placeholder, required, defaultValue)
- * - Type-specific validation rule configurations (minLength, maxLength, min, max, pattern)
- * - Options array for SELECT, RADIO, and CHECKBOX field types
+ * - For input fields: name, label, placeholder, required, defaultValue, validation rules, options
+ * - For display elements: name, content, style
  *
  * @example
  * // For a TEXT field
@@ -305,31 +310,124 @@ export const buildValidationSchema = (fields: Field[]) => {
  * // and validation rules (minLength, maxLength, pattern)
  *
  * @example
- * // For a NUMBER field
- * const field = { type: FieldsType.NUMBER, name: "age", label: "Age" };
+ * // For a TITLE display element
+ * const field = { type: FieldsType.TITLE, name: "header_title" };
  * const schema = buildFieldSettingsSchema(field);
- * // Returns schema that validates: name, label, placeholder, required,
- * // and validation rules (min, max)
- *
- * @example
- * // For a SELECT field
- * const field = { type: FieldsType.SELECT, name: "country", label: "Country" };
- * const schema = buildFieldSettingsSchema(field);
- * // Returns schema that validates: name, label, placeholder, required,
- * // and options array (must have at least one option)
+ * // Returns schema that validates: name, content (text, level), style
  *
  * @remarks
  * This schema is used for validating field configuration in a form builder UI,
  * not for validating end-user input. For user input validation, use `buildValidationSchema`.
- *
- * Supported field types and their validation properties:
- * - TEXT, TEXT_AREA, EMAIL: minLength, maxLength, pattern
- * - NUMBER: min, max
- * - SELECT, RADIO: options array (required), validates against allowed options
- * - CHECKBOX: options array (optional), minSelections, maxSelections for multi-checkbox
- * - DATE: min, max (date strings)
  */
 export const buildFieldSettingsSchema = (field: Field) => {
+  // Schema for display elements
+  if (isDisplayElement(field.type)) {
+    switch (field.type) {
+      case FieldsType.SEPARATOR:
+        return z.object({
+          name: z.string().min(1, "Field name is required"),
+          content: z.object({}).optional(),
+          style: z.object({
+            borderStyle: z.string().optional(),
+            borderWidth: z.string().optional(),
+            borderColor: z.string().optional(),
+            margin: z.string().optional(),
+          }).optional(),
+        });
+
+      case FieldsType.TITLE:
+        return z.object({
+          name: z.string().min(1, "Field name is required"),
+          content: z.object({
+            text: z.string().min(1, "Title text is required"),
+            level: z.number().min(1).max(6).optional(),
+          }),
+          style: z.object({
+            fontSize: z.string().optional(),
+            fontWeight: z.string().optional(),
+            color: z.string().optional(),
+            backgroundColor: z.string().optional(),
+            alignment: z.enum(["left", "center", "right"]).optional(),
+            padding: z.string().optional(),
+            margin: z.string().optional(),
+          }).optional(),
+        });
+
+      case FieldsType.PARAGRAPH:
+        return z.object({
+          name: z.string().min(1, "Field name is required"),
+          content: z.object({
+            text: z.string().min(1, "Paragraph text is required"),
+          }),
+          style: z.object({
+            fontSize: z.string().optional(),
+            fontWeight: z.string().optional(),
+            color: z.string().optional(),
+            backgroundColor: z.string().optional(),
+            alignment: z.enum(["left", "center", "right"]).optional(),
+            padding: z.string().optional(),
+            margin: z.string().optional(),
+          }).optional(),
+        });
+
+      case FieldsType.SPACER:
+        return z.object({
+          name: z.string().min(1, "Field name is required"),
+          content: z.object({
+            height: z.number().min(1, "Height must be at least 1px").max(1000, "Height cannot exceed 1000px"),
+          }),
+          style: z.object({}).optional(),
+        });
+
+      case FieldsType.IMAGE:
+        return z.object({
+          name: z.string().min(1, "Field name is required"),
+          content: z.object({
+            imageUrl: z.string().url("Must be a valid URL"),
+            imageAlt: z.string().optional(),
+          }),
+          style: z.object({
+            alignment: z.enum(["left", "center", "right"]).optional(),
+            padding: z.string().optional(),
+            margin: z.string().optional(),
+          }).optional(),
+        });
+
+      case FieldsType.ALERT:
+        return z.object({
+          name: z.string().min(1, "Field name is required"),
+          content: z.object({
+            text: z.string().min(1, "Alert message is required"),
+            alertType: z.enum(["info", "success", "warning", "error"]).optional(),
+          }),
+          style: z.object({
+            margin: z.string().optional(),
+          }).optional(),
+        });
+
+      case FieldsType.HTML:
+        return z.object({
+          name: z.string().min(1, "Field name is required"),
+          content: z.object({
+            html: z.string().min(1, "HTML content is required"),
+          }),
+          style: z.object({
+            padding: z.string().optional(),
+            margin: z.string().optional(),
+          }).optional(),
+        });
+
+      default:
+        // Fallback for any display element
+        return z.object({
+          name: z.string().min(1, "Field name is required"),
+          content: z.object({}).passthrough().optional(),
+          style: z.object({}).passthrough().optional(),
+        });
+    }
+  }
+
+  // Schema for input fields
   const baseSchema = {
     name: z.string().min(1, "Field name is required"),
     label: z.string().min(1, "Label is required"),

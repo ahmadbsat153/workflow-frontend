@@ -1,18 +1,16 @@
 "use client";
 
-import { handleServerError } from "@/lib/api/_axios";
-import { API_FORM_SUBMISSION } from "@/lib/services/Form/form_submissions_service";
-import { ErrorResponse } from "@/lib/types/common";
-import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import HeaderContainer from "../../Container/HeaderContainer";
-import { FormSubmission } from "@/lib/types/form/form_submission";
-import DotsLoader from "../../Loader/DotsLoader";
-import { formatDatesWithYear } from "@/utils/common";
 import { Button } from "@/lib/ui/button";
+import { useEffect, useState } from "react";
+import DotsLoader from "../../Loader/DotsLoader";
+import { ErrorResponse } from "@/lib/types/common";
 import SubmissionDisplay from "./SubmissionDisplay";
+import { handleServerError } from "@/lib/api/_axios";
+import { useParams, useRouter } from "next/navigation";
 import SectionContainer from "../../Container/SectionContainer";
+import { FormSubmission } from "@/lib/types/form/form_submission";
+import { API_FORM_SUBMISSION } from "@/lib/services/Form/form_submissions_service";
 
 const SubmissionDetails = () => {
   const params = useParams();

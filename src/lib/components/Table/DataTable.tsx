@@ -56,14 +56,14 @@ import {
 } from "lucide-react";
 import { Meta } from "@/lib/types/common";
 
-export interface TableColumn<TData = any> {
+export type TableColumn<TData = any> = {
   name: string;
   uid: keyof TData | string;
   sortable?: boolean;
   hidden?: boolean;
   width?: string | number;
   align?: "left" | "center" | "right";
-}
+};
 
 export type CellRenderer<TData = any> = (
   value: any,
@@ -71,7 +71,7 @@ export type CellRenderer<TData = any> = (
   column: TableColumn<TData>
 ) => React.ReactNode;
 
-interface DataTableProps<TData> {
+type DataTableProps<TData> = {
   data: TData[];
   columns: TableColumn<TData>[];
   title?: string;
@@ -105,7 +105,7 @@ interface DataTableProps<TData> {
 
   className?: string;
   tableClassName?: string;
-}
+};
 
 const SortableHeader: React.FC<{
   column: any;
@@ -475,7 +475,11 @@ export function DataTable<TData extends Record<string, any>>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} colSpan={header.colSpan} className="capitalize">
+                  <TableHead
+                    key={header.id}
+                    colSpan={header.colSpan}
+                    className="capitalize"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(

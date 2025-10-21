@@ -2,12 +2,12 @@ import { Meta } from "../common";
 import { Field } from "./fields";
 import { Form } from "./form";
 
-export interface SubmittedBy {
+export type SubmittedBy = {
   _id: string;
   email: string;
 }
 
-export interface FormSubmission {
+export type FormSubmission = {
   _id: string;
   form: Form;
   submittedBy: SubmittedBy;
@@ -17,7 +17,7 @@ export interface FormSubmission {
   __v: number;
 }
 
-export interface FormSubmissionList {
+export type FormSubmissionList = {
   data: FormSubmission[];
   fields: Field[];
   meta: Meta;

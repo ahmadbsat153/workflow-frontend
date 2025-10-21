@@ -3,7 +3,7 @@
 import { toast } from "sonner";
 import { Button } from "@/lib/ui/button";
 import { useForm } from "react-hook-form";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Form } from "@/lib/types/form/form";
 import DotsLoader from "../../Loader/DotsLoader";
 import { ErrorResponse } from "@/lib/types/common";
@@ -19,6 +19,7 @@ import { FieldsType } from "@/lib/types/form/fields";
 
 const SubmissionFormBuilder = () => {
   const params = useParams();
+  const router = useRouter();
   const form_slug = params.form_slug as string;
 
   const [loading, setLoading] = useState(true);
@@ -97,6 +98,8 @@ const SubmissionFormBuilder = () => {
 
       const res = await API_FORM.submitForm(SubmissionData);
       toast.success("Form submitted successfully!");
+      reset();
+      router.back();
     } catch (error) {
       handleServerError(error as ErrorResponse, (err_msg) => {
         toast.error(err_msg);

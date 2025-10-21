@@ -6,11 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/lib/ui/card";
 import { Calendar, CheckCircle, XCircle } from "lucide-react";
 import { format } from "date-fns";
 
-interface SubmissionData {
+type SubmissionData = {
   [key: string]: any;
-}
+};
 
-interface SubmissionDisplayProps {
+type SubmissionDisplayProps = {
   fields: Field[];
   submissionData: SubmissionData;
   formName?: string;
@@ -21,7 +21,7 @@ interface SubmissionDisplayProps {
     email: string;
   };
   createdAt?: string;
-}
+};
 
 const SubmissionDisplay = ({
   fields,

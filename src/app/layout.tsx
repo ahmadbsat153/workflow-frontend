@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "../lib/assets/css/loader.css";
+import "../lib/assets/css/scroll.css";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { AuthProvider } from "@/lib/context/AuthContext";
 import { Toaster } from "sonner";

@@ -2,7 +2,7 @@ import * as React from "react";
 import { Label } from "./label";
 import { cn } from "@/lib/utils";
 
-interface CustomTextareaProps {
+type CustomTextareaProps = {
   label?: string;
   labelPlacement?: "outside" | "inside";
   onError?: () => void;
@@ -32,6 +32,7 @@ const textareaVariants = {
     sm: "min-h-12 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
     md: "min-h-16 rounded-md px-4 has-[>svg]:px-3",
     lg: "min-h-20 rounded-md px-4 has-[>svg]:px-4",
+    xl: "min-h-24 rounded-md px-4 has-[>svg]:px-4",
   },
   resize: {
     none: "resize-none",

@@ -1,0 +1,26 @@
+.scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db #f3f4f6; /* thumb color track color */
+}
+
+.scrollbar::-webkit-scrollbar {
+    width: 0.5rem;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+    border-radius: 9999px;
+    background: #f3f4f6;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background: #0066ff;
+}
+
+.dark .scrollbar::-webkit-scrollbar-track {
+    background: #262626;
+}
+
+.dark .scrollbar::-webkit-scrollbar-thumb {
+    background: #737373;
+}

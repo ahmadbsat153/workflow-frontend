@@ -2,7 +2,7 @@ import * as React from "react";
 import { Label } from "./label";
 import { cn } from "@/lib/utils";
 
-interface CustomInputProps {
+type CustomInputProps = {
   label?: string;
   labelPlacement?: "outside" | "inside";
   onError?: () => void;

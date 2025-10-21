@@ -1,7 +1,7 @@
 import { Meta } from "../common";
 import { Field } from "./fields";
 
-export interface Form {
+export type Form = {
   _id: string;
   name: string;
   slug: string;
@@ -13,20 +13,20 @@ export interface Form {
   createdAt: string;
   updatedAt: string;
   __v: number;
-}
+};
 
-export interface Analytics {
+export type Analytics = {
   totalSubmissions: number;
   uniqueSubmitters: number;
   recentSubmissions: number;
-}
+};
 
-export interface FormDetails {
+export type FormDetails = {
   form: Form;
   analytics: Analytics;
-}
+};
 
-export interface FormList {
+export type FormList = {
   data: Form[];
   meta: Meta;
-}
+};

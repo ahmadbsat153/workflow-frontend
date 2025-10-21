@@ -9,9 +9,10 @@ import { SidebarMenuItem } from "@/lib/ui/sidebar";
 
 type propsType = {
   type: FieldsType;
+  onDoubleClick?: (fieldType: FieldsType) => void;
 };
 
-const FieldSidebarItem = ({ type }: propsType) => {
+const FieldSidebarItem = ({ type, onDoubleClick }: propsType) => {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `sidebar-${type}`,
     data: { type },
@@ -21,18 +22,21 @@ const FieldSidebarItem = ({ type }: propsType) => {
     <SidebarMenuItem
       key={type}
       ref={setNodeRef}
+      onDoubleClick={() => {
+        onDoubleClick?.(type);
+      }}
       {...listeners}
       {...attributes}
       className={cn(
         isDragging ? "opacity-50" : "opacity-100",
-        "flex justify-between items-center p-2 text-sm border rounded-lg cursor-move hover:bg-gray-50 transition-colors"
+        "flex justify-between items-center p-2 text-sm border rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition-colors"
       )}
     >
       <div className="flex items-center gap-2">
         <Icon className="!size-5 text-primary" />
-        <span className="capitalize">{type}</span>
+        <span className="capitalize text-xs select-none">{type}</span>
       </div>
-      <Move className="!size-3 text-gray-500" />
+      <Move className="!size-3 text-gray-500 cursor-move" />
     </SidebarMenuItem>
   );
 };

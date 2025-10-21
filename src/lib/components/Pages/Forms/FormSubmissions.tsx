@@ -22,20 +22,13 @@ import {
 import { useParams, useRouter } from "next/navigation";
 import { getUrl, URLs } from "@/lib/constants/urls";
 import DotsLoader from "../../Loader/DotsLoader";
-
-interface FormField {
-  name: string;
-  label: string;
-  type: string;
-  tableWidth?: number;
-  sortable?: boolean;
-}
+import { Field } from "@/lib/types/form/fields";
 
 const FormsSubmissionsTable = () => {
   const params = useParams();
   const router = useRouter();
   const form_slug = params.slug as string;
-  
+
   const searchParams = {
     page: parseAsInteger,
     limit: parseAsInteger,
@@ -50,7 +43,7 @@ const FormsSubmissionsTable = () => {
     meta: INITIAL_META,
   });
 
-  const [fields, setFields] = useState<FormField[]>([]);
+  const [fields, setFields] = useState<Field[]>([]);
 
   const [query, setQuery] = useQueryStates(
     {
@@ -81,7 +74,7 @@ const FormsSubmissionsTable = () => {
     const fieldColumns = fields.map((field) => ({
       name: field.label,
       uid: field.name,
-      sortable: field.sortable ?? true,
+      sortable: true,
     }));
 
     // Add timestamp columns
@@ -107,7 +100,6 @@ const FormsSubmissionsTable = () => {
         form_slug
       );
 
-      
       // Extract fields and submissions
       setFields(res.fields || []);
       setForms({
@@ -167,14 +159,17 @@ const FormsSubmissionsTable = () => {
     },
 
     submittedBy: (value) => <div>{value.email}</div>,
-    
+
     // Dynamically handle all field columns
     ...fields.reduce((acc, field) => {
       acc[field.name] = (value, row) => {
-
         const fieldValue = row.submissionData?.[field.name];
-        
-        if (fieldValue === undefined || fieldValue === null || fieldValue === "") {
+
+        if (
+          fieldValue === undefined ||
+          fieldValue === null ||
+          fieldValue === ""
+        ) {
           return <span className="text-gray-400 italic">-</span>;
         }
 
@@ -185,7 +180,14 @@ const FormsSubmissionsTable = () => {
           case "checkbox":
             return fieldValue ? <span>✓</span> : <span>✗</span>;
           case "email":
-            return <a href={`mailto:${fieldValue}`} className="text-blue-600 hover:underline">{fieldValue}</a>;
+            return (
+              <a
+                href={`mailto:${fieldValue}`}
+                className="text-blue-600 hover:underline"
+              >
+                {fieldValue}
+              </a>
+            );
           default:
             return <span>{fieldValue}</span>;
         }

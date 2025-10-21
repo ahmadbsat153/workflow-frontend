@@ -11,13 +11,13 @@ import {
 } from "@/lib/ui/dropdown-menu";
 import { ChevronDownIcon, LucideIcon } from "lucide-react";
 
-export interface LayoutOption<T = string> {
+export type LayoutOption<T = string> = {
   value: T;
   label: string;
   icon: LucideIcon;
 }
 
-interface LayoutSelectorProps<T = string> {
+type LayoutSelectorProps<T = string> = {
   options: LayoutOption<T>[];
   defaultValue?: T;
   onLayoutChange: (value: T) => void;
