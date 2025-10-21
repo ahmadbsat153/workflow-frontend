@@ -8,7 +8,7 @@ export type Form = {
   description?: string;
   fields: Field[];
   workflowId?: string | null;
-  createdBy: FormCreatedBy;
+  createdBy: Date;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
