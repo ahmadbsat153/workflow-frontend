@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { LucideIcon } from "lucide-react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -72,41 +71,6 @@ export type CellRenderer<TData = any> = (
   column: TableColumn<TData>
 ) => React.ReactNode;
 
-type DataTableProps<TData> = {
-  data: TData[];
-  columns: TableColumn<TData>[];
-  title?: string;
-  description?: string;
-
-  serverSide?: boolean;
-  loading?: boolean;
-  meta?: Meta;
-  onPageChange?: (page: number) => void;
-  onPageSizeChange?: (size: number) => void;
-  onSearch?: (search: string) => void;
-  onSort?: (field: string, order: "asc" | "desc") => void;
-
-  enableSelection?: boolean;
-  enablePagination?: boolean;
-  enableColumnVisibility?: boolean;
-  enableSorting?: boolean;
-  enableGlobalSearch?: boolean;
-
-  pageSize?: number;
-  searchPlaceholder?: string;
-  emptyStateMessage?: string;
-
-  onAddNew?: () => void;
-  addNewLabel?: string;
-  onRowClick?: (row: TData) => void;
-  onSelectionChange?: (selectedRows: TData[]) => void;
-  addButtonWrapper?: (children: React.ReactNode) => React.ReactNode;
-
-  cellRenderers?: Partial<Record<string, CellRenderer<TData>>>;
-
-  className?: string;
-  tableClassName?: string;
-};
 import { DataTableProps, AdditionalButton } from "@/lib/types/table/table_data";
 
 const SortableHeader: React.FC<{
