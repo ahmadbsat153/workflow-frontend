@@ -8,12 +8,15 @@ export const AUTH_ENDPOINTS = {
   VERIFY_PHONE: "/api/v1/auth/verify/phone",
   VERIFY_EMAIL: "/api/v1/auth/verify/email",
   RESEND_EMAIL: "/api/v1/auth/resend/email",
+  MAGIC_LINK: "/api/v1/auth/magic-link",
+  VALIDATE_RECOVERY_TOKEN: "/api/v1/auth/validate/recovery-token",
   PLATFORM_INVITE: "/api/v1/auth/platform_invite",
 };
 
 export const USER_ENDPOINTS = {
   GET_ALL: "/api/v1/admin/users",
   GET_ID: "/api/v1/admin/users/:id",
+  GET_ANALYTICS: "/api/v1/admin/users/analytics/:id",
   CREATE: "/api/v1/admin/users",
   ADMIN_UPDATE: "/api/v1/admin/users/:id",
   DELETE: "/api/v1/admin/users/:id",

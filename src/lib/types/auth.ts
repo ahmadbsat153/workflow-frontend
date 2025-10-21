@@ -4,6 +4,7 @@ import { UserAuthenticated } from "./user/user";
 export type Authentication = {
   user: UserAuthenticated;
   token: string;
+  status: number;
 };
 
 export type Register = Pick<User, "firstname" | "lastname" | "email"> & {

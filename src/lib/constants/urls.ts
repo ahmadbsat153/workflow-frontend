@@ -25,12 +25,15 @@ export const URLs = {
   auth: {
     register: "/register/",
     login: "/login",
-    forgotPassword: "/reset/password/",
-    resetPassword: "/reset-password/",
+    forgotPassword: "/password/forgot/",
+    resetPassword: "/password/reset/",
     confirmation: "/phone-confirmation/",
     invite: "/invitation/",
     waitlist: "/waitlist/",
   },
+  user: {
+    create: "/admin/user/create/",
+  }
 };
 
 export function getUrl(

@@ -46,6 +46,16 @@ export namespace API_AUTH {
     }
   }
 
+  export async function validateRecoveryToken(data: any) {
+    try {
+      const response = await _axios.post(AUTH_ENDPOINTS.VALIDATE_RECOVERY_TOKEN, data);
+
+      return response.data as Authentication;
+    } catch (error: unknown) {
+      throw handleErrors(error);
+    }
+  }
+
   export async function verifyEmail(data: any) {
     try {
       const response = await _axios.post(AUTH_ENDPOINTS.VERIFY_EMAIL, data);
@@ -83,6 +93,17 @@ export namespace API_AUTH {
     try {
       const temp = { password, token };
       const response = await _axios.post(AUTH_ENDPOINTS.RESET_PASSWORD, temp);
+
+      return response.data as SuccessResponse;
+    } catch (error: unknown) {
+      throw handleErrors(error);
+    }
+  }
+
+  export async function sendMagicLink(email: string) {
+    try {
+      const temp = { email };
+      const response = await _axios.post(AUTH_ENDPOINTS.MAGIC_LINK, temp);
 
       return response.data as SuccessResponse;
     } catch (error: unknown) {

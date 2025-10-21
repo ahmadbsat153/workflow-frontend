@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { LucideIcon } from "lucide-react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -106,6 +107,7 @@ type DataTableProps<TData> = {
   className?: string;
   tableClassName?: string;
 };
+import { DataTableProps, AdditionalButton } from "@/lib/types/table/table_data";
 
 const SortableHeader: React.FC<{
   column: any;
@@ -180,6 +182,7 @@ export function DataTable<TData extends Record<string, any>>({
   cellRenderers = {},
   className,
   tableClassName,
+  additionalButtons = [],
 }: DataTableProps<TData>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -460,6 +463,24 @@ export function DataTable<TData extends Record<string, any>>({
               )}
             </>
           )}
+          {/* Additional Buttons */}
+          {additionalButtons?.map((button: AdditionalButton, index: number) => (
+            <Button
+              key={index + button.label}
+              type={button.type || "button"}
+              size={button.size || "sm"}
+              className={`${button.style} flex items-center justify-center transition-all hover:scale-90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-transparent disabled:hover:bg-opacity-0`}
+              disabled={loading}
+              onClick={(event) => button.onClick(event)}
+            >
+              {button.icon && (
+                <React.Fragment>
+                  {React.createElement(button.icon, { className: "size-4" })}
+                </React.Fragment>
+              )}
+              {button.label}
+            </Button>
+          ))}
         </div>
       </div>
 
