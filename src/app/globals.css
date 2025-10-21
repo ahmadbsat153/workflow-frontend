@@ -39,6 +39,7 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --color-form-card-foreground: var(--form-card-foreground);
 }
 
 :root {
@@ -72,6 +73,7 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --form-card-foreground: oklch(98.492% 0.04284 102.926 / 0.592);
 }
 
 @layer base {
