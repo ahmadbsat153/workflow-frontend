@@ -21,58 +21,70 @@ import { BellIcon } from "lucide-react";
 import { isLinkActive } from "@/utils/common";
 import { usePathname } from "next/navigation";
 import PanelSidebarAccount from "./PanelSidebarAccount";
-import { ADMIN_NAVIGATION } from "@/lib/constants/menu";
+import { ADMIN_NAVIGATION, USER_NAVIGATION } from "@/lib/constants/menu";
+import { useAuth } from "@/lib/context/AuthContext";
+
+const HIDDEN_SIDEBAR_ROUTES = ["/admin/forms/create", "/admin/forms/edit"];
 
 export function PanelSidebar({
   children,
 }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
+  const { isAdmin } = useAuth();
+
+  const NAVIGATION = isAdmin ? ADMIN_NAVIGATION : USER_NAVIGATION;
+
+  const shouldHideSidebar = HIDDEN_SIDEBAR_ROUTES.some((route) =>
+    pathname.startsWith(route)
+  );
   return (
     <SidebarProvider>
-      <Sidebar collapsible="icon">
-        <SidebarHeader>
-          <SidebarMenu className="flex w-full items-end gap-2">
-            <SidebarTrigger iconClassName="!size-5" />
-          </SidebarMenu>
-        </SidebarHeader>
-        <SidebarContent>
-          {ADMIN_NAVIGATION.map((section) => (
-            <SidebarGroup key={section.title}>
-              <SidebarGroupLabel>{section.title}</SidebarGroupLabel>
-              <SidebarMenu>
-                {section.data.map((item) => {
-                  const IconComponent = item.icon;
-                  return (
-                    <SidebarMenuItem key={item.key}>
-                      <SidebarMenuButton asChild>
-                        <a
-                          href={item.link}
-                          className={cn(
-                            isLinkActive(item.link, pathname)
-                              ? "text-primary bg-primary/10 font-medium"
-                              : "text-black",
-                            "font-large"
-                          )}
-                        >
-                          <IconComponent className="!size-5" />
-                          {item.name}
-                        </a>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroup>
-          ))}
-        </SidebarContent>
-        <SidebarFooter>
-          <PanelSidebarAccount />
-        </SidebarFooter>
-        <SidebarRail />
-      </Sidebar>
+      {true && (
+        <Sidebar collapsible="icon">
+          <SidebarHeader>
+            <SidebarMenu className="flex w-full items-end gap-2">
+              <SidebarTrigger iconClassName="!size-5" />
+            </SidebarMenu>
+          </SidebarHeader>
+          <SidebarContent>
+            {NAVIGATION.map((section) => (
+              <SidebarGroup key={section.title}>
+                <SidebarGroupLabel>{section.title}</SidebarGroupLabel>
+                <SidebarMenu>
+                  {section.data.map((item) => {
+                    const IconComponent = item.icon;
+                    return (
+                      <SidebarMenuItem key={item.key}>
+                        <SidebarMenuButton asChild>
+                          <a
+                            href={item.link}
+                            className={cn(
+                              isLinkActive(item.link, pathname)
+                                ? "text-primary bg-primary/10 font-medium"
+                                : "text-black",
+                              "font-large"
+                            )}
+                          >
+                            <IconComponent className="!size-5" />
+                            {item.name}
+                          </a>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroup>
+            ))}
+          </SidebarContent>
+          <SidebarFooter>
+            <PanelSidebarAccount />
+          </SidebarFooter>
+          <SidebarRail />
+        </Sidebar>
+      )}
 
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center justify-end gap-2 border-b w-full px-2 xl:px-8 2xl:px-16">
+      <SidebarInset className="overflow-hidden">
+        <header className="flex h-12 shrink-0 items-center justify-end gap-2 border-b w-full px-2 xl:px-8 2xl:px-16">
           <BellIcon className="size-5 text-default-500" />
         </header>
         {children}

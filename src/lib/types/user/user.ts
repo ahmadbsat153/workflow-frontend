@@ -1,6 +1,6 @@
 import { Meta } from "../common";
 
-export interface User {
+export type User = {
   _id: string;
   firstname: string;
   lastname: string;

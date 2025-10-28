@@ -2,8 +2,8 @@ import * as React from "react";
 import { Label } from "./label";
 import { cn } from "@/lib/utils";
 
-interface CustomInputProps {
-  label?: string;
+type CustomInputProps = {
+  label?: string | React.ReactNode;
   labelPlacement?: "outside" | "inside";
   onError?: () => void;
   errorMessage?: string;
@@ -13,9 +13,11 @@ interface CustomInputProps {
   postFixIcon?: React.ReactNode;
   onPreFixIconClick?: () => void;
   preFixIcon?: React.ReactNode;
-}
+  required?: boolean;
+};
 
-type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> & CustomInputProps;
+type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> &
+  CustomInputProps;
 
 const inputVariants = {
   variant: {
@@ -46,11 +48,10 @@ function Input({
   postFixIcon = null,
   onPreFixIconClick,
   preFixIcon = null,
-  size="default",
+  size = "default",
+  required = false,
   ...props
 }: InputProps) {
-  const sizeHeight = labelPlacement === "inside" ? inputVariants.size[size] === "lg" ? "!h-20" : inputVariants.size[size] === "md" ? "!h-16" : inputVariants.size[size] === "sm" ? "!h-12" : "" : "";
-
   return (
     <div className="relative">
       {labelPlacement === "outside" && label != "" && (
@@ -60,12 +61,14 @@ function Input({
             className={`${errorMessage && "text-destructive"}`}
           >
             {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
           </Label>
         </div>
       )}
       <input
         type={type}
         data-slot="input"
+        required={required}
         className={cn(
           "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
           "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
@@ -80,38 +83,72 @@ function Input({
               ? inputVariants.variant["destructive"]
               : inputVariants.variant[variant]
           }`,
-          `${preFixIcon && "!pl-9 !relative"} ${postFixIcon && "!pr-9 !relative"}`,
-          `${labelPlacement === "inside" ? size === "lg" ? "!h-[60px]" : size === "md" ? "!h-[50px]" : size === "sm" ? "!h-10" : "" : ""}`,
+          `${preFixIcon && "!pl-9 !relative"} ${
+            postFixIcon && "!pr-9 !relative"
+          }`,
+          `${
+            labelPlacement === "inside"
+              ? size === "lg"
+                ? "!h-[60px]"
+                : size === "md"
+                ? "!h-[50px]"
+                : size === "sm"
+                ? "!h-10"
+                : ""
+              : ""
+          }`,
           inputVariants.size[size],
           className
         )}
         {...props}
       />
-      {preFixIcon && <button
-        type="button"
-        onClick={onPreFixIconClick}
-        className={`${labelPlacement == "inside" ? errorMessage ?  "top-[20%]" : "top-[28%]" : "top-1/2"} absolute left-2 text-2xl text-gray-400 focus:outline-none`}
-      >
-        {preFixIcon}
-      </button>}
-      {postFixIcon && <button
-        type="button"
-        onClick={onPostFixIconClick}
-        className={`${labelPlacement == "inside" ? errorMessage ?  "top-[20%]" : "top-[28%]" :  errorMessage ?  "top-[37%]" : "top-1/2"} absolute right-2 text-2xl text-gray-400 focus:outline-none`}
-      >
-        {postFixIcon}
-      </button>}
+      {preFixIcon && (
+        <button
+          type="button"
+          onClick={onPreFixIconClick}
+          className={`${
+            labelPlacement == "inside"
+              ? errorMessage
+                ? "top-[20%]"
+                : "top-[28%]"
+              : "top-1/2"
+          } ${
+            onPreFixIconClick ? "cursor-pointer" : ""
+          } absolute left-2 text-2xl text-gray-400 focus:outline-none`}
+        >
+          {preFixIcon}
+        </button>
+      )}
+      {postFixIcon && (
+        <button
+          type="button"
+          onClick={onPostFixIconClick}
+          className={`${
+            labelPlacement == "inside"
+              ? errorMessage
+                ? "top-[20%]"
+                : "top-[28%]"
+              : errorMessage
+              ? "top-[37%]"
+              : "top-1/2"
+          } ${
+            onPostFixIconClick ? "cursor-pointer" : ""
+          } absolute right-2 text-2xl text-gray-400 focus:outline-none`}
+        >
+          {postFixIcon}
+        </button>
+      )}
       {errorMessage && (
         <p className="text-destructive text-xs mt-[0.1rem]">{errorMessage}</p>
       )}
       {labelPlacement === "inside" && label != "" && (
-        // The updated label positioning for the 'inside' label
         <div className="absolute left-3 top-1 pointer-events-none">
           <Label
             htmlFor={props.id}
             className={`${errorMessage && "text-destructive"} text-[12px]`}
           >
             {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
           </Label>
         </div>
       )}

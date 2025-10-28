@@ -8,7 +8,7 @@ import NotFound from "./lib/components/Pages/NotFound";
 
 import React from "react";
 
-interface AuthGuardProviderProps {
+type AuthGuardProviderProps = {
   children: React.ReactNode;
   is_admin?: boolean;
 }

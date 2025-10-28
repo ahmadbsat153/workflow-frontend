@@ -71,13 +71,18 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
   } = form;
 
   const getUser = async () => {
-    if (!user || !open) return;
+    console.log("UserSheet: Sheet opened, fetching user data...");
+    if (!user || !open) {
+      console.log("UserSheet: No user provided or sheet is closed.");
+      return;
+    }
 
     try {
       setLoading(true);
 
       const res = await API_USER.getUserById(user._id);
 
+      console.log("Fetched user data:", res);
       form.reset({
         firstname: res.firstname || "",
         lastname: res.lastname || "",
@@ -118,10 +123,9 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
   };
 
   useEffect(() => {
-    if (open) {
-      getUser();
-    }
-  }, [user, open, getUser]);
+    console.log("UserSheet: open state changed to", open);
+    getUser();
+  }, [open]);
 
   return (
     <Sheet

@@ -1,20 +1,24 @@
 import { Meta } from "../common";
+import { Field } from "./fields";
+import { Form } from "./form";
 
-export interface SubmittedBy {
+export type SubmittedBy = {
   _id: string;
   email: string;
 }
 
-export interface FormSubmission {
+export type FormSubmission = {
   _id: string;
-  formId: string;
+  form: Form;
   submittedBy: SubmittedBy;
+  submissionData: any;
   createdAt: string;
   updatedAt: string;
   __v: number;
 }
 
-export interface FormSubmissionList {
+export type FormSubmissionList = {
   data: FormSubmission[];
+  fields?: Field[];
   meta: Meta;
 }

@@ -29,8 +29,12 @@ export const FORM_ENDPOINTS = {
   UPDATE: "/api/v1/admin/forms/:id",
   DELETE: "/api/v1/admin/forms/:id",
   GET_ANALYTICS: "/api/v1/admin/analytics/forms/:slug",
+  GET_BY_SLUG: "/api/v1/admin/forms/by-slug/:slug",
 };
 
 export const FORM_SUBMISSION_ENDPOINTS = {
   GET_ALL_BY_FORM: "/api/v1/form/form-submissions/:slug",
+  GET_ALL_BY_USER: "/api/v1/form/submissions",
+  GET_ID: "/api/v1/form/submission/:id",
+  SUBMIT_FORM: "/api/v1/form/submission",
 };

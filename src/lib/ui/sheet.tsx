@@ -2,7 +2,7 @@
 
 import { cn } from "../utils";
 import * as React from "react";
-import { X } from "lucide-react";
+import { CircleXIcon, X } from "lucide-react";
 import * as SheetPrimitive from "@radix-ui/react-dialog";
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -68,7 +68,7 @@ const SheetContent = React.forwardRef<
       {...props}
     >
       <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-secondary ring-0">
-        <X className="h-4 w-4" />
+        <CircleXIcon className=" !size-4 cursor-pointer" />
         <span className="sr-only">Close</span>
       </SheetPrimitive.Close>
       {children}

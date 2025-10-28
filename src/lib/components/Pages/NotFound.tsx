@@ -23,6 +23,8 @@ const NotFound = ({
       <div className="w-full h-full flex flex-col items-center justify-center lg:pt-24 lg:pb-36 py-24">
         <FadeIn className="lg:w-[320px] sm:w-[300px] max-w-[400px]">
           <Image
+            width={300}
+            height={300}
             src={"/images/404.png"}
             alt={"not found"}
             className="object-bottom"

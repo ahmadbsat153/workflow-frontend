@@ -8,14 +8,52 @@ import {
   MailIcon,
   TextIcon,
   TypeIcon,
+  MinusIcon,
+  Heading1Icon,
+  FileTextIcon,
+  SpaceIcon,
+  ImageIcon,
+  AlertCircleIcon,
+  CodeIcon,
+  ToggleRightIcon,
 } from "lucide-react";
 
+// Helper functions to categorize field types
+export const isDisplayElement = (type: FieldsType): boolean => {
+  return [
+    FieldsType.SEPARATOR,
+    FieldsType.TITLE,
+    FieldsType.PARAGRAPH,
+    FieldsType.SPACER,
+    FieldsType.IMAGE,
+    FieldsType.ALERT,
+    FieldsType.HTML,
+  ].includes(type);
+};
+
+export const isInputField = (type: FieldsType): boolean => {
+  return [
+    FieldsType.TEXT,
+    FieldsType.NUMBER,
+    FieldsType.EMAIL,
+    FieldsType.DATE,
+    FieldsType.SELECT,
+    FieldsType.RADIO,
+    FieldsType.CHECKBOX,
+    FieldsType.TEXT_AREA,
+    FieldsType.SWITCH,
+  ].includes(type);
+};
+
+// Default values of fields
 export const fieldConfigs: Record<FieldsType, Partial<Field>> = {
+  // Input Fields
   [FieldsType.TEXT]: {
     label: "Text Input",
     placeholder: "Enter text...",
     required: false,
     defaultValue: "",
+    options: undefined,
     validation: {
       minLength: 1,
       maxLength: 100,
@@ -46,7 +84,7 @@ export const fieldConfigs: Record<FieldsType, Partial<Field>> = {
     placeholder: "Choose an option...",
     required: false,
     defaultValue: "",
-    options: ["Option 1", "Option 2", "Option 3"],
+    options: [],
     validation: {},
   },
   [FieldsType.RADIO]: {
@@ -54,7 +92,7 @@ export const fieldConfigs: Record<FieldsType, Partial<Field>> = {
     placeholder: undefined,
     required: false,
     defaultValue: "",
-    options: ["Yes", "No", "Maybe"],
+    options: [],
     validation: {},
   },
   [FieldsType.CHECKBOX]: {
@@ -82,10 +120,101 @@ export const fieldConfigs: Record<FieldsType, Partial<Field>> = {
       maxLength: 100,
     },
   },
+  [FieldsType.SWITCH]: {
+    label: "Toggle Switch",
+    required: false,
+    defaultValue: false,
+    validation: {},
+  },
+
+  // Display Elements
+  [FieldsType.SEPARATOR]: {
+    label: undefined,
+    content: {
+      text: undefined,
+    },
+    style: {
+      borderStyle: "solid",
+      borderWidth: "1px",
+      borderColor: "#e5e7eb",
+      margin: "20px 0",
+    },
+  },
+  [FieldsType.TITLE]: {
+    label: undefined,
+    content: {
+      text: "Section Title",
+      level: 2,
+    },
+    style: {
+      fontSize: "1.5rem",
+      fontWeight: "bold",
+      color: "#1f2937",
+      alignment: "left",
+      margin: "0 0 10px 0",
+    },
+  },
+  [FieldsType.PARAGRAPH]: {
+    label: undefined,
+    content: {
+      text: "Add your description text here. This paragraph will help users understand what information is needed in this section.",
+    },
+    style: {
+      fontSize: "1rem",
+      color: "#6b7280",
+      alignment: "left",
+      margin: "0 0 15px 0",
+    },
+  },
+  [FieldsType.SPACER]: {
+    label: undefined,
+    content: {
+      height: 30,
+    },
+    style: {},
+  },
+  [FieldsType.IMAGE]: {
+    label: undefined,
+    content: {
+      imageUrl: "https://via.placeholder.com/600x300",
+      imageAlt: "Placeholder image",
+    },
+    style: {
+      alignment: "center",
+      margin: "20px 0",
+    },
+  },
+  [FieldsType.ALERT]: {
+    label: undefined,
+    content: {
+      text: "This is an important informational message for your users.",
+      alertType: "info",
+    },
+    style: {
+      margin: "10px 0",
+    },
+  },
+  [FieldsType.HTML]: {
+    label: undefined,
+    content: {
+      html: "<p>Add your custom <strong>HTML</strong> content here.</p>",
+    },
+    style: {
+      margin: "10px 0",
+    },
+  },
 };
 
 // Helper function to get all field types
 export const getAllFieldTypes = () => Object.values(FieldsType);
+
+// Helper to get only input field types
+export const getInputFieldTypes = () =>
+  Object.values(FieldsType).filter(isInputField);
+
+// Helper to get only display element types
+export const getDisplayElementTypes = () =>
+  Object.values(FieldsType).filter(isDisplayElement);
 
 // Helper to create a field from config
 export const createFieldFromType = (
@@ -93,21 +222,41 @@ export const createFieldFromType = (
   overrides?: Partial<Field>
 ): Field => {
   const config = fieldConfigs[type];
-  return {
-    name: overrides?.name || type,
-    label: config.label || type,
+
+  // Base field structure
+  const baseField: Partial<Field> = {
+    name: overrides?.name || `${type}_${Date.now()}`,
     type: type,
+    ...overrides,
+  };
+
+  // Display elements don't need label, placeholder, required, defaultValue, options, validation
+  if (isDisplayElement(type)) {
+    return {
+      ...baseField,
+      content: config.content,
+      style: {
+        ...config.style,
+        ...overrides?.style,
+      },
+    } as Field;
+  }
+
+  // Input fields structure
+  return {
+    ...baseField,
+    label: config.label || type,
     required: config.required ?? false,
     placeholder: config.placeholder,
     defaultValue: config.defaultValue,
     options: config.options,
     validation: config.validation || {},
-    ...overrides,
   } as Field;
 };
 
 export const getFieldTypeIcon = (type: FieldsType) => {
   switch (type) {
+    // Input Fields
     case FieldsType.TEXT:
       return TypeIcon;
     case FieldsType.NUMBER:
@@ -124,7 +273,52 @@ export const getFieldTypeIcon = (type: FieldsType) => {
       return CalendarIcon;
     case FieldsType.EMAIL:
       return MailIcon;
+    case FieldsType.SWITCH:
+      return ToggleRightIcon;
+    // Display Elements
+    case FieldsType.SEPARATOR:
+      return MinusIcon;
+    case FieldsType.TITLE:
+      return Heading1Icon;
+    case FieldsType.PARAGRAPH:
+      return FileTextIcon;
+    case FieldsType.SPACER:
+      return SpaceIcon;
+    case FieldsType.IMAGE:
+      return ImageIcon;
+    case FieldsType.ALERT:
+      return AlertCircleIcon;
+    case FieldsType.HTML:
+      return CodeIcon;
+
     default:
       return TypeIcon;
   }
+};
+
+// Helper to get field type label for display
+export const getFieldTypeLabel = (type: FieldsType): string => {
+  const labels: Record<FieldsType, string> = {
+    // Input Fields
+    [FieldsType.TEXT]: "Text",
+    [FieldsType.NUMBER]: "Number",
+    [FieldsType.EMAIL]: "Email",
+    [FieldsType.DATE]: "Date",
+    [FieldsType.SELECT]: "Select",
+    [FieldsType.RADIO]: "Radio",
+    [FieldsType.CHECKBOX]: "Checkbox",
+    [FieldsType.TEXT_AREA]: "Textarea",
+    [FieldsType.SWITCH]: "Switch",
+
+    // Display Elements
+    [FieldsType.SEPARATOR]: "Separator",
+    [FieldsType.TITLE]: "Title",
+    [FieldsType.PARAGRAPH]: "Paragraph",
+    [FieldsType.SPACER]: "Spacer",
+    [FieldsType.IMAGE]: "Image",
+    [FieldsType.ALERT]: "Alert",
+    [FieldsType.HTML]: "HTML",
+  };
+
+  return labels[type] || type;
 };

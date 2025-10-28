@@ -47,7 +47,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     setLogged(false);
     setIsAdmin(false);
-    // router.push(getUrl(URLs.auth.login));
   };
 
   const checkSession = async () => {

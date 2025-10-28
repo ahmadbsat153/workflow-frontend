@@ -1,64 +1,36 @@
 import { Meta } from "../common";
+import { Field } from "./fields";
 
-export interface FormFieldValidation {
-  minLength?: number;
-  maxLength?: number;
-  pattern?: string;
-  min?: number;
-  max?: number;
-}
-
-export interface FormFieldOption {
-  label: string;
-  value: string;
-}
-
-export interface FormField {
-  _id: string;
-  name: string;
-  label: string;
-  type:
-    | "text"
-    | "textarea"
-    | "number"
-    | "email"
-    | "date"
-    | "select"
-    | "radio"
-    | "checkbox";
-  required: boolean;
-  placeholder?: string;
-  defaultValue?: any;
-  options?: FormFieldOption[];
-  validation?: FormFieldValidation;
-}
-
-export interface Form {
+export type Form = {
   _id: string;
   name: string;
   slug: string;
   description?: string;
-  fields: FormField[];
+  fields: Field[];
   workflowId?: string | null;
-  createdBy: string;
+  createdBy: createdBy;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
   __v: number;
-}
+};
 
-export interface Analytics {
+export type Analytics = {
   totalSubmissions: number;
   uniqueSubmitters: number;
   recentSubmissions: number;
-}
+};
 
-export interface FormDetails {
+type createdBy = {
+  firstname: string;
+  lastname: string;
+};
+export type FormDetails = {
   form: Form;
   analytics: Analytics;
-}
+};
 
-export interface FormList {
+export type FormList = {
   data: Form[];
   meta: Meta;
-}
+};

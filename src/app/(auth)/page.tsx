@@ -34,7 +34,7 @@ export default function Login() {
     if (user?.user) {
       router.push(
         getUrl(
-          user.user.is_super_admin || isAdmin ? URLs.admin.dashboard : URLs.home
+          user.user.is_super_admin || isAdmin ? URLs.admin.dashboard : URLs.app.forms.index
         )
       );
     }
@@ -66,7 +66,7 @@ export default function Login() {
 
         router.push(
           getUrl(
-            response.user.is_super_admin || isAdmin ? URLs.home : URLs.home
+            response.user.is_super_admin || isAdmin ? URLs.admin.dashboard : URLs.app.forms.index
           )
         );
       }

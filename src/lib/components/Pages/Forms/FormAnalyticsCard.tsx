@@ -12,9 +12,9 @@ type AnalyticsCard = {
 };
 const FormAnalyticsCard = ({ count, title }: AnalyticsCard) => {
   return (
-    <Card>
+    <Card className="bg-cultured">
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle className="text-primary">{title}</CardTitle>
       </CardHeader>
       <CardContent>
         <CardDescription>{count}</CardDescription>

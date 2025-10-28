@@ -2,7 +2,6 @@
 
 import { FieldsType } from "@/lib/types/form/fields";
 import { Button } from "@/lib/ui/button";
-import { Checkbox } from "@/lib/ui/checkbox";
 import { Input } from "@/lib/ui/input";
 import { Label } from "@/lib/ui/label";
 import {
@@ -12,33 +11,35 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/lib/ui/select";
-interface Props {
+import { Switch } from "@/lib/ui/switch";
+type Props = {
   inputValues: {
     [key: string]: any;
   };
   setInputValues: Function;
-  fields: Field[];
+  fields: UserFormField[];
   addFunction: Function;
   onClose: Function;
   loading: boolean;
   inputValuesProps: {
     [key: string]: any;
   };
-}
+};
 
-interface FieldRestrictionObject {
+type FieldRestrictionObject = {
   [key: string]: any;
-}
+};
 
-interface SelectOptions {
+type SelectOptions = {
   label: string;
   value: any;
-}
+};
 
-interface Field {
+type UserFormField = {
   _id: string;
   name: string;
   label: string;
+  description?: string;
   type: FieldsType;
   required: boolean;
   placeholder: string;
@@ -47,7 +48,7 @@ interface Field {
   restrictions?: FieldRestrictionObject;
   order?: number;
   style?: string;
-}
+};
 
 //Dynamic Add Form
 const AddForm = ({
@@ -60,11 +61,11 @@ const AddForm = ({
 }: Props) => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    field: Field
+    field: UserFormField
   ) => {
     setInputValues({ ...inputValues, [field._id]: e.target.value });
   };
-  const renderField = (field: Field) => {
+  const renderField = (field: UserFormField) => {
     switch (field.type) {
       case FieldsType.TEXT:
         return (
@@ -136,23 +137,35 @@ const AddForm = ({
         );
       case FieldsType.CHECKBOX:
         return (
-          <div className={`flex items-center gap-2 ${field?.style?.includes("col-span-2") ? "col-span-2" : "col-span-1"}`}>
-            <Label>{field.label}</Label>
-            <Checkbox
-              name={field.name}
-              value={inputValues[field._id]}
-              defaultChecked={inputValues[field._id]}
-              className={field?.style}
-              checked={inputValues[field._id]}
-              onCheckedChange={(value) =>
-                setInputValues({ ...inputValues, [field._id]: value })
-              }
-            />
+          <div
+            className={`flex items-center gap-2 w-full ${
+              field?.style?.includes("col-span-2") ? "col-span-2" : "col-span-1"
+            }`}
+          >
+            <div className="flex flex-row items-center justify-between w-full rounded-lg border p-4 gap-5">
+              <div className="space-y-0.5">
+                <Label className="text-base">{field.label}</Label>
+                <div className="text-sm text-muted-foreground">
+                  {field.description}
+                </div>
+              </div>
+              <Switch
+                checked={inputValues[field._id]}
+                onCheckedChange={(value) =>
+                  setInputValues({ ...inputValues, [field._id]: value })
+                }
+                disabled={loading}
+              />
+            </div>
           </div>
         );
       case FieldsType.RADIO:
         return (
-          <div className={`flex items-center gap-2 ${field?.style?.includes("col-span-2") ? "col-span-2" : "col-span-1"}`}>
+          <div
+            className={`flex items-center gap-2 ${
+              field?.style?.includes("col-span-2") ? "col-span-2" : "col-span-1"
+            }`}
+          >
             <Label>{field.label}</Label>
             <Input
               className={field?.style}
@@ -211,21 +224,29 @@ const AddForm = ({
 
   return (
     <div>
-      <form className="w-full h-full flex flex-col gap-[6rem] min-h-full relative" onSubmit={(e) => addFunction(e)}>
+      <form
+        className="w-full h-full flex flex-col gap-[6rem] min-h-full relative"
+        onSubmit={(e) => addFunction(e)}
+      >
         {/* Render fields dynamically based on field type */}
         <div className="grid grid-cols-2 gap-5">
-            {fields.map((field: Field) => renderField(field))}
+          {fields.map((field: UserFormField) => renderField(field))}
         </div>
-        <div className="flex items-center gap-6 justify-end">
-          <Button isDisabled={loading} size="md" variant="ghost" type="button" onClick={()=>onClose()} className="transition-all hover:scale-90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-transparent disabled:hover:bg-opacity-0">
+        <div className="flex items-center gap-3 justify-end">
+          <Button
+            isDisabled={loading}
+            size="lg"
+            variant="outline"
+            type="button"
+            onClick={() => onClose()}
+          >
             Cancel
           </Button>
           <Button
             isDisabled={loading}
             isLoading={loading}
             type="submit"
-            size="md"
-            className="transition-all hover:scale-90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-transparent disabled:hover:bg-opacity-0"
+            size="lg"
             variant="default"
           >
             Submit

@@ -7,6 +7,20 @@ export const URLs = {
       index: "/admin/forms/",
       detail: "/admin/forms/:slug",
       create: "/admin/forms/create/",
+      edit: "/admin/forms/edit/:id",
+    },
+    submissions: {
+      view: "/admin/submissions/view/:id",
+    },
+  },
+  app: {
+    forms: {
+      index: "/forms/",
+    },
+    submissions: {
+      index: "/submissions/",
+      submit: "/submissions/submit/:form_slug",
+      view: "/submissions/view/:id",
     },
   },
   auth: {
