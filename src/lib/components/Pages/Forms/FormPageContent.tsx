@@ -30,7 +30,7 @@ export default function FormsPageContent() {
     <>
       <HeaderContainer
         title="Forms"
-        description="Manage all platform forms from here"
+        // description="Manage all platform forms from here"
       >
         {isAdmin && (
           <Button asChild variant="default" size="sm">

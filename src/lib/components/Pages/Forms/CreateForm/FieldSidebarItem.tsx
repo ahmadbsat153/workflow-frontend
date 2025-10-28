@@ -33,10 +33,10 @@ const FieldSidebarItem = ({ type, onDoubleClick }: propsType) => {
       )}
     >
       <div className="flex items-center gap-2">
-        <Icon className="!size-5 text-primary" />
-        <span className="capitalize text-xs select-none">{type}</span>
+        <Icon className="!size-5 text-pumpkin" />
+        <span className="capitalize text-primary font-bold text-sm select-none">{type}</span>
       </div>
-      <Move className="!size-3 text-gray-500 cursor-move" />
+      <Move className="!size-3 text-primary cursor-move" />
     </SidebarMenuItem>
   );
 };

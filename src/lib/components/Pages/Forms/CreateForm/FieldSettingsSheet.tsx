@@ -30,7 +30,10 @@ import { buildFieldSettingsSchema } from "@/utils/Validation/fieldValidationSche
 import FieldValidation from "@/lib/components/Tabs/Fields/FieldValidation";
 import FieldOptions from "@/lib/components/Tabs/Fields/FieldOptions";
 import FieldDisplay from "@/lib/components/Tabs/Fields/FieldDisplay";
-import { isDisplayElement, getFieldTypeLabel } from "@/lib/constants/formFields";
+import {
+  isDisplayElement,
+  getFieldTypeLabel,
+} from "@/lib/constants/formFields";
 import DisplayElementContent from "@/lib/components/Tabs/Fields/DisplayElementContent";
 import DisplayElementStyle from "@/lib/components/Tabs/Fields/DisplayElementStyle";
 
@@ -189,9 +192,7 @@ const FieldSettingsSheet = ({
           >
             {/* Fixed Header */}
             <SheetHeader className="gap-1 px-6 pt-6 pb-4 border-b shrink-0">
-              <SheetTitle>
-                {getSheetTitle()}
-              </SheetTitle>
+              <SheetTitle>{getSheetTitle()}</SheetTitle>
               <SheetDescription className="text-muted-foreground text-base">
                 {getSheetDescription()}
               </SheetDescription>
@@ -241,10 +242,20 @@ const FieldSettingsSheet = ({
                       <Settings2 className="!size-4" />
                       Settings
                     </TabsTrigger>
-                    <TabsTrigger value="validation" className="cursor-pointer">
-                      <SquareCheckBigIcon className="!size-4" />
-                      Validation
-                    </TabsTrigger>
+
+                    {!(
+                      field.type === FieldsType.SELECT ||
+                      field.type === FieldsType.RADIO ||
+                      field.type === FieldsType.SWITCH
+                    ) && (
+                      <TabsTrigger
+                        value="validation"
+                        className="cursor-pointer"
+                      >
+                        <SquareCheckBigIcon className="!size-4" />
+                        Validation
+                      </TabsTrigger>
+                    )}
                     {(field.type === FieldsType.SELECT ||
                       field.type === FieldsType.CHECKBOX ||
                       field.type === FieldsType.RADIO) && (
@@ -269,15 +280,21 @@ const FieldSettingsSheet = ({
                     </div>
                   </TabsContent>
 
-                  <TabsContent value="validation">
-                    <div className="py-4">
-                      <FieldValidation
-                        field={field}
-                        form={form}
-                        loading={loading}
-                      />
-                    </div>
-                  </TabsContent>
+                  {!(
+                    field.type === FieldsType.SELECT ||
+                    field.type === FieldsType.RADIO ||
+                    field.type === FieldsType.SWITCH
+                  ) && (
+                    <TabsContent value="validation">
+                      <div className="py-4">
+                        <FieldValidation
+                          field={field}
+                          form={form}
+                          loading={loading}
+                        />
+                      </div>
+                    </TabsContent>
+                  )}
 
                   {(field.type === FieldsType.SELECT ||
                     field.type === FieldsType.CHECKBOX ||

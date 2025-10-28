@@ -8,7 +8,7 @@ export type Form = {
   description?: string;
   fields: Field[];
   workflowId?: string | null;
-  createdBy: string;
+  createdBy: createdBy;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -21,6 +21,10 @@ export type Analytics = {
   recentSubmissions: number;
 };
 
+type createdBy = {
+  firstname: string;
+  lastname: string;
+};
 export type FormDetails = {
   form: Form;
   analytics: Analytics;

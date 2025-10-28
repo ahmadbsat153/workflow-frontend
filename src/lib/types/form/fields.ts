@@ -11,6 +11,7 @@ export enum FieldsType {
   RADIO = "radio",
   CHECKBOX = "checkbox",
   TEXT_AREA = "textarea",
+  SWITCH = "switch",
 
   // Display elements
   SEPARATOR = "separator",

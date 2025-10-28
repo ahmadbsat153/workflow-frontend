@@ -10,19 +10,26 @@ import {
 
 import { toast } from "sonner";
 import { Badge } from "@/lib/ui/badge";
-import { ErrorResponse } from "@/lib/types/common";
-import { handleServerError } from "@/lib/api/_axios";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { formatDatesWithYear } from "@/utils/common";
-import { INITIAL_META } from "@/lib/constants/initials";
-import { CellRenderer, DataTable } from "../../Table/DataTable";
-import { FORM_COLUMNS, FORM_VISIBLE_COL } from "@/lib/constants/tables";
 import { Button } from "@/lib/ui/button";
 import { PencilIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ErrorResponse } from "@/lib/types/common";
+import { getUrl, URLs } from "@/lib/constants/urls";
+import { useAuth } from "@/lib/context/AuthContext";
+import { handleServerError } from "@/lib/api/_axios";
 import { Form, FormList } from "@/lib/types/form/form";
+import { INITIAL_META } from "@/lib/constants/initials";
 import { API_FORM } from "@/lib/services/Form/form_service";
+import { CellRenderer, DataTable } from "../../Table/DataTable";
+import { build_path, formatDatesWithYear } from "@/utils/common";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { FORM_COLUMNS, FORM_VISIBLE_COL } from "@/lib/constants/tables";
+import Link from "next/link";
 
 const FormsTable = () => {
+  const router = useRouter();
+  const { isAdmin } = useAuth();
+
   const searchParams = {
     page: parseAsInteger,
     limit: parseAsInteger,
@@ -118,6 +125,7 @@ const FormsTable = () => {
   );
 
   const cellRenderers: Partial<Record<string, CellRenderer<Form>>> = {
+    name: (value) => <span className="font-medium">{value}</span>,
     createdAt: (value) => {
       return <span>{formatDatesWithYear(value)}</span>;
     },
@@ -136,9 +144,24 @@ const FormsTable = () => {
       </div>
     ),
 
+    //TODO: Fix edit overlay link
     actions: (value, row) => (
-      <Button variant="ghost" size="sm">
-        <PencilIcon className="size-4 text-blue-500" />
+      <Button
+        variant="ghost"
+        size="sm"
+        asChild
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Link
+          href={getUrl(
+            build_path(URLs.admin.forms.edit, {
+              id: row._id,
+            })
+          )}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <PencilIcon className="size-4 text-pumpkin" />
+        </Link>
       </Button>
     ),
   };
@@ -163,6 +186,20 @@ const FormsTable = () => {
           enableSorting={true}
           enableGlobalSearch={true}
           enableColumnVisibility={true}
+          onRowClick={(row) => {
+            const admin_url = getUrl(
+              build_path(URLs.admin.forms.detail, { slug: row.slug })
+            );
+
+            const user_url = getUrl(
+              build_path(URLs.app.submissions.submit, {
+                form_slug: row.slug,
+              })
+            );
+
+            const url = isAdmin ? admin_url : user_url;
+            router.push(url);
+          }}
           // Customization
           searchPlaceholder="Search forms..."
           emptyStateMessage="No forms found."

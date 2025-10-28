@@ -58,7 +58,6 @@ const SubmissionDetails = () => {
     );
   }
   return (
-    <SectionContainer className="">
       <SubmissionDisplay
         fields={submission.form.fields}
         submissionData={submission.submissionData}
@@ -67,7 +66,6 @@ const SubmissionDetails = () => {
         submittedBy={submission.submittedBy}
         createdAt={submission.createdAt}
       />
-    </SectionContainer>
   );
 };
 

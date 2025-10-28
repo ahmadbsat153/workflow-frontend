@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/lib/ui/button";
 import Link from "next/link";
 import { getUrl, URLs } from "@/lib/constants/urls";
-import { build_path } from "@/utils/common";
+import { build_path, formatDatesWithYearWithoutTime } from "@/utils/common";
 import { formatDatesWithYear } from "@/utils/common";
 
 type FormCardProps = {
@@ -59,7 +59,7 @@ const FormCard = ({
             "cursor-pointer hover:shadow-md hover:border-gray-300",
           disabled && "opacity-50 cursor-not-allowed",
           variant === "create" && "border-dashed border-2 hover:bg-primary/10",
-          variant === "create" ? "bg-gray-50" : "bg-form-card-foreground",
+          variant === "create" ? "bg-gray-50" : "bg-cultured",
           "rounded-2xl",
           className
         )}
@@ -68,7 +68,7 @@ const FormCard = ({
         <CardHeader>
           <div className="flex w-full">
             {variant !== "create" && (
-              <CardTitle className="text-lg py-4 font-bold text-teal-900 wrap-break-word">
+              <CardTitle className="text-lg py-4 font-bold text-primary wrap-break-word">
                 {title}
               </CardTitle>
             )}
@@ -94,7 +94,7 @@ const FormCard = ({
                           })
                         )}
                       >
-                        <PencilIcon className="!size-[18px] text-blue-500" />
+                        <PencilIcon className="!size-[18px] text-pumpkin" />
                       </Link>
                     </Button>
                   </div>
@@ -137,8 +137,8 @@ const FormCard = ({
           )}
           {variant !== "create" && createdAt && createdBy && (
             <div className="flex flex-col items-end text-xs text-gray-500 mt-2 self-end">
-              <span>{formatDatesWithYear(createdAt)}</span>
-              <span>- Created by {createdBy}</span>
+              <span className="uppercase">{formatDatesWithYearWithoutTime(createdAt)}</span>
+              {/* <span className="capitalize">By {createdBy}</span> */}
             </div>
           )}
         </CardFooter>

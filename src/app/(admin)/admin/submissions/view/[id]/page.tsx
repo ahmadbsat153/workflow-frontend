@@ -3,7 +3,7 @@ import SubmissionDetails from "@/lib/components/Pages/Submissions/SubmissionDeta
 
 const page = () => {
   return (
-    <PageContainer className="bg-gray-50">
+    <PageContainer className="bg-cultured !py-2">
       <SubmissionDetails />
     </PageContainer>
   );

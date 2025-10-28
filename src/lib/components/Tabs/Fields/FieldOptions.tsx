@@ -8,7 +8,6 @@ import {
   FormMessage,
 } from "@/lib/ui/form";
 import { Input } from "@/lib/ui/input";
-import { Switch } from "@/lib/ui/switch";
 import { Button } from "@/lib/ui/button";
 import { UseFormReturn, useFieldArray } from "react-hook-form";
 import { Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
@@ -167,7 +166,7 @@ const FieldOptions = ({ form, field, loading }: Props) => {
       </div>
 
       {optionFields.length < 2 && optionFields.length > 0 && (
-        <p className="text-sm text-amber-600">
+        <p className="text-sm text-pumpkin">
           At least 2 options are recommended for a meaningful selection
         </p>
       )}

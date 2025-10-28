@@ -1,6 +1,6 @@
 "use client";
 
-import { Field } from "@/lib/types/form/fields";
+import { Field, FieldsType } from "@/lib/types/form/fields";
 import {
   FormControl,
   FormDescription,
@@ -10,7 +10,6 @@ import {
   FormMessage,
 } from "@/lib/ui/form";
 import { Input } from "@/lib/ui/input";
-import { Switch } from "@/lib/ui/switch";
 import { getValidationFieldsForType } from "@/utils/Form/ValidationFeildsConfig";
 import { UseFormReturn } from "react-hook-form";
 
@@ -41,10 +40,18 @@ const FieldValidation = ({ field, form, loading }: Props) => {
                       type={validationField.type}
                       placeholder={validationField.placeholder}
                       value={formField.value ?? ""}
-                      onChange={formField.onChange}
+                      onChange={(e) => {
+                        const value =
+                          validationField.type === FieldsType.NUMBER
+                            ? e.target.value === ""
+                              ? undefined
+                              : Number(e.target.value)
+                            : e.target.value;
+                        formField.onChange(value);
+                      }}
                       onBlur={formField.onBlur}
                       name={formField.name}
-                      ref={formField.ref}
+                      // ref={formField.ref}
                       disabled={loading}
                     />
                   </FormControl>

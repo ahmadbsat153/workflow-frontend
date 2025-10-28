@@ -178,7 +178,42 @@ const FormsSubmissionsTable = () => {
           case "date":
             return <span>{formatDatesWithYear(fieldValue)}</span>;
           case "checkbox":
-            return fieldValue ? <span>✓</span> : <span>✗</span>;
+            if (!Array.isArray(fieldValue)) {
+              // Single boolean checkbox (like "I agree")
+              return fieldValue ? <span>✓</span> : <span>✗</span>;
+            }
+
+            // Multiple checkbox values
+            if (fieldValue.length === 0) {
+              return (
+                <span className="text-gray-400 italic">None selected</span>
+              );
+            }
+
+            // Get the labels for selected values
+            const selectedLabels = fieldValue.map((val) => {
+              const option = field.options?.find((opt) => opt.value === val);
+              return option?.label || val;
+            });
+
+            // Join all values
+            const displayText = selectedLabels.join(", ");
+
+            // Truncate if too long
+            if (displayText.length > 50) {
+              return (
+                <div className="flex items-center gap-1">
+                  <span className="truncate max-w-[200px]" title={displayText}>
+                    {displayText}
+                  </span>
+                  <span className="text-gray-500 text-xs whitespace-nowrap">
+                    ({selectedLabels.length} selected)
+                  </span>
+                </div>
+              );
+            }
+
+            return <span>{displayText}</span>;
           case "email":
             return (
               <a

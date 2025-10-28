@@ -98,17 +98,21 @@ const SortableHeader: React.FC<{
   };
 
   if (!column.getCanSort()) {
-    return <div className={`flex items-center ${alignClass}`}>{title}</div>;
+    return (
+      <div className={`flex items-center capitalize ${alignClass}`}>
+        {title}
+      </div>
+    );
   }
 
   return (
     <Button
       variant="ghost"
       size="sm"
-      className={`h-8 p-0 hover:bg-transparent flex items-center ${alignClass}`}
+      className={`h-8 p-0 hover:bg-transparent flex items-center has-[>svg]:px-0 capitalize ${alignClass}`}
       onClick={handleSort}
     >
-      <span>{title}</span>
+      <span className="capitalize">{title}</span>
       {column.getIsSorted() === "desc" ? (
         <ArrowDown className="ml-2 h-4 w-4" />
       ) : column.getIsSorted() === "asc" ? (
@@ -456,14 +460,14 @@ export function DataTable<TData extends Record<string, any>>({
           </div>
         )}
         <Table className={tableClassName}>
-          <TableHeader className="bg-muted">
+          <TableHeader className="bg-cultured">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
                     colSpan={header.colSpan}
-                    className="capitalize"
+                    className="capitalize !text-secondary"
                   >
                     {header.isPlaceholder
                       ? null

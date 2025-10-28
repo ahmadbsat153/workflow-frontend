@@ -65,7 +65,7 @@ const DnDContainer = ({
     <div
       ref={setNodeRef}
       className={`border-dashed border-2 p-4 transition-colors min-h-[400px] max-h-[75vh] overflow-y-auto scrollbar ${
-        isOver ? "bg-blue-50 border-blue-400" : "bg-red-50 border-gray-300"
+        isOver ? "bg-pumpkin/10 border-pumpkin" : "bg-cultured border-gray-300"
       }`}
     >
       {droppedFields.length === 0 ? (
@@ -169,8 +169,8 @@ const SortableFieldInput = ({
     >
       {/* Drop indicator line - shows before this field */}
       {showDropIndicator && (
-        <div className="absolute -left-2 top-0 bottom-0 w-1 bg-blue-500 rounded-full z-30 animate-pulse shadow-lg">
-          <div className="absolute -top-2 -left-2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+        <div className="absolute -left-2 top-0 bottom-0 w-1 bg-pumpkin rounded-full z-30 animate-pulse shadow-lg">
+          <div className="absolute -top-2 -left-2 w-5 h-5 bg-pumpkin rounded-full flex items-center justify-center">
             <div className="w-2 h-2 bg-white rounded-full"></div>
           </div>
         </div>
@@ -178,7 +178,7 @@ const SortableFieldInput = ({
 
       <div
         ref={containerRef}
-        className={`border rounded-lg bg-white hover:border-blue-400 transition-colors group `}
+        className={`border rounded-lg bg-white hover:border-pumpkin transition-colors group `}
       >
         {/* Drag handle for sorting */}
         <button
@@ -217,7 +217,7 @@ const SortableFieldInput = ({
               >
                 <SelectTrigger
                   size="sm"
-                  className="text-xs text-blue-500 font-medium bg-white hover:bg-blue-50 w-[70px] cursor-pointer"
+                  className="text-xs text-secondary font-medium bg-white hover:bg-blue-50 w-[70px] cursor-pointer"
                 >
                   {width}%
                 </SelectTrigger>
@@ -278,8 +278,8 @@ const DropZoneEnd = ({ showIndicator }: { showIndicator: boolean }) => {
       className="relative flex-grow min-w-[200px] min-h-[80px] flex items-center justify-center"
     >
       {showIndicator && (
-        <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 rounded-full z-30 animate-pulse shadow-lg">
-          <div className="absolute -top-2 -left-2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-pumpkin rounded-full z-30 animate-pulse shadow-lg">
+          <div className="absolute -top-2 -left-2 w-5 h-5 bg-pumpkin rounded-full flex items-center justify-center">
             <div className="w-2 h-2 bg-white rounded-full"></div>
           </div>
         </div>

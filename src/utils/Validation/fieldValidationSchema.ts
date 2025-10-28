@@ -131,9 +131,14 @@ export const buildValidationSchema = (fields: Field[]) => {
 
         if (field.required) {
           stringSchema = stringSchema.min(1, `${field.label} is required`);
+          fieldSchema = stringSchema;
+        } else {
+          // Transform empty string to undefined for optional validation
+          fieldSchema = z.preprocess(
+            (val) => (val === "" ? undefined : val),
+            stringSchema.optional()
+          );
         }
-
-        fieldSchema = field.required ? stringSchema : stringSchema.optional();
         break;
 
       case FieldsType.EMAIL:
@@ -143,9 +148,14 @@ export const buildValidationSchema = (fields: Field[]) => {
 
         if (field.required) {
           emailSchema = emailSchema.min(1, `${field.label} is required`);
+          fieldSchema = emailSchema;
+        } else {
+          // Transform empty string to undefined for optional validation
+          fieldSchema = z.preprocess(
+            (val) => (val === "" ? undefined : val),
+            emailSchema.optional()
+          );
         }
-
-        fieldSchema = field.required ? emailSchema : emailSchema.optional();
         break;
 
       case FieldsType.NUMBER:
@@ -165,7 +175,15 @@ export const buildValidationSchema = (fields: Field[]) => {
           );
         }
 
-        fieldSchema = field.required ? numberSchema : numberSchema.optional();
+        if (field.required) {
+          fieldSchema = numberSchema;
+        } else {
+          // Transform empty string to undefined for optional validation
+          fieldSchema = z.preprocess(
+            (val) => (val === "" ? undefined : val),
+            numberSchema.optional()
+          );
+        }
         break;
 
       case FieldsType.SELECT:
@@ -185,7 +203,15 @@ export const buildValidationSchema = (fields: Field[]) => {
           );
         }
 
-        fieldSchema = field.required ? selectSchema : selectSchema.optional();
+        if (field.required) {
+          fieldSchema = selectSchema;
+        } else {
+          // Transform empty string to undefined for optional validation
+          fieldSchema = z.preprocess(
+            (val) => (val === "" ? undefined : val),
+            selectSchema.optional()
+          );
+        }
         break;
 
       case FieldsType.CHECKBOX:
@@ -276,7 +302,22 @@ export const buildValidationSchema = (fields: Field[]) => {
           );
         }
 
-        fieldSchema = field.required ? dateSchema : dateSchema.optional();
+        if (field.required) {
+          fieldSchema = dateSchema;
+        } else {
+          // Transform empty string to undefined for optional validation
+          fieldSchema = z.preprocess(
+            (val) => (val === "" ? undefined : val),
+            dateSchema.optional()
+          );
+        }
+        break;
+
+      case FieldsType.SWITCH:
+        fieldSchema = z.boolean();
+        if (!field.required) {
+          fieldSchema = fieldSchema.optional();
+        }
         break;
 
       default:
@@ -327,12 +368,14 @@ export const buildFieldSettingsSchema = (field: Field) => {
         return z.object({
           name: z.string().min(1, "Field name is required"),
           content: z.object({}).optional(),
-          style: z.object({
-            borderStyle: z.string().optional(),
-            borderWidth: z.string().optional(),
-            borderColor: z.string().optional(),
-            margin: z.string().optional(),
-          }).optional(),
+          style: z
+            .object({
+              borderStyle: z.string().optional(),
+              borderWidth: z.string().optional(),
+              borderColor: z.string().optional(),
+              margin: z.string().optional(),
+            })
+            .optional(),
         });
 
       case FieldsType.TITLE:
@@ -342,15 +385,17 @@ export const buildFieldSettingsSchema = (field: Field) => {
             text: z.string().min(1, "Title text is required"),
             level: z.number().min(1).max(6).optional(),
           }),
-          style: z.object({
-            fontSize: z.string().optional(),
-            fontWeight: z.string().optional(),
-            color: z.string().optional(),
-            backgroundColor: z.string().optional(),
-            alignment: z.enum(["left", "center", "right"]).optional(),
-            padding: z.string().optional(),
-            margin: z.string().optional(),
-          }).optional(),
+          style: z
+            .object({
+              fontSize: z.string().optional(),
+              fontWeight: z.string().optional(),
+              color: z.string().optional(),
+              backgroundColor: z.string().optional(),
+              alignment: z.enum(["left", "center", "right"]).optional(),
+              padding: z.string().optional(),
+              margin: z.string().optional(),
+            })
+            .optional(),
         });
 
       case FieldsType.PARAGRAPH:
@@ -359,22 +404,27 @@ export const buildFieldSettingsSchema = (field: Field) => {
           content: z.object({
             text: z.string().min(1, "Paragraph text is required"),
           }),
-          style: z.object({
-            fontSize: z.string().optional(),
-            fontWeight: z.string().optional(),
-            color: z.string().optional(),
-            backgroundColor: z.string().optional(),
-            alignment: z.enum(["left", "center", "right"]).optional(),
-            padding: z.string().optional(),
-            margin: z.string().optional(),
-          }).optional(),
+          style: z
+            .object({
+              fontSize: z.string().optional(),
+              fontWeight: z.string().optional(),
+              color: z.string().optional(),
+              backgroundColor: z.string().optional(),
+              alignment: z.enum(["left", "center", "right"]).optional(),
+              padding: z.string().optional(),
+              margin: z.string().optional(),
+            })
+            .optional(),
         });
 
       case FieldsType.SPACER:
         return z.object({
           name: z.string().min(1, "Field name is required"),
           content: z.object({
-            height: z.number().min(1, "Height must be at least 1px").max(1000, "Height cannot exceed 1000px"),
+            height: z
+              .number()
+              .min(1, "Height must be at least 1px")
+              .max(1000, "Height cannot exceed 1000px"),
           }),
           style: z.object({}).optional(),
         });
@@ -386,11 +436,13 @@ export const buildFieldSettingsSchema = (field: Field) => {
             imageUrl: z.string().url("Must be a valid URL"),
             imageAlt: z.string().optional(),
           }),
-          style: z.object({
-            alignment: z.enum(["left", "center", "right"]).optional(),
-            padding: z.string().optional(),
-            margin: z.string().optional(),
-          }).optional(),
+          style: z
+            .object({
+              alignment: z.enum(["left", "center", "right"]).optional(),
+              padding: z.string().optional(),
+              margin: z.string().optional(),
+            })
+            .optional(),
         });
 
       case FieldsType.ALERT:
@@ -398,11 +450,15 @@ export const buildFieldSettingsSchema = (field: Field) => {
           name: z.string().min(1, "Field name is required"),
           content: z.object({
             text: z.string().min(1, "Alert message is required"),
-            alertType: z.enum(["info", "success", "warning", "error"]).optional(),
+            alertType: z
+              .enum(["info", "success", "warning", "error"])
+              .optional(),
           }),
-          style: z.object({
-            margin: z.string().optional(),
-          }).optional(),
+          style: z
+            .object({
+              margin: z.string().optional(),
+            })
+            .optional(),
         });
 
       case FieldsType.HTML:
@@ -411,10 +467,12 @@ export const buildFieldSettingsSchema = (field: Field) => {
           content: z.object({
             html: z.string().min(1, "HTML content is required"),
           }),
-          style: z.object({
-            padding: z.string().optional(),
-            margin: z.string().optional(),
-          }).optional(),
+          style: z
+            .object({
+              padding: z.string().optional(),
+              margin: z.string().optional(),
+            })
+            .optional(),
         });
 
       default:
@@ -429,8 +487,8 @@ export const buildFieldSettingsSchema = (field: Field) => {
 
   // Schema for input fields
   const baseSchema = {
-    name: z.string().min(1, "Field name is required"),
-    label: z.string().min(1, "Label is required"),
+    name: z.string().optional(),
+    label: z.string().min(1, "Label is required").optional(),
     placeholder: z.string().optional(),
     required: z.boolean(),
     defaultValue: z.union([z.string(), z.number(), z.boolean()]).optional(),

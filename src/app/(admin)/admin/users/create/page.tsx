@@ -124,6 +124,7 @@ const page = () => {
       type: FieldsType.CHECKBOX,
       required: true,
       placeholder: "First Name",
+      description: "Grant super admin privileges to this user",
       defaultValue: inputValues.is_super_admin,
       order: 5,
       style: "col-span-1",
@@ -135,6 +136,7 @@ const page = () => {
       type: FieldsType.CHECKBOX,
       required: true,
       placeholder: "First Name",
+      description: "Turn this user active or inactive",
       defaultValue: inputValues.is_active,
       order: 6,
       style: "col-span-1",
@@ -146,26 +148,27 @@ const page = () => {
       type: FieldsType.CHECKBOX,
       required: true,
       placeholder: "First Name",
+      description: "Archive this user",
       defaultValue: inputValues.is_archived,
       order: 7,
-      style: "col-span-2",
+      style: "col-span-1",
     },
   ];
 
   const onClose = () => {
     router.push("/admin/users");
-      setInputValues({
-        firstname: "",
-        lastname: "",
-        email: "",
-        phone: "",
-        is_archived: false,
-        is_active: true,
-        is_super_admin: true,
-        role: "",
-        password: "",
-      });
-  }
+    setInputValues({
+      firstname: "",
+      lastname: "",
+      email: "",
+      phone: "",
+      is_archived: false,
+      is_active: true,
+      is_super_admin: true,
+      role: "",
+      password: "",
+    });
+  };
   const router = useRouter();
   const addUser = async () => {
     try {
@@ -175,7 +178,6 @@ const page = () => {
       // On success, reset the form, show a success message and navigate to the users page
       await onClose();
       toast.success("User added successfully");
-
     } catch (error) {
       handleServerError(error as ErrorResponse, (err_msg) => {
         toast.error(err_msg);

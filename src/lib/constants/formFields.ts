@@ -15,6 +15,7 @@ import {
   ImageIcon,
   AlertCircleIcon,
   CodeIcon,
+  ToggleRightIcon,
 } from "lucide-react";
 
 // Helper functions to categorize field types
@@ -40,6 +41,7 @@ export const isInputField = (type: FieldsType): boolean => {
     FieldsType.RADIO,
     FieldsType.CHECKBOX,
     FieldsType.TEXT_AREA,
+    FieldsType.SWITCH,
   ].includes(type);
 };
 
@@ -117,6 +119,12 @@ export const fieldConfigs: Record<FieldsType, Partial<Field>> = {
       minLength: 5,
       maxLength: 100,
     },
+  },
+  [FieldsType.SWITCH]: {
+    label: "Toggle Switch",
+    required: false,
+    defaultValue: false,
+    validation: {},
   },
 
   // Display Elements
@@ -265,7 +273,8 @@ export const getFieldTypeIcon = (type: FieldsType) => {
       return CalendarIcon;
     case FieldsType.EMAIL:
       return MailIcon;
-
+    case FieldsType.SWITCH:
+      return ToggleRightIcon;
     // Display Elements
     case FieldsType.SEPARATOR:
       return MinusIcon;
@@ -299,6 +308,7 @@ export const getFieldTypeLabel = (type: FieldsType): string => {
     [FieldsType.RADIO]: "Radio",
     [FieldsType.CHECKBOX]: "Checkbox",
     [FieldsType.TEXT_AREA]: "Textarea",
+    [FieldsType.SWITCH]: "Switch",
 
     // Display Elements
     [FieldsType.SEPARATOR]: "Separator",

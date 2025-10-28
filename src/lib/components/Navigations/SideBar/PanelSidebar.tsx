@@ -83,8 +83,8 @@ export function PanelSidebar({
         </Sidebar>
       )}
 
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center justify-end gap-2 border-b w-full px-2 xl:px-8 2xl:px-16">
+      <SidebarInset className="overflow-hidden">
+        <header className="flex h-12 shrink-0 items-center justify-end gap-2 border-b w-full px-2 xl:px-8 2xl:px-16">
           <BellIcon className="size-5 text-default-500" />
         </header>
         {children}

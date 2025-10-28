@@ -445,11 +445,14 @@ const FormBuilder = () => {
     setLoading(true);
     const id = "form-create";
 
+
+     
     try {
       await API_FORM.createForm(data);
       toast.success("Form Created Successfully", { id });
       router.push(getUrl(URLs.admin.forms.index));
     } catch (error) {
+      //TODO: Dislplay errors properly, either from backend or frontend 
       handleServerError(error as ErrorResponse, (msg) => {
         toast.error(`${msg}`, { id });
       });
@@ -593,9 +596,9 @@ const DragPreview = ({
   width: FieldWidth;
 }) => {
   return (
-    <div className="opacity-90 bg-white border-2 border-blue-500 rounded-lg p-3 shadow-xl max-w-[400px]">
+    <div className="opacity-90 bg-white border-2 border-gray-200 rounded-lg p-3 shadow-xl max-w-[400px]">
       <FieldSidebarItem type={type} />
-      <div className="mt-2 text-xs text-blue-500 font-medium text-center">
+      <div className="mt-2 text-xs text-primary font-medium text-center">
         Will be placed at {width}% width
       </div>
     </div>
@@ -604,10 +607,10 @@ const DragPreview = ({
 
 const DragPreviewField = ({ field }: { field: Field }) => {
   const Icon = getFieldTypeIcon(field.type);
-  const width = (field.style?.width as FieldWidth) ?? 100;
+  // const width = (field.style?.width as FieldWidth) ?? 100;
 
   return (
-    <div className="bg-white border-2 border-blue-500 rounded-lg p-4 shadow-xl opacity-90 max-w-[400px]">
+    <div className="bg-white border-2 border-pumpkin rounded-lg p-4 shadow-xl opacity-90 max-w-[400px]">
       <div className="flex items-center gap-2 mb-2">
         <Icon className="size-5" />
         <label className="font-medium">
@@ -615,7 +618,7 @@ const DragPreviewField = ({ field }: { field: Field }) => {
           {field.required && <span className="text-red-500 ml-1">*</span>}
         </label>
       </div>
-      <div className="text-xs text-blue-500 font-medium">Width: {width}%</div>
+      {/* <div className="text-xs text-blue-500 font-medium">Width: {width}%</div> */}
     </div>
   );
 };

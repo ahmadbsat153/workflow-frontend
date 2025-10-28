@@ -76,7 +76,7 @@ const FormCardList = () => {
 
   if (loading) {
     return (
-      <div className="h-screen w-full flex items-center justify-center">
+      <div className="h-[80vh] w-full flex items-center justify-center">
         <DotsLoader />
       </div>
     );
@@ -88,7 +88,7 @@ const FormCardList = () => {
           title="Create from scratch"
           icon={Plus}
           iconColor="white"
-          iconBackgroundColor="bg-green-500"
+          iconBackgroundColor="bg-primary"
           description="Start with a blank form and add your own questions."
           onClick={() => {
             const url = getUrl(build_path(URLs.admin.forms.create));
