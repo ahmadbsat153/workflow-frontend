@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon } from "lucide-react";
 
 // Generic column definition interface
 export interface TableColumn<TData = any> {
@@ -42,11 +42,15 @@ export interface DataTableProps<TData> {
   // Server-side pagination - use generic meta type
   serverSide?: boolean;
   loading?: boolean;
-  meta?: any; // Accept any meta type to be compatible with existing implementations
+  meta?: any;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (size: number) => void;
   onSearch?: (search: string) => void;
   onSort?: (field: string, order: "asc" | "desc") => void;
+
+  // Current sort state for server-side sorting
+  currentSortField?: string;
+  currentSortOrder?: "asc" | "desc";
 
   // Feature toggles
   enableSelection?: boolean;
@@ -82,7 +86,7 @@ export interface AdditionalButton {
 
   // icon: The component/reference for the icon.
   icon: LucideIcon;
-  
+
   // style: The Tailwind CSS classes for styling.
   style: string;
 
@@ -92,6 +96,11 @@ export interface AdditionalButton {
   // Button properties
   type?: "button" | "submit" | "reset";
   size?: "default" | "sm" | "md" | "lg" | "icon";
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
-
+  variant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link";
 }

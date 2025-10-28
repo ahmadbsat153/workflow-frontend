@@ -34,6 +34,7 @@ export const FORM_ENDPOINTS = {
 
 export const FORM_SUBMISSION_ENDPOINTS = {
   GET_ALL_BY_FORM: "/api/v1/form/form-submissions/:slug",
+  GET_ALL_BY_USER: "/api/v1/form/submissions",
   GET_ID: "/api/v1/form/submission/:id",
   SUBMIT_FORM: "/api/v1/form/submission",
 };

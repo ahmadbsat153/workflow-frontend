@@ -18,6 +18,7 @@ export const URLs = {
       index: "/forms/",
     },
     submissions: {
+      index: "/submissions/",
       submit: "/submissions/submit/:form_slug",
       view: "/submissions/view/:id",
     },

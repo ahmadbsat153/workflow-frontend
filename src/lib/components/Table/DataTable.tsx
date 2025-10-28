@@ -80,7 +80,18 @@ const SortableHeader: React.FC<{
   serverSide?: boolean;
   onSort?: (field: string, order: "asc" | "desc") => void;
   field?: string;
-}> = ({ column, title, align = "left", serverSide, onSort, field }) => {
+  currentSortField?: string;
+  currentSortOrder?: "asc" | "desc";
+}> = ({ 
+  column, 
+  title, 
+  align = "left", 
+  serverSide, 
+  onSort, 
+  field,
+  currentSortField,
+  currentSortOrder 
+}) => {
   const alignClass = {
     left: "justify-start",
     center: "justify-center",
@@ -89,9 +100,19 @@ const SortableHeader: React.FC<{
 
   const handleSort = () => {
     if (serverSide && onSort && field) {
-      const currentSort = column.getIsSorted();
-      const newOrder = currentSort === "asc" ? "desc" : "asc";
-      onSort(field, newOrder);
+      // Cycle through: none -> asc -> desc -> none -> ...
+      if (currentSortField === field) {
+        // If currently sorting by this field, cycle through the states
+        if (currentSortOrder === "asc") {
+          onSort(field, "desc");
+        } else if (currentSortOrder === "desc") {
+          // Remove sort by passing empty string or null
+          onSort("", "asc"); // This will clear the sort
+        }
+      } else {
+        // If not currently sorting by this field, start with asc
+        onSort(field, "asc");
+      }
     } else {
       column.toggleSorting(column.getIsSorted() === "asc");
     }
@@ -105,6 +126,10 @@ const SortableHeader: React.FC<{
     );
   }
 
+  // Determine the current sort state for this specific field
+  const isSortedByThisField = serverSide ? currentSortField === field : false;
+  const sortDirection = isSortedByThisField ? currentSortOrder : column.getIsSorted();
+
   return (
     <Button
       variant="ghost"
@@ -113,12 +138,12 @@ const SortableHeader: React.FC<{
       onClick={handleSort}
     >
       <span className="capitalize">{title}</span>
-      {column.getIsSorted() === "desc" ? (
+      {sortDirection === "desc" ? (
         <ArrowDown className="ml-2 h-4 w-4" />
-      ) : column.getIsSorted() === "asc" ? (
+      ) : sortDirection === "asc" ? (
         <ArrowUp className="ml-2 h-4 w-4" />
       ) : (
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />
       )}
     </Button>
   );
@@ -151,6 +176,8 @@ export function DataTable<TData extends Record<string, any>>({
   className,
   tableClassName,
   additionalButtons = [],
+  currentSortField,
+  currentSortOrder,
 }: DataTableProps<TData>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -199,6 +226,8 @@ export function DataTable<TData extends Record<string, any>>({
           serverSide={serverSide}
           onSort={onSort}
           field={col.uid as string}
+          currentSortField={currentSortField}
+          currentSortOrder={currentSortOrder}
         />
       ),
       cell: ({ getValue, row }) => {
@@ -251,76 +280,63 @@ export function DataTable<TData extends Record<string, any>>({
         ),
         enableSorting: false,
         enableHiding: false,
-        size: 50,
+        size: 40,
       };
-      reactTableColumns.unshift(selectionColumn);
+      return [selectionColumn, ...reactTableColumns];
     }
 
     return reactTableColumns;
-  }, [
-    userColumns,
-    enableSelection,
-    enableSorting,
-    cellRenderers,
-    serverSide,
-    onSort,
-  ]);
+  }, [userColumns, enableSelection, enableSorting, cellRenderers, serverSide, onSort, currentSortField, currentSortOrder]);
 
   const table = useReactTable({
     data,
     columns,
     state: {
-      sorting: enableSorting ? sorting : [],
+      sorting,
       columnVisibility,
-      rowSelection: enableSelection ? rowSelection : {},
+      rowSelection,
       columnFilters,
-      pagination: serverSide
-        ? {
-            pageIndex: (meta?.page || 1) - 1,
-            pageSize: meta?.limit || pageSize,
-          }
-        : pagination,
-      globalFilter: enableGlobalSearch ? globalFilter : "",
+      pagination,
+      globalFilter,
     },
     enableRowSelection: enableSelection,
-    enableSorting,
+    onRowSelectionChange: setRowSelection,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onPaginationChange: setPagination,
+    onGlobalFilterChange: setGlobalFilter,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: serverSide ? undefined : getFilteredRowModel(),
+    getPaginationRowModel: serverSide ? undefined : getPaginationRowModel(),
+    getSortedRowModel: serverSide ? undefined : getSortedRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
     manualPagination: serverSide,
     manualSorting: serverSide,
     manualFiltering: serverSide,
-    pageCount: serverSide ? meta?.total_pages : undefined,
-    onRowSelectionChange: enableSelection ? setRowSelection : undefined,
-    onSortingChange: enableSorting ? setSorting : undefined,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
-    onPaginationChange: serverSide ? undefined : setPagination,
-    onGlobalFilterChange: serverSide ? undefined : setGlobalFilter,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: serverSide ? getCoreRowModel() : getFilteredRowModel(),
-    getPaginationRowModel:
-      enablePagination && !serverSide
-        ? getPaginationRowModel()
-        : getCoreRowModel(),
-    getSortedRowModel:
-      enableSorting && !serverSide ? getSortedRowModel() : getCoreRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
-    globalFilterFn: "includesString",
+    pageCount: serverSide && meta ? meta.totalPages : undefined,
   });
 
   React.useEffect(() => {
-    if (onSelectionChange && enableSelection) {
+    if (onSelectionChange) {
       const selectedRows = table
         .getFilteredSelectedRowModel()
         .rows.map((row) => row.original);
       onSelectionChange(selectedRows);
     }
-  }, [rowSelection, onSelectionChange, enableSelection, table]);
+  }, [rowSelection, onSelectionChange]);
+
+  const totalPages = serverSide && meta ? meta.totalPages : table.getPageCount();
+  const currentPage = serverSide && meta ? meta.currentPage : pagination.pageIndex + 1;
+  const totalItems = serverSide && meta ? meta.totalItems : table.getFilteredRowModel().rows.length;
+  const currentPageSize = serverSide && meta ? meta.limit : pagination.pageSize;
 
   const handlePageChange = (page: number) => {
     if (serverSide && onPageChange) {
       onPageChange(page);
     } else {
-      table.setPageIndex(page - 1);
+      setPagination((prev) => ({ ...prev, pageIndex: page - 1 }));
     }
   };
 
@@ -328,38 +344,26 @@ export function DataTable<TData extends Record<string, any>>({
     if (serverSide && onPageSizeChange) {
       onPageSizeChange(size);
     } else {
-      table.setPageSize(size);
+      setPagination({ pageIndex: 0, pageSize: size });
     }
   };
 
-  const currentPage = serverSide
-    ? meta?.page || 1
-    : table.getState().pagination.pageIndex + 1;
-  const totalPages = serverSide ? meta?.total_pages || 1 : table.getPageCount();
-  const currentPageSize = serverSide
-    ? meta?.limit || pageSize
-    : table.getState().pagination.pageSize;
-  const totalItems = serverSide ? meta?.count || 0 : data.length;
-
   return (
-    <div className={`w-full flex flex-col gap-4 ${className || ""}`}>
-      {/* Controls */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <div className={`space-y-4 ${className || ""}`}>
+      {/* Toolbar */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-1 flex-col gap-4 lg:flex-row lg:items-center">
           {/* Search */}
           {enableGlobalSearch && (
-            <div className="max-w-sm">
-              <Input
-                placeholder={searchPlaceholder}
-                value={globalFilter ?? ""}
-                onChange={(event) => handleSearchChange(event.target.value)}
-                className="h-8"
-                disabled={loading}
-              />
-            </div>
+            <Input
+              placeholder={searchPlaceholder}
+              value={globalFilter}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="h-8 w-full lg:w-[250px]"
+              disabled={loading}
+            />
           )}
 
-          {/* Selection count */}
           {enableSelection && (
             <div className="text-muted-foreground text-sm">
               {table.getFilteredSelectedRowModel().rows.length} of{" "}

@@ -19,6 +19,6 @@ export type FormSubmission = {
 
 export type FormSubmissionList = {
   data: FormSubmission[];
-  fields: Field[];
+  fields?: Field[];
   meta: Meta;
 }

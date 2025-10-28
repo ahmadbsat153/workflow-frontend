@@ -50,7 +50,7 @@ const SubmissionDisplay = ({
   return (
     <PageContainer className="bg-cultured !p-0 flex justify-center overflow-hidden">
       <div className="w-full max-w-3xl flex items-center">
-        <Card className="w-full flex flex-col h-[90vh]">
+        <Card className="w-full flex flex-col max-h-[90vh]">
           {/* Header Section */}
           <CardHeader className="flex-shrink-0">
             <CardTitle>{formName}</CardTitle>

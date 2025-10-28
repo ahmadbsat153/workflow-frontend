@@ -35,4 +35,15 @@ export namespace API_FORM_SUBMISSION {
       throw handleErrors(error);
     }
   }
+
+  export async function getSubmissionByUser(query: string) {
+    try {
+      const response = await _axios.get(
+        `${FORM_SUBMISSION_ENDPOINTS.GET_ALL_BY_USER}?${query}`
+      );
+      return response.data as FormSubmissionList;
+    } catch (error: unknown) {
+      throw handleErrors(error);
+    }
+  }
 }
