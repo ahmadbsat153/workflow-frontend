@@ -12,6 +12,12 @@ export const URLs = {
     submissions: {
       view: "/admin/submissions/view/:id",
     },
+    actions: {
+      index: "/admin/actions/",
+      create: "/admin/actions/create/",
+      details: "/admin/actions/view/:action_id",
+      edit: "/admin/actions/edit/:action_id",
+    },
   },
   app: {
     forms: {
@@ -34,7 +40,7 @@ export const URLs = {
   },
   user: {
     create: "/admin/user/create/",
-  }
+  },
 };
 
 export function getUrl(

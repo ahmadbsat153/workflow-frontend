@@ -178,7 +178,7 @@ export default function Login() {
                      <Button size="sm" isLoading={loadingAzure} isDisabled={loading || loadingAzure} className="w-full text-base">
                       Microsoft
                      </Button>
-                     <span className="text-destructive text-lg">{error}</span>
+                     {/* <span className="text-destructive text-lg">{error}</span> */}
                   </div>
                 </div>
               </div>

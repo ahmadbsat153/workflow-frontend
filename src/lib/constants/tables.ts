@@ -14,7 +14,7 @@ export const USER_VISIBLE_COL = [
   "createdAt",
   "updatedAt",
   "actions",
-  "email"
+  "email",
 ];
 
 export const USER_ACTIVITY_COLUMNS = [
@@ -50,7 +50,7 @@ export const FORM_VISIBLE_COL = [
   "createdAt",
   "updatedAt",
   "actions",
-  "email"
+  "email",
 ];
 
 export const FORM_SUBMISSION_COL = [
@@ -64,4 +64,25 @@ export const FORM_SUBMISSION_VISIBLE_COL = [
   "submittedBy",
   "createdAt",
   "updatedAt",
+];
+
+export const ACTION_COLUMNS = [
+  { name: "id", uid: "_id", sortable: true },
+  { name: "Action Name", uid: "actionName", sortable: true },
+  { name: "Display Name", uid: "displayName", sortable: true },
+  { name: "Action Description", uid: "actionDescription", sortable: true },
+  { name: "Category", uid: "category", sortable: true },
+  { name: "Created", uid: "createdAt", sortable: true },
+  { name: "Updated", uid: "updatedAt", sortable: true },
+  { name: "actions", uid: "actions" },
+];
+
+export const ACTION_VISIBLE_COL = [
+  "actionName",
+  "actionDescription",
+  "displayName",
+  "category",
+  "createdAt",
+  "updatedAt",
+  "actions",
 ];

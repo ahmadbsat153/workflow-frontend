@@ -445,14 +445,12 @@ const FormBuilder = () => {
     setLoading(true);
     const id = "form-create";
 
-
-     
     try {
       await API_FORM.createForm(data);
       toast.success("Form Created Successfully", { id });
       router.push(getUrl(URLs.admin.forms.index));
     } catch (error) {
-      //TODO: Dislplay errors properly, either from backend or frontend 
+      //TODO: Dislplay errors properly, either from backend or frontend
       handleServerError(error as ErrorResponse, (msg) => {
         toast.error(`${msg}`, { id });
       });
@@ -505,7 +503,7 @@ const FormBuilder = () => {
 
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="h-[80vh] flex items-center justify-center">
         <DotsLoader />
       </div>
     );
@@ -520,7 +518,7 @@ const FormBuilder = () => {
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <div className="px-20 mx-auto">
+      <div className="">
         <div className="py-5">
           <Button
             variant={"secondary"}

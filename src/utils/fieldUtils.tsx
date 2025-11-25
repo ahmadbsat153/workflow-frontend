@@ -18,6 +18,8 @@ import {
   SquareCheckBigIcon,
   ToggleRightIcon,
   XCircle,
+  UploadIcon,
+  FileIcon,
 } from "lucide-react";
 import { formatDates, formatDatesWithYear } from "./common";
 import { Badge } from "@/lib/ui/badge";
@@ -496,6 +498,62 @@ export const renderFormFieldSubmission = (
           )}
         />
       );
+
+    case FieldsType.FILE:
+      return (
+        <Controller
+          name={field.name}
+          control={control}
+          render={({ field: formField }) => (
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                {field.label}
+                {field.required && <span className="text-red-500 ml-1">*</span>}
+              </label>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="file"
+                    multiple={
+                      field.validation?.maxFiles
+                        ? field.validation.maxFiles > 1
+                        : true
+                    }
+                    accept={field.validation?.allowedFileTypes?.join(",")}
+                    onChange={(e) => {
+                      const files = e.target.files;
+                      formField.onChange(files);
+                    }}
+                    onBlur={formField.onBlur}
+                    className="py-0 cursor-pointer"
+                  />
+                </div>
+                {field.placeholder && (
+                  <p className="text-xs text-gray-500">{field.placeholder}</p>
+                )}
+                {field.validation?.maxFileSize && (
+                  <p className="text-xs text-gray-500">
+                    Max file size:{" "}
+                    {Math.round(field.validation.maxFileSize / 1024 / 1024)}MB
+                  </p>
+                )}
+                {field.validation?.allowedFileTypes &&
+                  field.validation.allowedFileTypes.length > 0 && (
+                    <p className="text-xs text-gray-500">
+                      Allowed types:{" "}
+                      {field.validation.allowedFileTypes.join(", ")}
+                    </p>
+                  )}
+              </div>
+              {error && (
+                <p className="text-red-500 text-sm mt-1">
+                  {error.message as string}
+                </p>
+              )}
+            </div>
+          )}
+        />
+      );
     default:
       return null;
   }
@@ -641,6 +699,60 @@ export const renderSubmittedFieldValue = (field: Field, value: any) => {
           {value ? field.label : field.label}
         </div>
       );
+
+    case FieldsType.FILE:
+      // Handle array of file URLs or file objects
+      if (Array.isArray(value)) {
+        return (
+          <div className="flex flex-wrap gap-2">
+            {value.map((file, index) => {
+              const fileName =
+                typeof file === "string" ? file.split("/").pop() : file.name;
+              const fileUrl =
+                typeof file === "string" ? file : URL.createObjectURL(file);
+              const BACKEND_HOST = process.env.NEXT_PUBLIC_BACKEND_HOST;
+              return (
+                <div
+                  key={index}
+                  className="inline-flex items-center gap-2 py-2 px-3 bg-gray-50 border border-gray-200 rounded-md"
+                >
+                  <FileIcon className="w-4 h-4 text-pumpkin" />
+                  <a
+                    href={BACKEND_HOST + fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm hover:underline"
+                  >
+                    {fileName}
+                  </a>
+                </div>
+              );
+            })}
+          </div>
+        );
+      }
+      // Handle single file
+      if (value) {
+        const fileName =
+          typeof value === "string" ? value.split("/").pop() : value.name;
+        const fileUrl =
+          typeof value === "string" ? value : URL.createObjectURL(value);
+
+        return (
+          <div className="inline-flex items-center gap-2 py-2 px-3 bg-gray-50 border border-gray-200 rounded-md">
+            <FileIcon className="w-4 h-4 text-pumpkin" />
+            <a
+              href={fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm hover:underline"
+            >
+              {fileName}
+            </a>
+          </div>
+        );
+      }
+      return null;
 
     default:
       return (

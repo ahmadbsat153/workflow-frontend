@@ -16,6 +16,7 @@ import {
   AlertCircleIcon,
   CodeIcon,
   ToggleRightIcon,
+  UploadIcon,
 } from "lucide-react";
 
 // Helper functions to categorize field types
@@ -42,6 +43,7 @@ export const isInputField = (type: FieldsType): boolean => {
     FieldsType.CHECKBOX,
     FieldsType.TEXT_AREA,
     FieldsType.SWITCH,
+    FieldsType.FILE,
   ].includes(type);
 };
 
@@ -125,6 +127,18 @@ export const fieldConfigs: Record<FieldsType, Partial<Field>> = {
     required: false,
     defaultValue: false,
     validation: {},
+  },
+  [FieldsType.FILE]: {
+    label: "File Upload",
+    placeholder: "Choose file(s)...",
+    required: false,
+    defaultValue: "",
+    validation: {
+      minFiles: 1,
+      maxFiles: 5,
+      allowedFileTypes: [],
+      maxFileSize: 5242880,
+    },
   },
 
   // Display Elements
@@ -275,6 +289,8 @@ export const getFieldTypeIcon = (type: FieldsType) => {
       return MailIcon;
     case FieldsType.SWITCH:
       return ToggleRightIcon;
+    case FieldsType.FILE:
+      return UploadIcon;
     // Display Elements
     case FieldsType.SEPARATOR:
       return MinusIcon;
@@ -309,6 +325,7 @@ export const getFieldTypeLabel = (type: FieldsType): string => {
     [FieldsType.CHECKBOX]: "Checkbox",
     [FieldsType.TEXT_AREA]: "Textarea",
     [FieldsType.SWITCH]: "Switch",
+    [FieldsType.FILE]: "File",
 
     // Display Elements
     [FieldsType.SEPARATOR]: "Separator",

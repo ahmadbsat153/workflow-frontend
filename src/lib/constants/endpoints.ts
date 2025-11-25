@@ -22,6 +22,16 @@ export const USER_ENDPOINTS = {
   DELETE: "/api/v1/admin/users/:id",
 };
 
+export const WORKFLOW_ENDPOINTS = {
+  GET_ALL: "/api/v1/admin/workflow",
+  GET_ID: "/api/v1/admin/workflow/:id",
+  CREATE: "/api/v1/admin/workflow/:formId",
+  UPDATE: "/api/v1/admin/workflow/:id",
+  DELETE: "/api/v1/admin/workflows:id",
+  GET_BY_FORM: "/api/v1/admin/workflow/form/:formId",
+  GET_ANALYTICS: "/api/v1/admin/workflow/:id/analytics",
+};
+
 export const FORM_ENDPOINTS = {
   GET_ALL: "/api/v1/admin/forms",
   GET_ID: "/api/v1/admin/forms/:id",
@@ -30,6 +40,7 @@ export const FORM_ENDPOINTS = {
   DELETE: "/api/v1/admin/forms/:id",
   GET_ANALYTICS: "/api/v1/admin/analytics/forms/:slug",
   GET_BY_SLUG: "/api/v1/admin/forms/by-slug/:slug",
+  GET_FIELD_TEMPLATE: "/api/v1/admin/forms/:id/template-fields",
 };
 
 export const FORM_SUBMISSION_ENDPOINTS = {
@@ -37,4 +48,13 @@ export const FORM_SUBMISSION_ENDPOINTS = {
   GET_ALL_BY_USER: "/api/v1/form/submissions",
   GET_ID: "/api/v1/form/submission/:id",
   SUBMIT_FORM: "/api/v1/form/submission",
+};
+
+export const ACTION_ENDPOINTS = {
+  GET_ALL: "/api/v1/admin/actions",
+  ACTIVE: "/api/v1/admin/actions-active/",
+  GET_ID: "/api/v1/admin/actions/:id",
+  CREATE: "/api/v1/admin/actions",
+  UPDATE: "/api/v1/admin/actions/:id",
+  DELETE: "/api/v1/admin/actions/:id",
 };

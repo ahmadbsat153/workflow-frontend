@@ -1,5 +1,5 @@
 import { URLs } from "./urls";
-import { BookCheckIcon, ChartPie, LibraryBigIcon, UsersRound } from "lucide-react";
+import { BookCheckIcon, ChartPie, LibraryBigIcon, UsersRound, ZapIcon } from "lucide-react";
 export const ADMIN_NAVIGATION = [
   {
     title: "General",
@@ -21,6 +21,12 @@ export const ADMIN_NAVIGATION = [
         name: "Forms",
         link: URLs.admin.forms.index,
         icon: LibraryBigIcon,
+      },
+      {
+        key: "actions",
+        name: "Actions",
+        link: URLs.admin.actions.index,
+        icon: ZapIcon,
       },
     ],
   },

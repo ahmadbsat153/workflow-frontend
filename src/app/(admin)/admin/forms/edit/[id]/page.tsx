@@ -1,10 +1,11 @@
-import FormBuilder from "@/lib/components/Pages/Forms/CreateForm/FormBuilder";
+import PageContainer from "@/lib/components/Container/PageContainer";
+import FormEditContent from "@/lib/components/Pages/Forms/FormEditContent";
 
 const Page = () => {
   return (
-    <div className="h-full bg-gray-50">
-      <FormBuilder />
-    </div>
+    <PageContainer className="bg-gray-50 !pt-4 !xl:px-0 !px-0">
+      <FormEditContent />
+    </PageContainer>
   );
 };
 export default Page;

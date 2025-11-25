@@ -40,6 +40,7 @@ type SidebarContextProps = {
   setOpenMobile: (open: boolean) => void;
   isMobile: boolean;
   toggleSidebar: () => void;
+  forceCollapsed: boolean;
 };
 
 const SidebarContext = React.createContext<SidebarContextProps | null>(null);
@@ -57,6 +58,7 @@ function SidebarProvider({
   defaultOpen = true,
   open: openProp,
   onOpenChange: setOpenProp,
+  forceCollapsed = false,
   className,
   style,
   children,
@@ -65,6 +67,7 @@ function SidebarProvider({
   defaultOpen?: boolean;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  forceCollapsed?: boolean;
 }) {
   const isMobile = useIsMobile();
   const [openMobile, setOpenMobile] = React.useState(false);
@@ -72,9 +75,11 @@ function SidebarProvider({
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
   const [_open, _setOpen] = React.useState(defaultOpen);
-  const open = openProp ?? _open;
+  const open = forceCollapsed ? false : (openProp ?? _open);
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
+      if (forceCollapsed) return; // Prevent toggling when forceCollapsed is true
+
       const openState = typeof value === "function" ? value(open) : value;
       if (setOpenProp) {
         setOpenProp(openState);
@@ -85,7 +90,7 @@ function SidebarProvider({
       // This sets the cookie to keep the sidebar state.
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
     },
-    [setOpenProp, open]
+    [setOpenProp, open, forceCollapsed]
   );
 
   // Helper to toggle the sidebar.
@@ -122,8 +127,9 @@ function SidebarProvider({
       openMobile,
       setOpenMobile,
       toggleSidebar,
+      forceCollapsed,
     }),
-    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar, forceCollapsed]
   );
 
   return (

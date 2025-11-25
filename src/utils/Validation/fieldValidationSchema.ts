@@ -320,6 +320,88 @@ export const buildValidationSchema = (fields: Field[]) => {
         }
         break;
 
+      case FieldsType.FILE:
+        let fileSchema: z.ZodTypeAny = z
+          .union([
+            z.instanceof(FileList),
+            z.array(z.instanceof(File)),
+            z.array(z.string()),
+          ])
+          .refine(
+            (files) => {
+              if (!files) return !field.required;
+              const fileArray =
+                files instanceof FileList ? Array.from(files) : files;
+
+              // Check minimum files
+              if (
+                field.validation?.minFiles &&
+                fileArray.length < field.validation.minFiles
+              ) {
+                return false;
+              }
+
+              // Check maximum files
+              if (
+                field.validation?.maxFiles &&
+                fileArray.length > field.validation.maxFiles
+              ) {
+                return false;
+              }
+
+              return true;
+            },
+            {
+              message: (() => {
+                if (field.validation?.minFiles) {
+                  return `Please upload at least ${field.validation.minFiles} file(s)`;
+                }
+                if (field.validation?.maxFiles) {
+                  return `Maximum ${field.validation.maxFiles} file(s) allowed`;
+                }
+                return `${field.label} is invalid`;
+              })(),
+            }
+          )
+          .refine((files) => {
+            if (!files || !field.validation?.maxFileSize) return true;
+            const fileArray =
+              files instanceof FileList ? Array.from(files) : files;
+
+            return fileArray.every((file: any) => {
+              if (typeof file === "string") return true;
+              return file.size <= (field.validation?.maxFileSize || Infinity);
+            });
+          }, `Each file must be smaller than ${field.validation?.maxFileSize ? Math.round(field.validation.maxFileSize / 1024 / 1024) : 5}MB`)
+          .refine((files) => {
+            if (
+              !files ||
+              !field.validation?.allowedFileTypes ||
+              field.validation.allowedFileTypes.length === 0
+            )
+              return true;
+            const fileArray =
+              files instanceof FileList ? Array.from(files) : files;
+
+            return fileArray.every((file: any) => {
+              if (typeof file === "string") return true;
+              return field.validation?.allowedFileTypes?.includes(file.type);
+            });
+          }, `Only ${field.validation?.allowedFileTypes?.join(", ") || "specified file types"} are allowed`);
+
+        if (field.required) {
+          fileSchema = fileSchema.refine((files) => {
+            if (!files) return false;
+            const fileArray =
+              files instanceof FileList ? Array.from(files) : (files as any[]);
+            return Array.isArray(fileArray) ? fileArray.length > 0 : false;
+          }, `${field.label} is required`);
+        } else {
+          fileSchema = fileSchema.optional();
+        }
+
+        fieldSchema = fileSchema;
+        break;
       default:
         fieldSchema = z.string().optional();
     }
@@ -552,6 +634,20 @@ export const buildFieldSettingsSchema = (field: Field) => {
             max: z.string().optional(),
           })
           .optional();
+
+      case FieldsType.FILE:
+        return z
+          .object({
+            minFiles: z.number().min(0).optional(),
+            maxFiles: z.number().min(1).optional(),
+            allowedFileTypes: z.array(z.string()).optional(),
+            maxFileSize: z.number().min(1).optional(),
+          })
+          .optional()
+          .refine((data) => {
+            if (!data?.minFiles || !data?.maxFiles) return true;
+            return data.minFiles <= data.maxFiles;
+          }, "Minimum files cannot be greater than maximum files");
 
       default:
         return z.any().optional();

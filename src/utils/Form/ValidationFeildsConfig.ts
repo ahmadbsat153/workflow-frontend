@@ -60,6 +60,30 @@ export const VALIDATION_FIELD_CONFIGS = {
     placeholder: "3",
     description: "Maximum number of options that can be selected",
   },
+  minFiles: {
+    label: "Minimum Files",
+    type: "number",
+    placeholder: "1",
+    description: "Minimum number of files required",
+  },
+  maxFiles: {
+    label: "Maximum Files",
+    type: "number",
+    placeholder: "5",
+    description: "Maximum number of files allowed",
+  },
+  allowedFileTypes: {
+    label: "Allowed File Types",
+    type: "text",
+    placeholder: "image/png,image/jpeg,application/pdf",
+    description: "Comma-separated list of MIME types (e.g., image/png, image/jpeg, application/pdf)",
+  },
+  maxFileSize: {
+    label: "Maximum File Size (bytes)",
+    type: "number",
+    placeholder: "5242880",
+    description: "Maximum size per file in bytes (default: 5MB = 5242880 bytes)",
+  },
 } as const;
 
 /**
@@ -119,6 +143,14 @@ export const getValidationFieldsForType = (fieldType: FieldsType) => {
     case FieldsType.SELECT:
     case FieldsType.RADIO:
       return [];
+
+    case FieldsType.FILE:
+      return ["minFiles", "maxFiles", "maxFileSize"].map((key) => ({
+        name: `validation.${key}` as const,
+        ...VALIDATION_FIELD_CONFIGS[
+          key as keyof typeof VALIDATION_FIELD_CONFIGS
+        ],
+      }));
 
     default:
       return [];

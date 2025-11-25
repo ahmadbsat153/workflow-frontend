@@ -12,6 +12,7 @@ export enum FieldsType {
   CHECKBOX = "checkbox",
   TEXT_AREA = "textarea",
   SWITCH = "switch",
+  FILE = "file",
 
   // Display elements
   SEPARATOR = "separator",
@@ -62,6 +63,10 @@ export type FormFieldValidation = {
   max?: number;
   minSelections?: number;
   maxSelections?: number;
+  minFiles?: number;
+  maxFiles?: number;
+  allowedFileTypes?: string[];
+  maxFileSize?: number;
 };
 
 export type FormFieldOption = {

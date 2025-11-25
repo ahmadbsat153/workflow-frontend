@@ -20,9 +20,9 @@ import { cn } from "@/lib/utils";
 import { BellIcon } from "lucide-react";
 import { isLinkActive } from "@/utils/common";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/lib/context/AuthContext";
 import PanelSidebarAccount from "./PanelSidebarAccount";
 import { ADMIN_NAVIGATION, USER_NAVIGATION } from "@/lib/constants/menu";
-import { useAuth } from "@/lib/context/AuthContext";
 
 const HIDDEN_SIDEBAR_ROUTES = ["/admin/forms/create", "/admin/forms/edit"];
 
@@ -37,8 +37,9 @@ export function PanelSidebar({
   const shouldHideSidebar = HIDDEN_SIDEBAR_ROUTES.some((route) =>
     pathname.startsWith(route)
   );
+
   return (
-    <SidebarProvider>
+    <SidebarProvider forceCollapsed={shouldHideSidebar}>
       {true && (
         <Sidebar collapsible="icon">
           <SidebarHeader>
