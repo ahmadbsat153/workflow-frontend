@@ -1,6 +1,5 @@
 "use client";
 
-import { Field, FieldsType } from "@/lib/types/form/fields";
 import {
   FormControl,
   FormDescription,
@@ -10,14 +9,17 @@ import {
   FormMessage,
 } from "@/lib/ui/form";
 import { Input } from "@/lib/ui/input";
-import { getValidationFieldsForType } from "@/utils/Form/ValidationFeildsConfig";
 import { UseFormReturn } from "react-hook-form";
+import { Field, FieldsType } from "@/lib/types/form/fields";
+import { FileTypeMultiSelect } from "./FileTypeMultiSelect";
+import { getValidationFieldsForType } from "@/utils/Form/ValidationFeildsConfig";
 
 type Props = {
   field: Field;
   form: UseFormReturn<any>;
   loading: boolean;
 };
+
 const FieldValidation = ({ field, form, loading }: Props) => {
   const validationFields = getValidationFieldsForType(field.type);
 
@@ -27,44 +29,75 @@ const FieldValidation = ({ field, form, loading }: Props) => {
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Validation Rules</h3>
 
-          {validationFields.map((validationField) => (
-            <FormField
-              key={validationField.name}
-              control={form.control}
-              name={validationField.name}
-              render={({ field: formField }) => (
-                <FormItem>
-                  <FormLabel>{validationField.label}</FormLabel>
-                  <FormControl>
-                    <Input
-                      type={validationField.type}
-                      placeholder={validationField.placeholder}
-                      value={formField.value ?? ""}
-                      onChange={(e) => {
-                        const value =
-                          validationField.type === FieldsType.NUMBER
-                            ? e.target.value === ""
-                              ? undefined
-                              : Number(e.target.value)
-                            : e.target.value;
-                        formField.onChange(value);
-                      }}
-                      onBlur={formField.onBlur}
-                      name={formField.name}
-                      // ref={formField.ref}
-                      disabled={loading}
-                    />
-                  </FormControl>
-                  {validationField.description && (
-                    <FormDescription>
-                      {validationField.description}
-                    </FormDescription>
+          {validationFields.map((validationField) => {
+            // Handle multi-select for allowedFileTypes
+            if (validationField.name === "validation.allowedFileTypes") {
+              return (
+                <FormField
+                  key={validationField.name}
+                  control={form.control}
+                  name={validationField.name}
+                  render={({ field: formField }) => (
+                    <FormItem>
+                      <FormLabel>{validationField.label}</FormLabel>
+                      <FormControl>
+                        <FileTypeMultiSelect
+                          selected={formField.value || []}
+                          onChange={formField.onChange}
+                          disabled={loading}
+                        />
+                      </FormControl>
+                      {validationField.description && (
+                        <FormDescription>
+                          {validationField.description}
+                        </FormDescription>
+                      )}
+                      <FormMessage />
+                    </FormItem>
                   )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          ))}
+                />
+              );
+            }
+
+            // Handle regular input fields
+            return (
+              <FormField
+                key={validationField.name}
+                control={form.control}
+                name={validationField.name}
+                render={({ field: formField }) => (
+                  <FormItem>
+                    <FormLabel>{validationField.label}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type={validationField.type}
+                        placeholder={validationField.placeholder}
+                        value={formField.value ?? ""}
+                        onChange={(e) => {
+                          const value =
+                            validationField.type === "number"
+                              ? e.target.value === ""
+                                ? undefined
+                                : Number(e.target.value)
+                              : e.target.value;
+                          formField.onChange(value);
+                        }}
+                        onBlur={formField.onBlur}
+                        name={formField.name}
+                        disabled={loading}
+                      />
+                    </FormControl>
+                    {validationField.description && (
+                      <FormDescription>
+                        {validationField.description}
+                      </FormDescription>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            );
+          })}
         </div>
       )}
     </div>

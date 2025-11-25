@@ -95,6 +95,12 @@ const FieldSettingsSheet = ({
             min: field.validation?.min,
             max: field.validation?.max,
             pattern: field.validation?.pattern,
+            minSelections: field.validation?.minSelections,
+            maxSelections: field.validation?.maxSelections,
+            minFiles: field.validation?.minFiles,
+            maxFiles: field.validation?.maxFiles,
+            maxFileSize: field.validation?.maxFileSize,
+            allowedFileTypes: field.validation?.allowedFileTypes,
           },
           display: {
             showInTable: field.display?.showInTable ?? true,

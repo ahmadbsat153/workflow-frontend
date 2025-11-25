@@ -72,17 +72,39 @@ export const VALIDATION_FIELD_CONFIGS = {
     placeholder: "5",
     description: "Maximum number of files allowed",
   },
-  allowedFileTypes: {
-    label: "Allowed File Types",
-    type: "text",
-    placeholder: "image/png,image/jpeg,application/pdf",
-    description: "Comma-separated list of MIME types (e.g., image/png, image/jpeg, application/pdf)",
-  },
   maxFileSize: {
     label: "Maximum File Size (bytes)",
     type: "number",
     placeholder: "5242880",
-    description: "Maximum size per file in bytes (default: 5MB = 5242880 bytes)",
+    description:
+      "Maximum size per file in bytes (default: 5MB = 5242880 bytes)",
+  },
+  allowedFileTypes: {
+    label: "Allowed File Types",
+    type: "multiselect",
+    placeholder: "Select file types",
+    description: "Select which file types are allowed for upload",
+    options: [
+      { label: "Images (PNG)", value: "image/png" },
+      { label: "Images (JPEG)", value: "image/jpeg" },
+      { label: "Images (GIF)", value: "image/gif" },
+      { label: "Images (WebP)", value: "image/webp" },
+      { label: "PDF", value: "application/pdf" },
+      {
+        label: "Word (DOCX)",
+        value:
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      },
+      {
+        label: "Excel (XLSX)",
+        value:
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      },
+      { label: "Text", value: "text/plain" },
+      { label: "CSV", value: "text/csv" },
+      { label: "JSON", value: "application/json" },
+      { label: "ZIP", value: "application/zip" },
+    ],
   },
 } as const;
 
@@ -145,12 +167,14 @@ export const getValidationFieldsForType = (fieldType: FieldsType) => {
       return [];
 
     case FieldsType.FILE:
-      return ["minFiles", "maxFiles", "maxFileSize"].map((key) => ({
-        name: `validation.${key}` as const,
-        ...VALIDATION_FIELD_CONFIGS[
-          key as keyof typeof VALIDATION_FIELD_CONFIGS
-        ],
-      }));
+      return ["minFiles", "maxFiles", "allowedFileTypes", "maxFileSize"].map(
+        (key) => ({
+          name: `validation.${key}` as const,
+          ...VALIDATION_FIELD_CONFIGS[
+            key as keyof typeof VALIDATION_FIELD_CONFIGS
+          ],
+        })
+      );
 
     default:
       return [];
