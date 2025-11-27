@@ -22,6 +22,10 @@ export const USER_ENDPOINTS = {
   DELETE: "/api/v1/admin/users/:id",
 };
 
+export const WORKFLOW_HISTORY_ENDPOINTS = {
+  GET_ALL: "/api/v1/admin/submissions/workflow-monitoring",
+};
+
 export const WORKFLOW_ENDPOINTS = {
   GET_ALL: "/api/v1/admin/workflow",
   GET_ID: "/api/v1/admin/workflow/:id",

@@ -1,5 +1,12 @@
 import { URLs } from "./urls";
-import { BookCheckIcon, ChartPie, LibraryBigIcon, UsersRound, ZapIcon } from "lucide-react";
+import {
+  BookCheckIcon,
+  ChartPie,
+  LibraryBigIcon,
+  UsersRound,
+  ZapIcon,
+  WorkflowIcon
+} from "lucide-react";
 export const ADMIN_NAVIGATION = [
   {
     title: "General",
@@ -27,6 +34,12 @@ export const ADMIN_NAVIGATION = [
         name: "Actions",
         link: URLs.admin.actions.index,
         icon: ZapIcon,
+      },
+      {
+        key: "workflows",
+        name: "Workflows",
+        link: URLs.admin.workflow.index,
+        icon: WorkflowIcon,
       },
     ],
   },

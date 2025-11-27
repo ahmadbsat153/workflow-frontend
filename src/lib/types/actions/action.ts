@@ -3,7 +3,7 @@ import { Meta } from "../common";
 export type ActionConfigField = {
   name: string;
   label: string;
-  type: "text" | "email" | "select" | "textarea" | "number" | "boolean";
+  type: "text" | "email" | "select" | "textarea" | "number" | "boolean" | "attachment";
   required: boolean;
   placeholder?: string;
   actionDescription?: string;

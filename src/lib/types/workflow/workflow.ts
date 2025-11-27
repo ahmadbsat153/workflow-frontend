@@ -1,5 +1,9 @@
 import { Node as ReactFlowNode, Edge } from "reactflow";
 import { Action, ActionConfigField } from "@/lib/types/actions/action";
+import { Form } from "../form/form";
+import { User } from "../user/user";
+import { Meta } from "../common";
+import { SubmittedBy } from "../form/form_submission";
 
 export type WorkflowNodeData = {
   label: string;
@@ -71,3 +75,29 @@ export interface WorkflowTable {
   page?: number;
   limit?: number;
 }
+
+export enum WorkflowStatus {
+  PENDING = "pending",
+  PROCESSING = "processing",
+  COMPLETED = "completed",
+  FAILED = "failed",
+}
+
+export type WorkflowHistory = {
+  _id: string;
+  form: Form;
+  submittedBy: SubmittedBy;
+  workflowStatus: WorkflowStatus;
+  workflowError: string | null;
+  workflowCompletedAt: string;
+  submissionDataPreview: Record<string, any>;
+  executionDuration: number;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+};
+
+export type WorkflowHistoryList = {
+  data: WorkflowHistory[];
+  meta: Meta;
+};

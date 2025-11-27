@@ -79,6 +79,17 @@ const buildDynamicSchema = (fields: ActionConfigField[]) => {
         }
         break;
 
+      case "attachment":
+        fieldSchema = z.any();
+        if (field.required) {
+          fieldSchema = z.any().refine((val) => val && (val instanceof FileList ? val.length > 0 : true), {
+            message: `${field.label} is required`,
+          });
+        } else {
+          fieldSchema = fieldSchema.optional();
+        }
+        break;
+
       default:
         fieldSchema = z.any();
     }
@@ -194,6 +205,24 @@ export const DynamicConfigForm = ({
                         ))}
                       </SelectContent>
                     </Select>
+                  ) : field.type === "attachment" ? (
+                    <div className="flex flex-col gap-2">
+                      <Input
+                        type="file"
+                        multiple
+                        onChange={(e) => {
+                          const files = e.target.files;
+                          formField.onChange(files);
+                        }}
+                        onBlur={formField.onBlur}
+                        className="py-0 cursor-pointer"
+                      />
+                      {field.placeholder && (
+                        <p className="text-xs text-gray-500">
+                          {field.placeholder}
+                        </p>
+                      )}
+                    </div>
                   ) : field.supportsTemplate ? (
                     <TemplateInput
                       type={field.type as "text" | "email"}

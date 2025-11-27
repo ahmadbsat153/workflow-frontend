@@ -18,6 +18,9 @@ export const URLs = {
       details: "/admin/actions/view/:action_id",
       edit: "/admin/actions/edit/:action_id",
     },
+    workflow: {
+      index: "/admin/workflows_history/",
+    }
   },
   app: {
     forms: {

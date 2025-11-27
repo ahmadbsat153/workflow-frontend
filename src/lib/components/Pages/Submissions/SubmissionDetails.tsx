@@ -8,7 +8,6 @@ import { ErrorResponse } from "@/lib/types/common";
 import SubmissionDisplay from "./SubmissionDisplay";
 import { handleServerError } from "@/lib/api/_axios";
 import { useParams, useRouter } from "next/navigation";
-import SectionContainer from "../../Container/SectionContainer";
 import { FormSubmission } from "@/lib/types/form/form_submission";
 import { API_FORM_SUBMISSION } from "@/lib/services/Form/form_submissions_service";
 

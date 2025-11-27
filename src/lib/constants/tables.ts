@@ -86,3 +86,24 @@ export const ACTION_VISIBLE_COL = [
   "updatedAt",
   "actions",
 ];
+
+export const WORKFLOW_HISTORY_COLUMNS = [
+  { name: "id", uid: "_id", sortable: true },
+  { name: "Form name", uid: "form", sortable: true },
+  { name: "Submitted By", uid: "submittedBy", sortable: true },
+  { name: "status", uid: "workflowStatus", sortable: true },
+  { name: "workflowCompletedAt", uid: "workflowCompletedAt", sortable: true },
+  { name: "Execution Duration", uid: "executionDuration" },
+  { name: "Created", uid: "createdAt", sortable: true },
+  { name: "Updated", uid: "updatedAt", sortable: true },
+];
+
+export const WORKFLOW_HISTORY_VISIBLE_COL = [
+  "form",
+  "submittedBy",
+  "workflowStatus",
+  "workflowCompletedAt",
+  "executionDuration",
+  "createdAt",
+  "updatedAt",
+];

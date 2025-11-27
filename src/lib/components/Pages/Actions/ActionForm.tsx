@@ -405,6 +405,7 @@ export const ActionForm = ({ action_id, onCancel }: ActionFormProps) => {
                           <SelectItem value="textarea">Textarea</SelectItem>
                           <SelectItem value="number">Number</SelectItem>
                           <SelectItem value="boolean">Boolean</SelectItem>
+                          <SelectItem value="attachment">Attachment</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
