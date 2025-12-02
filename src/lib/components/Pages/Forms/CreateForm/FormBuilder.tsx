@@ -405,6 +405,9 @@ const FormBuilder = () => {
         cleanField.display = field.display;
       }
 
+      if (field.autofill) {
+        cleanField.autofill = field.autofill;
+      }
       // Add style if it exists
       if (field.style) {
         const cleanStyle = removeEmpty(field.style);

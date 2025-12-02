@@ -1,6 +1,6 @@
 "use client";
 
-import { Field, FieldsType, FormFieldOption } from "@/lib/types/form/fields";
+import { Field, FieldsType } from "@/lib/types/form/fields";
 import {
   FormControl,
   FormDescription,
@@ -11,10 +11,7 @@ import {
 } from "@/lib/ui/form";
 import { Input } from "@/lib/ui/input";
 import { Switch } from "@/lib/ui/switch";
-import { Button } from "@/lib/ui/button";
-import { UseFormReturn, useFieldArray } from "react-hook-form";
-import { Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
-import { useState } from "react";
+import { UseFormReturn } from "react-hook-form";
 
 type Props = {
   field: Field;
@@ -93,6 +90,36 @@ const FieldProperties = ({ form, field, loading }: Props) => {
           </FormItem>
         )}
       />
+
+      {/* Autofill option for organizational fields */}
+      {(field.type === FieldsType.DEPARTMENT ||
+        field.type === FieldsType.POSITION ||
+        field.type === FieldsType.BRANCH) && (
+        <FormField
+          control={form.control}
+          name="autofill"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <FormLabel className="text-base">
+                  Autofill from User Profile
+                </FormLabel>
+                <FormDescription>
+                  Automatically fill this field with the user's from their
+                  profile
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value || false}
+                  onCheckedChange={field.onChange}
+                  disabled={loading}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+      )}
     </div>
   );
 };

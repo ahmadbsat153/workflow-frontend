@@ -85,7 +85,7 @@ export const NodeConfigPanel = ({
   };
 
   return (
-    <div className="w-96 border-l bg-background h-full flex flex-col">
+    <div className="w-96 max-h-[85vh] border-l bg-background h-full flex flex-col">
       {/* Header */}
       <div className="p-4 border-b flex items-center justify-between">
         <h3 className="font-semibold">Configure Node</h3>
@@ -209,11 +209,25 @@ export const NodeConfigPanel = ({
                 branches={node.data.branches || []}
                 onChange={handleBranchesChange}
                 availableFields={[
+                  // Form fields
                   "department",
                   "leaveType",
                   "status",
+
+                  // Submitter fields
                   "submittedBy.email",
                   "submittedBy.name",
+
+                  // User organizational fields
+                  "user.department.name",
+                  "user.department.code",
+                  "user.position.name",
+                  "user.position.code",
+                  "user.position.level",
+                  "user.branch.name",
+                  "user.branch.code",
+                  "user.branch.location.city",
+                  "user.branch.location.country",
                 ]}
               />
             </div>

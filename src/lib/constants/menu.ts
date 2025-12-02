@@ -1,11 +1,15 @@
 import { URLs } from "./urls";
 import {
   BookCheckIcon,
+  BriefcaseIcon,
+  BuildingIcon,
   ChartPie,
   LibraryBigIcon,
+  MapPinIcon,
   UsersRound,
   ZapIcon,
-  WorkflowIcon
+  WorkflowIcon,
+  Network,
 } from "lucide-react";
 export const ADMIN_NAVIGATION = [
   {
@@ -37,9 +41,32 @@ export const ADMIN_NAVIGATION = [
       },
       {
         key: "workflows",
-        name: "Workflows",
+        name: "Workflows History",
         link: URLs.admin.workflow.index,
         icon: WorkflowIcon,
+      },
+    ],
+  },
+  {
+    title: "Organization",
+    data: [
+      {
+        key: "departments",
+        name: "Departments",
+        link: URLs.admin.departments.index,
+        icon: BuildingIcon,
+      },
+      {
+        key: "positions",
+        name: "Positions",
+        link: URLs.admin.positions.index,
+        icon: BriefcaseIcon,
+      },
+      {
+        key: "branches",
+        name: "Branches",
+        link: URLs.admin.branches.index,
+        icon: MapPinIcon,
       },
     ],
   },

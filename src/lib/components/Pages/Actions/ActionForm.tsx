@@ -70,10 +70,7 @@ export const ActionForm = ({ action_id, onCancel }: ActionFormProps) => {
             configSchema: action.configSchema,
             isActive: action.isActive,
           });
-          if (
-            action.configSchema &&
-            action.configSchema.fields.length > 0
-          ) {
+          if (action.configSchema && action.configSchema.fields.length > 0) {
             setConfigFields(action.configSchema.fields);
           }
         } else {
@@ -399,6 +396,7 @@ export const ActionForm = ({ action_id, onCancel }: ActionFormProps) => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
+                          <SelectItem value="user">User</SelectItem>
                           <SelectItem value="text">Text</SelectItem>
                           <SelectItem value="email">Email</SelectItem>
                           <SelectItem value="select">Select</SelectItem>

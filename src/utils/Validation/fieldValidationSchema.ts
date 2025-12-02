@@ -574,6 +574,7 @@ export const buildFieldSettingsSchema = (field: Field) => {
     placeholder: z.string().optional(),
     required: z.boolean(),
     defaultValue: z.union([z.string(), z.number(), z.boolean()]).optional(),
+    autofill: z.boolean().optional(),
     display: z.object({
       showInTable: z.boolean(),
       showInForm: z.boolean(),

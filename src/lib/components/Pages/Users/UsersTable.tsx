@@ -15,7 +15,7 @@ import { Badge } from "@/lib/ui/badge";
 import { Button } from "@/lib/ui/button";
 import { UserRoundPlusIcon } from "lucide-react";
 import { PencilIcon } from "lucide-react";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import { ErrorResponse } from "@/lib/types/common";
 import { formatDatesWithYear } from "@/utils/common";
 import { handleServerError } from "@/lib/api/_axios";
@@ -40,7 +40,7 @@ const UsersTable = () => {
     data: [],
     meta: INITIAL_META,
   });
-  
+
   const [query, setQuery] = useQueryStates(
     {
       page: parseAsInteger.withDefault(1),
@@ -53,7 +53,7 @@ const UsersTable = () => {
       history: "push",
     }
   );
-  
+
   const router = useRouter();
   const [visibleColumns] = useState<Set<string>>(new Set(USER_VISIBLE_COL));
   const [loading, setLoading] = useState(true);
@@ -89,32 +89,44 @@ const UsersTable = () => {
   }, [getUsers]);
 
   // Server-side pagination handlers
-  const handlePageChange = useCallback((page: number) => {
-    setQuery({ page });
-  }, [setQuery]);
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setQuery({ page });
+    },
+    [setQuery]
+  );
 
-  const handlePageSizeChange = useCallback((size: number) => {
-    setQuery({ limit: size, page: 1 }); // Reset to first page when changing page size
-  }, [setQuery]);
+  const handlePageSizeChange = useCallback(
+    (size: number) => {
+      setQuery({ limit: size, page: 1 }); // Reset to first page when changing page size
+    },
+    [setQuery]
+  );
 
-  const handleSearch = useCallback((search: string) => {
-    setQuery({ search: search || null, page: 1 }); // Reset to first page when searching
-  }, [setQuery]);
+  const handleSearch = useCallback(
+    (search: string) => {
+      setQuery({ search: search || null, page: 1 }); // Reset to first page when searching
+    },
+    [setQuery]
+  );
 
-  const handleSort = useCallback((field: string, order: "asc" | "desc") => {
-    setQuery({ 
-      sortField: field, 
-      sortOrder: order,
-      page: 1 // Reset to first page when sorting
-    });
-  }, [setQuery]);
+  const handleSort = useCallback(
+    (field: string, order: "asc" | "desc") => {
+      setQuery({
+        sortField: field,
+        sortOrder: order,
+        page: 1, // Reset to first page when sorting
+      });
+    },
+    [setQuery]
+  );
 
-  const navigateToDetails = ((user: User) => {
+  const navigateToDetails = (user: User) => {
     router.push(`/admin/users/${user._id}`);
-  })
+  };
   const cellRenderers: Partial<Record<string, CellRenderer<User>>> = {
     firstname: (value, row) => (
-      <span onClick={()=>navigateToDetails(row)} className="font-medium">
+      <span onClick={() => navigateToDetails(row)} className="font-medium">
         {row.firstname} {row.lastname}
       </span>
     ),
@@ -125,14 +137,37 @@ const UsersTable = () => {
       </a>
     ),
 
-    createdAt: (value) => {
+    department: (value, row) => (
+      <span className="text-sm">
+        {row.departmentId
+          ? `${row.departmentId.name} (${row.departmentId.code})`
+          : "-"}
+      </span>
+    ),
+
+    position: (value, row) => (
+      <span className="text-sm">
+        {row.positionId
+          ? `${row.positionId.name} (${row.positionId.code})`
+          : "-"}
+      </span>
+    ),
+
+    branch: (value, row) => (
+      <span className="text-sm">
+        {row.branchId ? `${row.branchId.name} (${row.branchId.code})` : "-"}
+      </span>
+    ),
+
+    createdAt: (value, row) => {
+      console.log(row);
       return <span>{formatDatesWithYear(value)}</span>;
     },
-    
+
     updatedAt: (value) => {
       return <span>{formatDatesWithYear(value)}</span>;
     },
-    
+
     is_active: (value) => (
       <div className="">
         {value ? (
@@ -142,7 +177,7 @@ const UsersTable = () => {
         )}
       </div>
     ),
-    
+
     actions: (value, row) => (
       <UserSheet user={row} callback={getUsers}>
         <Button variant="ghost" size="sm">
@@ -161,14 +196,13 @@ const UsersTable = () => {
         router.push("/admin/users/create");
       },
     },
-  ]
+  ];
   return (
     <>
       <div className="flex flex-col gap-4 w-full">
         <DataTable
           data={users?.data}
           columns={headerColumns}
-
           // Server-side configuration
           serverSide={true}
           loading={loading}
@@ -177,18 +211,15 @@ const UsersTable = () => {
           onPageSizeChange={handlePageSizeChange}
           onSearch={handleSearch}
           onSort={handleSort}
-
           // Features
           enableSelection={false}
           enablePagination={true}
           enableSorting={true}
           enableGlobalSearch={true}
           enableColumnVisibility={true}
-          
           // Customization
           searchPlaceholder="Search users..."
           emptyStateMessage="No users found."
-          
           // Custom renderers
           cellRenderers={cellRenderers}
           additionalButtons={additionalButtons}

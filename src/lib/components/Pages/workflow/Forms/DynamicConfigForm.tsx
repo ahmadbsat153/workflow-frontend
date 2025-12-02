@@ -28,6 +28,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ActionConfigField } from "@/lib/types/actions/action";
 import { FieldTemplate } from "@/lib/types/form/form";
 import { TemplateInput } from "./TemplateInput";
+import { UserFieldInput } from "./UserFieldInput";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/lib/ui/tooltip";
+import { InfoIcon } from "lucide-react";
 
 type DynamicConfigFormProps = {
   fields: ActionConfigField[];
@@ -82,9 +85,56 @@ const buildDynamicSchema = (fields: ActionConfigField[]) => {
       case "attachment":
         fieldSchema = z.any();
         if (field.required) {
-          fieldSchema = z.any().refine((val) => val && (val instanceof FileList ? val.length > 0 : true), {
-            message: `${field.label} is required`,
-          });
+          fieldSchema = z
+            .any()
+            .refine(
+              (val) => val && (val instanceof FileList ? val.length > 0 : true),
+              {
+                message: `${field.label} is required`,
+              }
+            );
+        } else {
+          fieldSchema = fieldSchema.optional();
+        }
+        break;
+
+      case "user":
+        fieldSchema = z.object({
+          mode: z.enum([
+            "direct_email",
+            "department",
+            "position_in_department",
+            "position_from_form",
+            "position_any_dept",
+            "position_in_submitter_dept",
+            "branch",
+            "branch_from_form",
+          ]),
+          email: z.string().optional(),
+          departmentId: z.string().optional(),
+          positionId: z.string().optional(),
+          formFieldName: z.string().optional(),
+          branchId: z.string().optional(),
+        });
+
+        if (field.required) {
+          fieldSchema = fieldSchema.refine(
+            (val: any) => {
+              // Validate based on mode
+              if (val.mode === "direct_email") return !!val.email;
+              if (val.mode === "department") return !!val.departmentId;
+              if (val.mode === "position_in_department")
+                return !!val.departmentId && !!val.positionId;
+              if (val.mode === "position_from_form") return !!val.formFieldName;
+              if (val.mode === "position_any_dept") return !!val.positionId;
+              if (val.mode === "position_in_submitter_dept")
+                return !!val.positionId;
+              if (val.mode === "branch") return !!val.branchId;
+              if (val.mode === "branch_from_form") return !!val.formFieldName;
+              return false;
+            },
+            { message: `${field.label} configuration is incomplete` }
+          );
         } else {
           fieldSchema = fieldSchema.optional();
         }
@@ -119,7 +169,7 @@ export const DynamicConfigForm = ({
   useEffect(() => {
     form.reset(initialConfig as FormValues);
   }, [nodeId, initialConfig, form]);
-  
+
   const handleSubmit = (data: FormValues) => {
     onSubmit(data as Record<string, any>);
   };
@@ -134,7 +184,10 @@ export const DynamicConfigForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="space-y-4 overflow-y-scroll"
+      >
         {fields.map((field) => (
           <FormField
             key={field.name}
@@ -145,7 +198,24 @@ export const DynamicConfigForm = ({
                 <FormLabel>
                   {field.label}
                   {field.required && (
-                    <span className="text-destructive ml-1">*</span>
+                    <span className="text-destructive">*</span>
+                  )}
+                  {field.supportsTemplate && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <InfoIcon className="size-5 text-blue-500 ml-[-20px]" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-secondary">
+                          Supports template variables like {`{{fieldName}}`}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                    // <FormDescription className="text-xs text-blue-600">
+                    //   💡
+                    // </FormDescription>
                   )}
                 </FormLabel>
                 <FormControl>
@@ -223,6 +293,14 @@ export const DynamicConfigForm = ({
                         </p>
                       )}
                     </div>
+                  ) : field.type === "user" ? (
+                    <UserFieldInput
+                      value={formField.value as any}
+                      onChange={formField.onChange}
+                      onBlur={formField.onBlur}
+                      availableTemplates={availableTemplates}
+                      placeholder={field.placeholder}
+                    />
                   ) : field.supportsTemplate ? (
                     <TemplateInput
                       type={field.type as "text" | "email"}
@@ -245,11 +323,7 @@ export const DynamicConfigForm = ({
                 {field.actionDescription && field.type !== "boolean" && (
                   <FormDescription>{field.actionDescription}</FormDescription>
                 )}
-                {field.supportsTemplate && (
-                  <FormDescription className="text-xs text-blue-600">
-                    💡 Supports template variables like {`{{fieldName}}`}
-                  </FormDescription>
-                )}
+
                 <FormMessage />
               </FormItem>
             )}

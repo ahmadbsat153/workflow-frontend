@@ -89,6 +89,7 @@ const FieldSettingsSheet = ({
           placeholder: field.placeholder || "",
           required: field.required,
           defaultValue: field.defaultValue,
+          autofill: field.autofill,
           validation: {
             minLength: field.validation?.minLength,
             maxLength: field.validation?.maxLength,
@@ -139,16 +140,7 @@ const FieldSettingsSheet = ({
       };
     } else {
       // For input fields
-      const inputValues = values as {
-        name: string;
-        label: string;
-        placeholder?: string;
-        required: boolean;
-        defaultValue?: any;
-        validation?: any;
-        display?: any;
-        options?: any;
-      };
+      const inputValues = values as Field;
 
       updatedField = {
         ...field,
@@ -160,6 +152,7 @@ const FieldSettingsSheet = ({
         validation: inputValues.validation || {},
         options: inputValues.options || field.options,
         display: inputValues.display,
+        autofill: inputValues.autofill,
       };
     }
 

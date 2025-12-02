@@ -14,6 +14,11 @@ export enum FieldsType {
   SWITCH = "switch",
   FILE = "file",
 
+  // Organizational fields
+  DEPARTMENT = "department",
+  POSITION = "position",
+  BRANCH = "branch",
+
   // Display elements
   SEPARATOR = "separator",
   TITLE = "title",
@@ -53,6 +58,7 @@ export type Field = {
   display?: FormFieldDisplay;
   order: number;
   style: FieldStyle;
+  autofill?: boolean; // For organizational fields (department, position, branch)
 };
 
 export type FormFieldValidation = {

@@ -1,4 +1,7 @@
 import { Meta } from "../common";
+import { Department } from "../department/department";
+import { Position } from "../position/position";
+import { Branch } from "../branch/branch";
 
 export type User = {
   _id: string;
@@ -18,6 +21,10 @@ export type User = {
     recovery_token: string;
     recovery_sent_at: string;
   };
+  // Organizational fields
+  departmentId?: Department | null;
+  positionId?: Position | null;
+  branchId?: Branch | null;
   createdAt: string;
   updatedAt: string;
   __v: number;

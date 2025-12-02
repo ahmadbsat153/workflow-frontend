@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Select,
   SelectContent,
@@ -26,10 +27,30 @@ import { Badge } from "@/lib/ui/badge";
 import { isDisplayElement, isInputField } from "@/lib/constants/formFields";
 import { Switch } from "@/lib/ui/switch";
 import { Label } from "@/lib/ui/label";
+import { useAuth } from "@/lib/context/AuthContext";
 
 export const renderFieldPreview = (field: Field) => {
   //TODO: Fix background color issue in display elements
   // possibly the color is not saving correctly
+
+  // Show autofill badge for organizational fields
+  if (
+    field.autofill &&
+    (field.type === FieldsType.DEPARTMENT ||
+      field.type === FieldsType.POSITION ||
+      field.type === FieldsType.BRANCH)
+  ) {
+    return (
+      <div className="px-4 py-2">
+        <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-md">
+          <span className="text-sm text-gray-700">
+            {field.label} - Will be auto-filled from user profile
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   if (isDisplayElement(field.type)) {
     switch (field.type) {
       case FieldsType.SEPARATOR:
@@ -195,6 +216,7 @@ export const renderFormFieldSubmission = (
   control: Control<any>,
   error?: FieldError
 ) => {
+  const { user } = useAuth();
   if (isDisplayElement(field.type)) {
     return renderFieldPreview(field);
   }
@@ -499,6 +521,169 @@ export const renderFormFieldSubmission = (
         />
       );
 
+    case FieldsType.DEPARTMENT:
+    case FieldsType.POSITION:
+    case FieldsType.BRANCH:
+      return (
+        <Controller
+          name={field.name}
+          control={control}
+          render={({ field: formField }) => {
+            const [options, setOptions] = React.useState<
+              Array<{ value: string; label: string }>
+            >([]);
+            const [loading, setLoading] = React.useState(true);
+            const [currentUser, setCurrentUser] = React.useState<any>(null);
+            const [userHasValue, setUserHasValue] = React.useState(false);
+
+            // Load current user for autofill check
+            React.useEffect(() => {
+              const loadUser = () => {
+                try {
+                  if (user) {
+                    setCurrentUser(user);
+                    const submittingUser = user.user;
+                    // Check if user has this organizational field
+                    if (
+                      field.type === FieldsType.DEPARTMENT &&
+                      submittingUser.departmentId
+                    ) {
+                      setUserHasValue(true);
+                    } else if (
+                      field.type === FieldsType.POSITION &&
+                      submittingUser.positionId
+                    ) {
+                      setUserHasValue(true);
+                    } else if (
+                      field.type === FieldsType.BRANCH &&
+                      submittingUser.branchId
+                    ) {
+                      setUserHasValue(true);
+                    }
+                  }
+                } catch (error) {
+                  console.error("Error loading user:", error);
+                }
+              };
+              loadUser();
+            }, [field.type]);
+
+            React.useEffect(() => {
+              const loadOptions = async () => {
+                try {
+                  setLoading(true);
+                  let data: any[] = [];
+
+                  if (field.type === FieldsType.DEPARTMENT) {
+                    const { API_DEPARTMENT } = await import(
+                      "@/lib/services/Department/department_service"
+                    );
+                    const response =
+                      await API_DEPARTMENT.getActiveDepartments();
+                    data = response.data;
+                  } else if (field.type === FieldsType.POSITION) {
+                    const { API_POSITION } = await import(
+                      "@/lib/services/Position/position_service"
+                    );
+                    const response = await API_POSITION.getActivePositions();
+                    data = response.data;
+                  } else if (field.type === FieldsType.BRANCH) {
+                    const { API_BRANCH } = await import(
+                      "@/lib/services/Branch/branch_service"
+                    );
+                    const response = await API_BRANCH.getActiveBranches();
+                    data = response.data;
+                  }
+
+                  const mappedOptions = data.map((item: any) => ({
+                    value: item._id,
+                    label: `${item.name} (${item.code})`,
+                  }));
+
+                  setOptions(mappedOptions);
+                } catch (error) {
+                  console.error(`Error loading ${field.type} options:`, error);
+                } finally {
+                  setLoading(false);
+                }
+              };
+
+              loadOptions();
+            }, [field.type]);
+
+            // If autofill is enabled and user has value, hide the field (backend will handle it)
+            if (field.autofill && userHasValue) {
+              return (
+                <div className="w-full p-3 bg-blue-50 border border-blue-200 rounded-md">
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-blue-500 text-white text-xs">
+                      Auto-filled
+                    </Badge>
+                    <span className="text-sm text-gray-700">
+                      {field.label} will be automatically filled from your
+                      profile
+                    </span>
+                  </div>
+                </div>
+              );
+            }
+
+            // If autofill is enabled but user doesn't have value, show field as required
+            const isRequired =
+              field.autofill && !userHasValue ? true : field.required;
+            const helperText =
+              field.autofill && !userHasValue
+                ? `Please select your ${field.label?.toLowerCase()} (not set in your profile)`
+                : null;
+
+            return (
+              <div className="w-full">
+                <label className="text-sm font-medium mb-2 block">
+                  {field.label}
+                  {isRequired && <span className="text-red-500 ml-1">*</span>}
+                </label>
+                {helperText && (
+                  <p className="text-sm text-amber-600 mb-2">{helperText}</p>
+                )}
+                <Select
+                  onValueChange={formField.onChange}
+                  value={formField.value || ""}
+                  disabled={loading}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue
+                      placeholder={
+                        loading
+                          ? "Loading..."
+                          : field.placeholder || `Select ${field.label}...`
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {options.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                      {!loading && options.length === 0 && (
+                        <div className="px-2 py-1.5 text-sm text-gray-500">
+                          No {field.label?.toLowerCase()}s available
+                        </div>
+                      )}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                {error && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {error.message as string}
+                  </p>
+                )}
+              </div>
+            );
+          }}
+        />
+      );
     case FieldsType.FILE:
       return (
         <Controller
@@ -533,14 +718,14 @@ export const renderFormFieldSubmission = (
                 )}
                 {field.validation?.maxFileSize && (
                   <p className="text-xs text-gray-500">
-                    Max file size:{" "}
+                    Max file size:
                     {Math.round(field.validation.maxFileSize / 1024 / 1024)}MB
                   </p>
                 )}
                 {field.validation?.allowedFileTypes &&
                   field.validation.allowedFileTypes.length > 0 && (
                     <p className="text-xs text-gray-500">
-                      Allowed types:{" "}
+                      Allowed types:
                       {field.validation.allowedFileTypes.join(", ")}
                     </p>
                   )}
@@ -699,6 +884,31 @@ export const renderSubmittedFieldValue = (field: Field, value: any) => {
           {value ? field.label : field.label}
         </div>
       );
+
+    case FieldsType.DEPARTMENT:
+    case FieldsType.POSITION:
+    case FieldsType.BRANCH:
+      // Display organizational field value with icon
+      if (value && typeof value === "object") {
+        // If populated with full object
+        return (
+          <div className="py-2">
+            <Badge variant="outline" className="text-sm">
+              {value.name} ({value.code})
+            </Badge>
+          </div>
+        );
+      } else if (value) {
+        // If just the ID is stored
+        return (
+          <div className="py-2">
+            <Badge variant="outline" className="text-sm">
+              {value}
+            </Badge>
+          </div>
+        );
+      }
+      return null;
 
     case FieldsType.FILE:
       // Handle array of file URLs or file objects

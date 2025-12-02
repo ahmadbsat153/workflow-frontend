@@ -62,3 +62,33 @@ export const ACTION_ENDPOINTS = {
   UPDATE: "/api/v1/admin/actions/:id",
   DELETE: "/api/v1/admin/actions/:id",
 };
+
+export const DEPARTMENT_ENDPOINTS = {
+  GET_ALL: "/api/v1/admin/departments",
+  GET_ACTIVE: "/api/v1/admin/departments/active",
+  GET_ID: "/api/v1/admin/departments/:id",
+  GET_HIERARCHY: "/api/v1/admin/departments/hierarchy",
+  CREATE: "/api/v1/admin/departments",
+  UPDATE: "/api/v1/admin/departments/:id",
+  DELETE: "/api/v1/admin/departments/:id",
+};
+
+export const POSITION_ENDPOINTS = {
+  GET_ALL: "/api/v1/admin/positions",
+  GET_ACTIVE: "/api/v1/admin/positions/active",
+  GET_ID: "/api/v1/admin/positions/:id",
+  GET_USERS: "/api/v1/admin/positions/:id/users",
+  CREATE: "/api/v1/admin/positions",
+  UPDATE: "/api/v1/admin/positions/:id",
+  DELETE: "/api/v1/admin/positions/:id",
+};
+
+export const BRANCH_ENDPOINTS = {
+  GET_ALL: "/api/v1/admin/branches",
+  GET_ACTIVE: "/api/v1/admin/branches/active",
+  GET_ID: "/api/v1/admin/branches/:id",
+  GET_USERS: "/api/v1/admin/branches/:id/users",
+  CREATE: "/api/v1/admin/branches",
+  UPDATE: "/api/v1/admin/branches/:id",
+  DELETE: "/api/v1/admin/branches/:id",
+};

@@ -20,7 +20,25 @@ export const URLs = {
     },
     workflow: {
       index: "/admin/workflows_history/",
-    }
+    },
+    departments: {
+      index: "/admin/departments/",
+      create: "/admin/departments/create/",
+      edit: "/admin/departments/edit/:id",
+    },
+    positions: {
+      index: "/admin/positions/",
+      create: "/admin/positions/create/",
+      edit: "/admin/positions/edit/:id",
+    },
+    branches: {
+      index: "/admin/branches/",
+      create: "/admin/branches/create/",
+      edit: "/admin/branches/edit/:id",
+    },
+    organization: {
+      dashboard: "/admin/organization/dashboard/",
+    },
   },
   app: {
     forms: {

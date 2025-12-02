@@ -17,6 +17,9 @@ import {
   CodeIcon,
   ToggleRightIcon,
   UploadIcon,
+  BuildingIcon,
+  BriefcaseIcon,
+  MapPinIcon,
 } from "lucide-react";
 
 // Helper functions to categorize field types
@@ -44,6 +47,9 @@ export const isInputField = (type: FieldsType): boolean => {
     FieldsType.TEXT_AREA,
     FieldsType.SWITCH,
     FieldsType.FILE,
+    FieldsType.DEPARTMENT,
+    FieldsType.POSITION,
+    FieldsType.BRANCH,
   ].includes(type);
 };
 
@@ -139,6 +145,32 @@ export const fieldConfigs: Record<FieldsType, Partial<Field>> = {
       allowedFileTypes: [],
       maxFileSize: 5242880,
     },
+  },
+
+  // Organizational Fields
+  [FieldsType.DEPARTMENT]: {
+    label: "Department",
+    placeholder: "Select department...",
+    required: false,
+    defaultValue: "",
+    options: undefined,
+    validation: {},
+  },
+  [FieldsType.POSITION]: {
+    label: "Position",
+    placeholder: "Select position...",
+    required: false,
+    defaultValue: "",
+    options: undefined,
+    validation: {},
+  },
+  [FieldsType.BRANCH]: {
+    label: "Branch",
+    placeholder: "Select branch...",
+    required: false,
+    defaultValue: "",
+    options: undefined,
+    validation: {},
   },
 
   // Display Elements
@@ -291,6 +323,13 @@ export const getFieldTypeIcon = (type: FieldsType) => {
       return ToggleRightIcon;
     case FieldsType.FILE:
       return UploadIcon;
+    // Organizational Fields
+    case FieldsType.DEPARTMENT:
+      return BuildingIcon;
+    case FieldsType.POSITION:
+      return BriefcaseIcon;
+    case FieldsType.BRANCH:
+      return MapPinIcon;
     // Display Elements
     case FieldsType.SEPARATOR:
       return MinusIcon;
@@ -326,6 +365,11 @@ export const getFieldTypeLabel = (type: FieldsType): string => {
     [FieldsType.TEXT_AREA]: "Textarea",
     [FieldsType.SWITCH]: "Switch",
     [FieldsType.FILE]: "File",
+
+    // Organizational Fields
+    [FieldsType.DEPARTMENT]: "Department",
+    [FieldsType.POSITION]: "Position",
+    [FieldsType.BRANCH]: "Branch",
 
     // Display Elements
     [FieldsType.SEPARATOR]: "Separator",

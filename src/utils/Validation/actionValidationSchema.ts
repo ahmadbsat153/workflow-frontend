@@ -4,7 +4,7 @@ import { z } from "zod";
 const actionConfigFieldSchema = z.object({
   name: z.string().min(1, "Field name is required"),
   label: z.string().min(1, "Label is required"),
-  type: z.enum(["text", "email", "select", "textarea", "number", "boolean", "attachment"]),
+  type: z.enum(["text", "email", "select", "textarea", "number", "boolean", "attachment", "user"]),
   required: z.boolean(), // Remove .default() here - make it required
   placeholder: z.string().optional(),
   actionDescription: z.string().optional(),
