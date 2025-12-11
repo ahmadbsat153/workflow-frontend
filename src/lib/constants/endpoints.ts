@@ -22,6 +22,20 @@ export const USER_ENDPOINTS = {
   DELETE: "/api/v1/admin/users/:id",
 };
 
+export const WORKFLOW_HISTORY_ENDPOINTS = {
+  GET_ALL: "/api/v1/admin/submissions/workflow-monitoring",
+};
+
+export const WORKFLOW_ENDPOINTS = {
+  GET_ALL: "/api/v1/admin/workflow",
+  GET_ID: "/api/v1/admin/workflow/:id",
+  CREATE: "/api/v1/admin/workflow/:formId",
+  UPDATE: "/api/v1/admin/workflow/:id",
+  DELETE: "/api/v1/admin/workflows:id",
+  GET_BY_FORM: "/api/v1/admin/workflow/form/:formId",
+  GET_ANALYTICS: "/api/v1/admin/workflow/:id/analytics",
+};
+
 export const FORM_ENDPOINTS = {
   GET_ALL: "/api/v1/admin/forms",
   GET_ID: "/api/v1/admin/forms/:id",
@@ -30,6 +44,7 @@ export const FORM_ENDPOINTS = {
   DELETE: "/api/v1/admin/forms/:id",
   GET_ANALYTICS: "/api/v1/admin/analytics/forms/:slug",
   GET_BY_SLUG: "/api/v1/admin/forms/by-slug/:slug",
+  GET_FIELD_TEMPLATE: "/api/v1/admin/forms/:id/template-fields",
 };
 
 export const FORM_SUBMISSION_ENDPOINTS = {
@@ -37,4 +52,62 @@ export const FORM_SUBMISSION_ENDPOINTS = {
   GET_ALL_BY_USER: "/api/v1/form/submissions",
   GET_ID: "/api/v1/form/submission/:id",
   SUBMIT_FORM: "/api/v1/form/submission",
+};
+
+export const ACTION_ENDPOINTS = {
+  GET_ALL: "/api/v1/admin/actions",
+  ACTIVE: "/api/v1/admin/actions-active/",
+  GET_ID: "/api/v1/admin/actions/:id",
+  CREATE: "/api/v1/admin/actions",
+  UPDATE: "/api/v1/admin/actions/:id",
+  DELETE: "/api/v1/admin/actions/:id",
+};
+
+export const DEPARTMENT_ENDPOINTS = {
+  GET_ALL: "/api/v1/admin/departments",
+  GET_ACTIVE: "/api/v1/admin/departments/active",
+  GET_ID: "/api/v1/admin/departments/:id",
+  GET_HIERARCHY: "/api/v1/admin/departments/hierarchy",
+  CREATE: "/api/v1/admin/departments",
+  UPDATE: "/api/v1/admin/departments/:id",
+  DELETE: "/api/v1/admin/departments/:id",
+};
+
+export const POSITION_ENDPOINTS = {
+  GET_ALL: "/api/v1/admin/positions",
+  GET_ACTIVE: "/api/v1/admin/positions/active",
+  GET_ID: "/api/v1/admin/positions/:id",
+  GET_USERS: "/api/v1/admin/positions/:id/users",
+  CREATE: "/api/v1/admin/positions",
+  UPDATE: "/api/v1/admin/positions/:id",
+  DELETE: "/api/v1/admin/positions/:id",
+};
+
+export const BRANCH_ENDPOINTS = {
+  GET_ALL: "/api/v1/admin/branches",
+  GET_ACTIVE: "/api/v1/admin/branches/active",
+  GET_ID: "/api/v1/admin/branches/:id",
+  GET_USERS: "/api/v1/admin/branches/:id/users",
+  CREATE: "/api/v1/admin/branches",
+  UPDATE: "/api/v1/admin/branches/:id",
+  DELETE: "/api/v1/admin/branches/:id",
+};
+
+export const ROLE_ENDPOINTS = {
+  GET_ALL: "/api/v1/admin/roles",
+  GET_ACTIVE: "/api/v1/admin/roles/active",
+  GET_ID: "/api/v1/admin/roles/:id",
+  CREATE: "/api/v1/admin/roles",
+  UPDATE: "/api/v1/admin/roles/:id",
+  DELETE: "/api/v1/admin/roles/:id",
+  GET_NAME: "/api/v1/admin/roles/name/:name",
+  GET_PERMISSIONS_AVAILABLE: "/api/v1/admin/roles/permissions/available",
+};
+
+export const PERMISSION_ENDPOINTS = {
+  GET_USER_PERMISSIONS: "/api/v1/admin/users/:id/permissions",
+  GRANT_USER_PERMISSIONS: "/api/v1/admin/users/:id/permissions/grant",
+  DENY_USER_PERMISSIONS: "/api/v1/admin/users/:id/permissions/deny",
+  CLEAR_USER_PERMISSIONS: "/api/v1/admin/users/:id/permissions/custom",
+  UPDATE_USER_ROLE: "/api/v1/admin/users/:id/role",
 };

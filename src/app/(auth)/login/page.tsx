@@ -33,6 +33,7 @@ export default function Login() {
   useEffect(() => {
     if (user?.user) {
       router.push(
+        //TODO: Make it dynamic based on permissions
         getUrl(
           user.user.is_super_admin || isAdmin
             ? URLs.admin.users
@@ -67,6 +68,7 @@ export default function Login() {
 
         localStorage.setItem("AFW_token", JSON.stringify(response.token));
 
+        //TODO: Make it dynamic based on permissions
         router.push(
           getUrl(
             response.user.is_super_admin || isAdmin

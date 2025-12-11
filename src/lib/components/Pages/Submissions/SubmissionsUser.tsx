@@ -154,7 +154,7 @@ const SubmissionsUserTable = () => {
     },
 
     "form.name": (value, row) => {
-      return <div>{row.form.name}</div>;
+      return <div>{row.form?.name}</div>;
     },
     submittedBy: (value) => <div>{value.email}</div>,
   };

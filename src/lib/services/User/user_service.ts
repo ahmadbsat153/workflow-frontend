@@ -83,7 +83,7 @@ export namespace API_USER {
     }
   }
 
-    export async function getUserAnalytics(id: string) {
+  export async function getUserAnalytics(id: string) {
     try {
       const response = await _axios.get(
         build_path(USER_ENDPOINTS.GET_ANALYTICS, { id })

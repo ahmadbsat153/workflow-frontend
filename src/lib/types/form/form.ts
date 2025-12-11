@@ -1,3 +1,4 @@
+import { metadata } from './../../../app/layout';
 import { Meta } from "../common";
 import { Field } from "./fields";
 
@@ -33,4 +34,20 @@ export type FormDetails = {
 export type FormList = {
   data: Form[];
   meta: Meta;
+};
+
+export type FieldTemplate = {
+  name: string;
+  label: string;
+  type: string;
+  placeholder: string;
+  description?: string;
+}
+
+export type FormTemplateResponse = {
+  formId: string;
+  formName: string;
+  fields: FieldTemplate[];
+  metadata: FieldTemplate[];
+  totalFields: number;
 };

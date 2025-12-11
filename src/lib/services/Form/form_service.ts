@@ -6,7 +6,7 @@ import {
   FORM_SUBMISSION_ENDPOINTS,
 } from "../../constants/endpoints";
 import { SuccessResponse } from "../../types/common";
-import { Form, FormDetails, FormList } from "@/lib/types/form/form";
+import { Form, FormDetails, FormList, FormTemplateResponse } from "@/lib/types/form/form";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace API_FORM {
@@ -88,13 +88,41 @@ export namespace API_FORM {
     }
   }
 
-  export async function submitForm( data: any) {
+  export async function submitForm(data: any) {
     try {
       const response = await _axios.post(
         build_path(FORM_SUBMISSION_ENDPOINTS.SUBMIT_FORM),
         data
       );
       return response.data as SuccessResponse;
+    } catch (error: unknown) {
+      throw handleErrors(error);
+    }
+  }
+
+  export async function submitFormWithFiles(formData: FormData) {
+    try {
+      const response = await _axios.post(
+        build_path(FORM_SUBMISSION_ENDPOINTS.SUBMIT_FORM),
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response.data as SuccessResponse;
+    } catch (error: unknown) {
+      throw handleErrors(error);
+    }
+  }
+
+  export async function getFieldsTemplate(id: string) {
+    try {
+      const response = await _axios.get(
+        build_path(FORM_ENDPOINTS.GET_FIELD_TEMPLATE, { id })
+      );
+      return response.data.data as FormTemplateResponse;
     } catch (error: unknown) {
       throw handleErrors(error);
     }

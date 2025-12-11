@@ -51,7 +51,6 @@ const SubmissionFormBuilder = () => {
     getForm();
   }, [getForm]);
 
-  // IMPORTANT: Please check "buildValidationSchema" for the JSDoc
   const schema = useMemo(() => {
     return form ? buildValidationSchema(form.fields) : null;
   }, [form]);
@@ -63,11 +62,9 @@ const SubmissionFormBuilder = () => {
       if (field.type === FieldsType.NUMBER) {
         acc[field.name] = field.defaultValue ? Number(field.defaultValue) : "";
       } else if (field.type === FieldsType.SWITCH) {
-        // Switch expects boolean, not string
         acc[field.name] =
           field.defaultValue === "true" || field.defaultValue === true || false;
       } else if (field.type === FieldsType.CHECKBOX) {
-        // Multiple checkboxes expect array
         if (field.options && field.options.length > 0) {
           acc[field.name] = field.defaultValue
             ? Array.isArray(field.defaultValue)
@@ -75,7 +72,6 @@ const SubmissionFormBuilder = () => {
               : [field.defaultValue]
             : [];
         } else {
-          // Single checkbox expects boolean
           acc[field.name] =
             field.defaultValue === "true" ||
             field.defaultValue === true ||
@@ -114,13 +110,56 @@ const SubmissionFormBuilder = () => {
     try {
       setSubmitting(true);
 
-      const SubmissionData = {
-        formId: form._id,
-        submissionData: data,
-      };
+      const hasFileFields = form.fields.some(
+        (field) => field.type === FieldsType.FILE
+      );
 
-      const res = await API_FORM.submitForm(SubmissionData);
-      toast.success("Form submitted successfully!");
+      if (hasFileFields) {
+        const formData = new FormData();
+        formData.append("formId", form._id);
+
+        const nonFileData: any = {};
+
+        form.fields.forEach((field) => {
+          const value = data[field.name];
+
+          if (field.type === FieldsType.FILE) {
+            if (value instanceof FileList && value.length > 0) {
+              Array.from(value).forEach((file) => {
+                formData.append(field.name, file);
+              });
+            }
+          } else {
+            if (value !== undefined && value !== null) {
+              nonFileData[field.name] = value;
+            }
+          }
+        });
+
+        formData.append("submissionData", JSON.stringify(nonFileData));
+
+        console.log("Sending FormData with:");
+        console.log("- formId:", form._id);
+        console.log(
+          "- File fields:",
+          form.fields
+            .filter((f) => f.type === FieldsType.FILE)
+            .map((f) => f.name)
+        );
+        console.log("- Non-file fields:", Object.keys(nonFileData));
+
+        const res = await API_FORM.submitFormWithFiles(formData);
+        toast.success("Form submitted successfully!");
+      } else {
+        const SubmissionData = {
+          formId: form._id,
+          submissionData: data,
+        };
+
+        const res = await API_FORM.submitForm(SubmissionData);
+        toast.success("Form submitted successfully!");
+      }
+
       reset();
       router.back();
     } catch (error) {
@@ -187,14 +226,6 @@ const SubmissionFormBuilder = () => {
 
           <CardFooter className="border-t flex-shrink-0">
             <div className="w-full flex justify-end">
-              {/* <Button
-                type="reset"
-                variant="outline"
-                className="mr-3"
-                onClick={() => router.back()}
-              >
-                Cancel
-              </Button> */}
               <Button type="submit" disabled={submitting}>
                 {submitting ? "Submitting..." : "Submit"}
               </Button>

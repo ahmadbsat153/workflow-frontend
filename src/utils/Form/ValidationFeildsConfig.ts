@@ -60,6 +60,52 @@ export const VALIDATION_FIELD_CONFIGS = {
     placeholder: "3",
     description: "Maximum number of options that can be selected",
   },
+  minFiles: {
+    label: "Minimum Files",
+    type: "number",
+    placeholder: "1",
+    description: "Minimum number of files required",
+  },
+  maxFiles: {
+    label: "Maximum Files",
+    type: "number",
+    placeholder: "5",
+    description: "Maximum number of files allowed",
+  },
+  maxFileSize: {
+    label: "Maximum File Size (bytes)",
+    type: "number",
+    placeholder: "5242880",
+    description:
+      "Maximum size per file in bytes (default: 5MB = 5242880 bytes)",
+  },
+  allowedFileTypes: {
+    label: "Allowed File Types",
+    type: "multiselect",
+    placeholder: "Select file types",
+    description: "Select which file types are allowed for upload",
+    options: [
+      { label: "Images (PNG)", value: "image/png" },
+      { label: "Images (JPEG)", value: "image/jpeg" },
+      { label: "Images (GIF)", value: "image/gif" },
+      { label: "Images (WebP)", value: "image/webp" },
+      { label: "PDF", value: "application/pdf" },
+      {
+        label: "Word (DOCX)",
+        value:
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      },
+      {
+        label: "Excel (XLSX)",
+        value:
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      },
+      { label: "Text", value: "text/plain" },
+      { label: "CSV", value: "text/csv" },
+      { label: "JSON", value: "application/json" },
+      { label: "ZIP", value: "application/zip" },
+    ],
+  },
 } as const;
 
 /**
@@ -119,6 +165,16 @@ export const getValidationFieldsForType = (fieldType: FieldsType) => {
     case FieldsType.SELECT:
     case FieldsType.RADIO:
       return [];
+
+    case FieldsType.FILE:
+      return ["minFiles", "maxFiles", "allowedFileTypes", "maxFileSize"].map(
+        (key) => ({
+          name: `validation.${key}` as const,
+          ...VALIDATION_FIELD_CONFIGS[
+            key as keyof typeof VALIDATION_FIELD_CONFIGS
+          ],
+        })
+      );
 
     default:
       return [];

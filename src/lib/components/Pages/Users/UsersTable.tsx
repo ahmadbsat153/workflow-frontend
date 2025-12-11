@@ -10,24 +10,27 @@ import {
 } from "nuqs";
 
 import { toast } from "sonner";
-import UserSheet from "./UsersSheet";
 import { Badge } from "@/lib/ui/badge";
 import { Button } from "@/lib/ui/button";
-import { UserRoundPlusIcon } from "lucide-react";
 import { PencilIcon } from "lucide-react";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
+import { DataTable } from "../../Table/DataTable";
 import { ErrorResponse } from "@/lib/types/common";
 import { formatDatesWithYear } from "@/utils/common";
 import { handleServerError } from "@/lib/api/_axios";
 import { INITIAL_META } from "@/lib/constants/initials";
 import { User, UserTable } from "@/lib/types/user/user";
 import { API_USER } from "@/lib/services/User/user_service";
-import { DataTable } from "../../Table/DataTable";
-import { CellRenderer, AdditionalButton } from "@/lib/types/table/table_data";
+import { usePermissions } from "@/lib/hooks/usePermissions";
+import { UserRoundPlusIcon, ShieldCheck } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { USER_COLUMNS, USER_VISIBLE_COL } from "@/lib/constants/tables";
+import { CellRenderer, AdditionalButton } from "@/lib/types/table/table_data";
+import { PERMISSIONS } from "@/lib/constants/permissions";
 
 const UsersTable = () => {
+  const { hasPermission } = usePermissions();
+
   const searchParams = {
     page: parseAsInteger,
     limit: parseAsInteger,
@@ -40,7 +43,7 @@ const UsersTable = () => {
     data: [],
     meta: INITIAL_META,
   });
-  
+
   const [query, setQuery] = useQueryStates(
     {
       page: parseAsInteger.withDefault(1),
@@ -53,7 +56,7 @@ const UsersTable = () => {
       history: "push",
     }
   );
-  
+
   const router = useRouter();
   const [visibleColumns] = useState<Set<string>>(new Set(USER_VISIBLE_COL));
   const [loading, setLoading] = useState(true);
@@ -89,32 +92,44 @@ const UsersTable = () => {
   }, [getUsers]);
 
   // Server-side pagination handlers
-  const handlePageChange = useCallback((page: number) => {
-    setQuery({ page });
-  }, [setQuery]);
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setQuery({ page });
+    },
+    [setQuery]
+  );
 
-  const handlePageSizeChange = useCallback((size: number) => {
-    setQuery({ limit: size, page: 1 }); // Reset to first page when changing page size
-  }, [setQuery]);
+  const handlePageSizeChange = useCallback(
+    (size: number) => {
+      setQuery({ limit: size, page: 1 }); // Reset to first page when changing page size
+    },
+    [setQuery]
+  );
 
-  const handleSearch = useCallback((search: string) => {
-    setQuery({ search: search || null, page: 1 }); // Reset to first page when searching
-  }, [setQuery]);
+  const handleSearch = useCallback(
+    (search: string) => {
+      setQuery({ search: search || null, page: 1 }); // Reset to first page when searching
+    },
+    [setQuery]
+  );
 
-  const handleSort = useCallback((field: string, order: "asc" | "desc") => {
-    setQuery({ 
-      sortField: field, 
-      sortOrder: order,
-      page: 1 // Reset to first page when sorting
-    });
-  }, [setQuery]);
+  const handleSort = useCallback(
+    (field: string, order: "asc" | "desc") => {
+      setQuery({
+        sortField: field,
+        sortOrder: order,
+        page: 1, // Reset to first page when sorting
+      });
+    },
+    [setQuery]
+  );
 
-  const navigateToDetails = ((user: User) => {
+  const navigateToDetails = (user: User) => {
     router.push(`/admin/users/${user._id}`);
-  })
+  };
   const cellRenderers: Partial<Record<string, CellRenderer<User>>> = {
     firstname: (value, row) => (
-      <span onClick={()=>navigateToDetails(row)} className="font-medium">
+      <span onClick={() => navigateToDetails(row)} className="font-medium">
         {row.firstname} {row.lastname}
       </span>
     ),
@@ -125,14 +140,42 @@ const UsersTable = () => {
       </a>
     ),
 
-    createdAt: (value) => {
+    department: (value, row) => (
+      <span className="text-sm">
+        {row.departmentId
+          ? `${row.departmentId.name} (${row.departmentId.code})`
+          : "-"}
+      </span>
+    ),
+
+    position: (value, row) => (
+      <span className="text-sm">
+        {row.positionId
+          ? `${row.positionId.name} (${row.positionId.code})`
+          : "-"}
+      </span>
+    ),
+
+    branch: (value, row) => (
+      <span className="text-sm">
+        {row.branchId ? `${row.branchId.name} (${row.branchId.code})` : "-"}
+      </span>
+    ),
+
+    role: (value, row) => (
+      <Badge variant={row.role ? "default" : "outline"} className="text-xs">
+        {row.role ? row.role.name : "No Role"}
+      </Badge>
+    ),
+
+    createdAt: (value, row) => {
       return <span>{formatDatesWithYear(value)}</span>;
     },
-    
+
     updatedAt: (value) => {
       return <span>{formatDatesWithYear(value)}</span>;
     },
-    
+
     is_active: (value) => (
       <div className="">
         {value ? (
@@ -142,13 +185,26 @@ const UsersTable = () => {
         )}
       </div>
     ),
-    
+
     actions: (value, row) => (
-      <UserSheet user={row} callback={getUsers}>
-        <Button variant="ghost" size="sm">
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => router.push(`/admin/users/edit/${row._id}`)}
+          title="Edit User"
+        >
           <PencilIcon className="size-4 text-blue-500" />
         </Button>
-      </UserSheet>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => router.push(`/admin/users/${row._id}/permissions`)}
+          title="Manage Permissions"
+        >
+          <ShieldCheck className="size-4 text-purple-500" />
+        </Button>
+      </div>
     ),
   };
 
@@ -156,19 +212,28 @@ const UsersTable = () => {
     {
       label: "Add User",
       icon: UserRoundPlusIcon,
-      style: "bg-primary text-primary-foreground hover:bg-primary/60",
+      permission: PERMISSIONS.USERS.CREATE,
+      style: "",
       onClick: () => {
         router.push("/admin/users/create");
       },
     },
-  ]
+    {
+      label: "Add From Active Directory",
+      icon: UserRoundPlusIcon,
+      permission: PERMISSIONS.ACTIVE_DIRECTORY.CREATE_USER,
+      style: "",
+      onClick: () => {
+        router.push("/admin/users/create");
+      },
+    },
+  ];
   return (
     <>
       <div className="flex flex-col gap-4 w-full">
         <DataTable
           data={users?.data}
           columns={headerColumns}
-
           // Server-side configuration
           serverSide={true}
           loading={loading}
@@ -177,18 +242,15 @@ const UsersTable = () => {
           onPageSizeChange={handlePageSizeChange}
           onSearch={handleSearch}
           onSort={handleSort}
-
           // Features
           enableSelection={false}
           enablePagination={true}
           enableSorting={true}
           enableGlobalSearch={true}
           enableColumnVisibility={true}
-          
           // Customization
           searchPlaceholder="Search users..."
           emptyStateMessage="No users found."
-          
           // Custom renderers
           cellRenderers={cellRenderers}
           additionalButtons={additionalButtons}

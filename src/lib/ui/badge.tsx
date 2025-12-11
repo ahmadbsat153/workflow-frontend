@@ -20,6 +20,10 @@ const badgeVariants = cva(
         //TODO: update colors from green-600 to active in globals
         active:
           "border-transparent bg-green-600 text-white [a&]:hover:bg-active/90 focus-visible:ring-active/20 dark:focus-visible:ring-active/40 dark:bg-active/60",
+        pending:
+          "border-transparent bg-pending text-white [a&]:hover:bg-pending/90 focus-visible:ring-pending/20 dark:focus-visible:ring-pending/40 dark:bg-pending/60",
+        tertiary:
+          "border-transparent bg-tertiary text-tertiary-foreground [a&]:hover:bg-tertiary/90 focus-visible:ring-tertiary/20 dark:focus-visible:ring-tertiary/40 dark:bg-tertiary/60",
       },
     },
     defaultVariants: {

@@ -8,7 +8,7 @@ type Props = {
 export default async function PanelLayout({ children }: Props) {
   return (
     <>
-      <AuthGuardProvider is_admin>
+      <AuthGuardProvider>
         <PanelSidebar>{children}</PanelSidebar>
       </AuthGuardProvider>
     </>

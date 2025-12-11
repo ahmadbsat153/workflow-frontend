@@ -3,6 +3,7 @@ export const URLs = {
   admin: {
     dashboard: "/admin/dashboard/",
     users: "/admin/users/",
+    roles: "/admin/roles/",
     forms: {
       index: "/admin/forms/",
       detail: "/admin/forms/:slug",
@@ -11,6 +12,33 @@ export const URLs = {
     },
     submissions: {
       view: "/admin/submissions/view/:id",
+    },
+    actions: {
+      index: "/admin/actions/",
+      create: "/admin/actions/create/",
+      details: "/admin/actions/view/:action_id",
+      edit: "/admin/actions/edit/:action_id",
+    },
+    workflow: {
+      index: "/admin/workflows_history/",
+    },
+    departments: {
+      index: "/admin/departments/",
+      create: "/admin/departments/create/",
+      edit: "/admin/departments/edit/:id",
+    },
+    positions: {
+      index: "/admin/positions/",
+      create: "/admin/positions/create/",
+      edit: "/admin/positions/edit/:id",
+    },
+    branches: {
+      index: "/admin/branches/",
+      create: "/admin/branches/create/",
+      edit: "/admin/branches/edit/:id",
+    },
+    organization: {
+      dashboard: "/admin/organization/dashboard/",
     },
   },
   app: {
@@ -34,7 +62,7 @@ export const URLs = {
   },
   user: {
     create: "/admin/user/create/",
-  }
+  },
 };
 
 export function getUrl(

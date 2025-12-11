@@ -72,6 +72,7 @@ export type CellRenderer<TData = any> = (
 ) => React.ReactNode;
 
 import { DataTableProps, AdditionalButton } from "@/lib/types/table/table_data";
+import { usePermissions } from "@/lib/hooks/usePermissions";
 
 const SortableHeader: React.FC<{
   column: any;
@@ -82,15 +83,15 @@ const SortableHeader: React.FC<{
   field?: string;
   currentSortField?: string;
   currentSortOrder?: "asc" | "desc";
-}> = ({ 
-  column, 
-  title, 
-  align = "left", 
-  serverSide, 
-  onSort, 
+}> = ({
+  column,
+  title,
+  align = "left",
+  serverSide,
+  onSort,
   field,
   currentSortField,
-  currentSortOrder 
+  currentSortOrder,
 }) => {
   const alignClass = {
     left: "justify-start",
@@ -128,7 +129,9 @@ const SortableHeader: React.FC<{
 
   // Determine the current sort state for this specific field
   const isSortedByThisField = serverSide ? currentSortField === field : false;
-  const sortDirection = isSortedByThisField ? currentSortOrder : column.getIsSorted();
+  const sortDirection = isSortedByThisField
+    ? currentSortOrder
+    : column.getIsSorted();
 
   return (
     <Button
@@ -179,6 +182,7 @@ export function DataTable<TData extends Record<string, any>>({
   currentSortField,
   currentSortOrder,
 }: DataTableProps<TData>) {
+  const { hasPermission } = usePermissions();
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>(() => {
@@ -286,7 +290,16 @@ export function DataTable<TData extends Record<string, any>>({
     }
 
     return reactTableColumns;
-  }, [userColumns, enableSelection, enableSorting, cellRenderers, serverSide, onSort, currentSortField, currentSortOrder]);
+  }, [
+    userColumns,
+    enableSelection,
+    enableSorting,
+    cellRenderers,
+    serverSide,
+    onSort,
+    currentSortField,
+    currentSortOrder,
+  ]);
 
   const table = useReactTable({
     data,
@@ -327,9 +340,14 @@ export function DataTable<TData extends Record<string, any>>({
     }
   }, [rowSelection, onSelectionChange]);
 
-  const totalPages = serverSide && meta ? meta.totalPages : table.getPageCount();
-  const currentPage = serverSide && meta ? meta.currentPage : pagination.pageIndex + 1;
-  const totalItems = serverSide && meta ? meta.totalItems : table.getFilteredRowModel().rows.length;
+  const totalPages =
+    serverSide && meta ? meta.totalPages : table.getPageCount();
+  const currentPage =
+    serverSide && meta ? meta.currentPage : pagination.pageIndex + 1;
+  const totalItems =
+    serverSide && meta
+      ? meta.totalItems
+      : table.getFilteredRowModel().rows.length;
   const currentPageSize = serverSide && meta ? meta.limit : pagination.pageSize;
 
   const handlePageChange = (page: number) => {
@@ -436,23 +454,28 @@ export function DataTable<TData extends Record<string, any>>({
             </>
           )}
           {/* Additional Buttons */}
-          {additionalButtons?.map((button: AdditionalButton, index: number) => (
-            <Button
-              key={index + button.label}
-              type={button.type || "button"}
-              size={button.size || "sm"}
-              className={`${button.style} flex items-center justify-center transition-all hover:scale-90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-transparent disabled:hover:bg-opacity-0`}
-              disabled={loading}
-              onClick={(event) => button.onClick(event)}
-            >
-              {button.icon && (
-                <React.Fragment>
-                  {React.createElement(button.icon, { className: "size-4" })}
-                </React.Fragment>
-              )}
-              {button.label}
-            </Button>
-          ))}
+          {additionalButtons?.map(
+            (button: AdditionalButton, index: number) =>
+              (!button.permission || hasPermission(button.permission)) && (
+                <Button
+                  key={index + button.label}
+                  type={button.type || "button"}
+                  size={button.size || "sm"}
+                  className={`${button.style} flex items-center justify-center transition-all hover:scale-90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-transparent disabled:hover:bg-opacity-0`}
+                  disabled={loading}
+                  onClick={(event) => button.onClick(event)}
+                >
+                  {button.icon && (
+                    <React.Fragment>
+                      {React.createElement(button.icon, {
+                        className: "size-4",
+                      })}
+                    </React.Fragment>
+                  )}
+                  {button.label}
+                </Button>
+              )
+          )}
         </div>
       </div>
 

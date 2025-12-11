@@ -88,11 +88,13 @@ export interface AdditionalButton {
   icon: LucideIcon;
 
   // style: The Tailwind CSS classes for styling.
-  style: string;
+  style?: string;
 
   // onClick: The function to execute when the button is clicked.
   onClick: React.MouseEventHandler<HTMLButtonElement> | (() => void);
 
+  // permission: The permission required to access the button.
+  permission?: string;
   // Button properties
   type?: "button" | "submit" | "reset";
   size?: "default" | "sm" | "md" | "lg" | "icon";

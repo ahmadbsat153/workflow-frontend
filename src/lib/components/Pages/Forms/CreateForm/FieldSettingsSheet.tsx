@@ -89,12 +89,19 @@ const FieldSettingsSheet = ({
           placeholder: field.placeholder || "",
           required: field.required,
           defaultValue: field.defaultValue,
+          autofill: field.autofill,
           validation: {
             minLength: field.validation?.minLength,
             maxLength: field.validation?.maxLength,
             min: field.validation?.min,
             max: field.validation?.max,
             pattern: field.validation?.pattern,
+            minSelections: field.validation?.minSelections,
+            maxSelections: field.validation?.maxSelections,
+            minFiles: field.validation?.minFiles,
+            maxFiles: field.validation?.maxFiles,
+            maxFileSize: field.validation?.maxFileSize,
+            allowedFileTypes: field.validation?.allowedFileTypes,
           },
           display: {
             showInTable: field.display?.showInTable ?? true,
@@ -133,16 +140,7 @@ const FieldSettingsSheet = ({
       };
     } else {
       // For input fields
-      const inputValues = values as {
-        name: string;
-        label: string;
-        placeholder?: string;
-        required: boolean;
-        defaultValue?: any;
-        validation?: any;
-        display?: any;
-        options?: any;
-      };
+      const inputValues = values as Field;
 
       updatedField = {
         ...field,
@@ -154,6 +152,7 @@ const FieldSettingsSheet = ({
         validation: inputValues.validation || {},
         options: inputValues.options || field.options,
         display: inputValues.display,
+        autofill: inputValues.autofill,
       };
     }
 

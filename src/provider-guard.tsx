@@ -15,7 +15,7 @@ type AuthGuardProviderProps = {
 
 const AuthGuardProvider = ({
   children,
-  is_admin = false,
+  is_admin,
 }: AuthGuardProviderProps) => {
   const { validating, logged, isAdmin } = useAuth();
 
@@ -38,7 +38,8 @@ const AuthGuardProvider = ({
     );
   }
 
-  if (!validating && isAdmin !== is_admin) {
+  // Only check admin status if is_admin prop is explicitly provided
+  if (!validating && is_admin !== undefined && isAdmin !== is_admin) {
     return (
       <NotFound
         error="Not Authorized!"

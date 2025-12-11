@@ -4,6 +4,7 @@ import { UserAuthenticated } from "./user/user";
 export type Authentication = {
   user: UserAuthenticated;
   token: string;
+  permissions: string[];
   status: number;
 };
 

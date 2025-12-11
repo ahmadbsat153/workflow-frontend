@@ -5,6 +5,7 @@ import { Form } from "./form";
 export type SubmittedBy = {
   _id: string;
   email: string;
+  name?: string;
 }
 
 export type FormSubmission = {
