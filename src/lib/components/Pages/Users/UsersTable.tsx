@@ -10,24 +10,27 @@ import {
 } from "nuqs";
 
 import { toast } from "sonner";
-import UserSheet from "./UsersSheet";
 import { Badge } from "@/lib/ui/badge";
 import { Button } from "@/lib/ui/button";
-import { UserRoundPlusIcon } from "lucide-react";
 import { PencilIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { DataTable } from "../../Table/DataTable";
 import { ErrorResponse } from "@/lib/types/common";
 import { formatDatesWithYear } from "@/utils/common";
 import { handleServerError } from "@/lib/api/_axios";
 import { INITIAL_META } from "@/lib/constants/initials";
 import { User, UserTable } from "@/lib/types/user/user";
 import { API_USER } from "@/lib/services/User/user_service";
-import { DataTable } from "../../Table/DataTable";
-import { CellRenderer, AdditionalButton } from "@/lib/types/table/table_data";
+import { usePermissions } from "@/lib/hooks/usePermissions";
+import { UserRoundPlusIcon, ShieldCheck } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { USER_COLUMNS, USER_VISIBLE_COL } from "@/lib/constants/tables";
+import { CellRenderer, AdditionalButton } from "@/lib/types/table/table_data";
+import { PERMISSIONS } from "@/lib/constants/permissions";
 
 const UsersTable = () => {
+  const { hasPermission } = usePermissions();
+
   const searchParams = {
     page: parseAsInteger,
     limit: parseAsInteger,
@@ -159,8 +162,13 @@ const UsersTable = () => {
       </span>
     ),
 
+    role: (value, row) => (
+      <Badge variant={row.role ? "default" : "outline"} className="text-xs">
+        {row.role ? row.role.name : "No Role"}
+      </Badge>
+    ),
+
     createdAt: (value, row) => {
-      console.log(row);
       return <span>{formatDatesWithYear(value)}</span>;
     },
 
@@ -179,11 +187,24 @@ const UsersTable = () => {
     ),
 
     actions: (value, row) => (
-      <UserSheet user={row} callback={getUsers}>
-        <Button variant="ghost" size="sm">
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => router.push(`/admin/users/edit/${row._id}`)}
+          title="Edit User"
+        >
           <PencilIcon className="size-4 text-blue-500" />
         </Button>
-      </UserSheet>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => router.push(`/admin/users/${row._id}/permissions`)}
+          title="Manage Permissions"
+        >
+          <ShieldCheck className="size-4 text-purple-500" />
+        </Button>
+      </div>
     ),
   };
 
@@ -191,7 +212,17 @@ const UsersTable = () => {
     {
       label: "Add User",
       icon: UserRoundPlusIcon,
-      style: "bg-primary text-primary-foreground hover:bg-primary/60",
+      permission: PERMISSIONS.USERS.CREATE,
+      style: "",
+      onClick: () => {
+        router.push("/admin/users/create");
+      },
+    },
+    {
+      label: "Add From Active Directory",
+      icon: UserRoundPlusIcon,
+      permission: PERMISSIONS.ACTIVE_DIRECTORY.CREATE_USER,
+      style: "",
       onClick: () => {
         router.push("/admin/users/create");
       },

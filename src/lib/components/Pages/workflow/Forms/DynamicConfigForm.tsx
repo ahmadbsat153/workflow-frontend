@@ -213,9 +213,6 @@ export const DynamicConfigForm = ({
                         </p>
                       </TooltipContent>
                     </Tooltip>
-                    // <FormDescription className="text-xs text-blue-600">
-                    //   💡
-                    // </FormDescription>
                   )}
                 </FormLabel>
                 <FormControl>

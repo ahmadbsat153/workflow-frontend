@@ -3,6 +3,7 @@ export const URLs = {
   admin: {
     dashboard: "/admin/dashboard/",
     users: "/admin/users/",
+    roles: "/admin/roles/",
     forms: {
       index: "/admin/forms/",
       detail: "/admin/forms/:slug",

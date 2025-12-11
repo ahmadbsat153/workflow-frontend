@@ -40,9 +40,11 @@ import { API_USER } from "@/lib/services/User/user_service";
 import { API_DEPARTMENT } from "@/lib/services/Department/department_service";
 import { API_POSITION } from "@/lib/services/Position/position_service";
 import { API_BRANCH } from "@/lib/services/Branch/branch_service";
+import { API_ROLE } from "@/lib/services/Role/role_service";
 import { DepartmentOption } from "@/lib/types/department/department";
 import { PositionOption } from "@/lib/types/position/position";
 import { BranchOption } from "@/lib/types/branch/branch";
+import { Role } from "@/lib/types/role/role";
 import { Loader2 } from "lucide-react";
 
 type UserSheetProps = {
@@ -58,6 +60,7 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
   const [departments, setDepartments] = useState<DepartmentOption[]>([]);
   const [positions, setPositions] = useState<PositionOption[]>([]);
   const [branches, setBranches] = useState<BranchOption[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
   const [loadingPositions, setLoadingPositions] = useState(false);
 
   const update_schema = z.object({
@@ -71,6 +74,7 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
       .min(2, "Last name must be at least 2 characters"),
     email: z.string().email("Email is required"),
     is_super_admin: z.boolean(),
+    roleId: z.string().nullable().optional(),
     departmentId: z.string().nullable().optional(),
     positionId: z.string().nullable().optional(),
     branchId: z.string().nullable().optional(),
@@ -84,6 +88,7 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
       lastname: "",
       email: "",
       is_super_admin: false,
+      roleId: null,
       departmentId: null,
       positionId: null,
       branchId: null,
@@ -102,12 +107,14 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
   useEffect(() => {
     const loadOrganizationalData = async () => {
       try {
-        const [deptRes, branchRes] = await Promise.all([
+        const [deptRes, branchRes, rolesRes] = await Promise.all([
           API_DEPARTMENT.getActiveDepartments(),
           API_BRANCH.getActiveBranches(),
+          API_ROLE.getActiveRoles(),
         ]);
         setDepartments(deptRes.data);
         setBranches(branchRes.data);
+        setRoles(rolesRes);
       } catch (error) {
         handleServerError(error, (msg) => {
           toast.error(`Failed to load organizational data: ${msg}`);
@@ -149,9 +156,7 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
   }, [selectedDepartmentId, form]);
 
   const getUser = async () => {
-    console.log("UserSheet: Sheet opened, fetching user data...");
     if (!user || !open) {
-      console.log("UserSheet: No user provided or sheet is closed.");
       return;
     }
 
@@ -160,15 +165,15 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
 
       const res = await API_USER.getUserById(user._id);
 
-      console.log("Fetched user data:", res);
       form.reset({
         firstname: res.firstname || "",
         lastname: res.lastname || "",
         email: res.email || "",
         is_super_admin: res.is_super_admin || false,
-        departmentId: res.departmentId || null,
-        positionId: res.positionId || null,
-        branchId: res.branchId || null,
+        roleId: res.role?._id || null,
+        departmentId: res.departmentId?._id || null,
+        positionId: res.positionId?._id || null,
+        branchId: res.branchId?._id || null,
       });
     } catch (error) {
       handleServerError(error, (msg) => {
@@ -204,7 +209,6 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
   };
 
   useEffect(() => {
-    console.log("UserSheet: open state changed to", open);
     getUser();
   }, [open]);
 
@@ -299,6 +303,46 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
                     )}
                   />
 
+                  {/* Role & Access */}
+                  <div className="space-y-4 pt-4 border-t">
+                    <h3 className="text-sm font-medium">Role & Access</h3>
+
+                    <FormField
+                      control={form.control}
+                      name="roleId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Role (Optional)</FormLabel>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value === "none" ? null : value);
+                            }}
+                            value={field.value || "none"}
+                            disabled={loading}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select role" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="none">None</SelectItem>
+                              {roles.map((role) => (
+                                <SelectItem key={role._id} value={role._id}>
+                                  {role.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormDescription>
+                            Assign a role to grant specific permissions
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
                   {/* Organizational Information */}
                   <div className="space-y-4 pt-4 border-t">
                     <h3 className="text-sm font-medium">
@@ -348,17 +392,25 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
                               field.onChange(value === "none" ? null : value);
                             }}
                             value={field.value || "none"}
-                            disabled={loading || !selectedDepartmentId || selectedDepartmentId === "none" || loadingPositions}
+                            disabled={
+                              loading ||
+                              !selectedDepartmentId ||
+                              selectedDepartmentId === "none" ||
+                              loadingPositions
+                            }
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder={
-                                  !selectedDepartmentId || selectedDepartmentId === "none"
-                                    ? "Select department first"
-                                    : loadingPositions
-                                    ? "Loading positions..."
-                                    : "Select position"
-                                } />
+                                <SelectValue
+                                  placeholder={
+                                    !selectedDepartmentId ||
+                                    selectedDepartmentId === "none"
+                                      ? "Select department first"
+                                      : loadingPositions
+                                      ? "Loading positions..."
+                                      : "Select position"
+                                  }
+                                />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>

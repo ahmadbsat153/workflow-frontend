@@ -42,6 +42,7 @@ export namespace API_AUTH {
 
       return response.data as Authentication;
     } catch (error: unknown) {
+      console.log(error)
       throw handleErrors(error);
     }
   }

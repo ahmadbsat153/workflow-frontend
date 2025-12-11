@@ -21,8 +21,9 @@ import { BellIcon } from "lucide-react";
 import { isLinkActive } from "@/utils/common";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
+import { usePermissions } from "@/lib/hooks/usePermissions";
 import PanelSidebarAccount from "./PanelSidebarAccount";
-import { ADMIN_NAVIGATION, USER_NAVIGATION } from "@/lib/constants/menu";
+import { NAVIGATION } from "@/lib/constants/menu";
 
 const HIDDEN_SIDEBAR_ROUTES = ["/admin/forms/create", "/admin/forms/edit"];
 
@@ -30,9 +31,15 @@ export function PanelSidebar({
   children,
 }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
-  const { isAdmin } = useAuth();
+  const { hasPermission } = usePermissions();
+  // Filter menu items based on permissions
 
-  const NAVIGATION = isAdmin ? ADMIN_NAVIGATION : USER_NAVIGATION;
+  const filteredNavigation = NAVIGATION.map((section) => ({
+    ...section,
+    data: section.data.filter(
+      (item) => !item.permission || hasPermission(item.permission)
+    ),
+  })).filter((section) => section.data.length > 0);
 
   const shouldHideSidebar = HIDDEN_SIDEBAR_ROUTES.some((route) =>
     pathname.startsWith(route)
@@ -48,7 +55,7 @@ export function PanelSidebar({
             </SidebarMenu>
           </SidebarHeader>
           <SidebarContent>
-            {NAVIGATION.map((section) => (
+            {filteredNavigation.map((section) => (
               <SidebarGroup key={section.title}>
                 <SidebarGroupLabel>{section.title}</SidebarGroupLabel>
                 <SidebarMenu>

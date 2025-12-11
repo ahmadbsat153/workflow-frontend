@@ -12,7 +12,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from 'next/navigation';
 
 import { toast } from "sonner";
-import { MoveLeftIcon } from "lucide-react";
+import { MoveLeftIcon, ShieldCheck } from "lucide-react";
 
 import { API_USER } from "@/lib/services/User/user_service";
 import { ErrorResponse } from "@/lib/types/common";
@@ -30,6 +30,10 @@ const UserDetails = () => {
   const router = useRouter();
   const handleGoBack = () => {
     router.back();
+  };
+
+  const handleManagePermissions = () => {
+    router.push(`/admin/users/${user_slug}/permissions`);
   };
 
   const [loading, setLoading] = useState(true);
@@ -87,10 +91,16 @@ const UserDetails = () => {
         <DotsLoader />
       ) : (
         <div>
-          <Button onClick={handleGoBack} className="bg-gray-50 text-default hover:bg-primary/20 mb-4">
-             <MoveLeftIcon className="size-4" />
+          <div className="flex items-center justify-between mb-4">
+            <Button onClick={handleGoBack} className="bg-gray-50 text-default hover:bg-primary/20">
+              <MoveLeftIcon className="size-4" />
               Back
-          </Button>
+            </Button>
+            <Button onClick={handleManagePermissions} variant="outline">
+              <ShieldCheck className="mr-2 h-4 w-4" />
+              Manage Permissions
+            </Button>
+          </div>
 
         <Tabs defaultValue={activeTab}>
           <TabsList>

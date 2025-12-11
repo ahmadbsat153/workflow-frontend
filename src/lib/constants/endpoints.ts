@@ -92,3 +92,22 @@ export const BRANCH_ENDPOINTS = {
   UPDATE: "/api/v1/admin/branches/:id",
   DELETE: "/api/v1/admin/branches/:id",
 };
+
+export const ROLE_ENDPOINTS = {
+  GET_ALL: "/api/v1/admin/roles",
+  GET_ACTIVE: "/api/v1/admin/roles/active",
+  GET_ID: "/api/v1/admin/roles/:id",
+  CREATE: "/api/v1/admin/roles",
+  UPDATE: "/api/v1/admin/roles/:id",
+  DELETE: "/api/v1/admin/roles/:id",
+  GET_NAME: "/api/v1/admin/roles/name/:name",
+  GET_PERMISSIONS_AVAILABLE: "/api/v1/admin/roles/permissions/available",
+};
+
+export const PERMISSION_ENDPOINTS = {
+  GET_USER_PERMISSIONS: "/api/v1/admin/users/:id/permissions",
+  GRANT_USER_PERMISSIONS: "/api/v1/admin/users/:id/permissions/grant",
+  DENY_USER_PERMISSIONS: "/api/v1/admin/users/:id/permissions/deny",
+  CLEAR_USER_PERMISSIONS: "/api/v1/admin/users/:id/permissions/custom",
+  UPDATE_USER_ROLE: "/api/v1/admin/users/:id/role",
+};

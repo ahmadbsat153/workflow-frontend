@@ -2,6 +2,14 @@ import { Meta } from "../common";
 import { Department } from "../department/department";
 import { Position } from "../position/position";
 import { Branch } from "../branch/branch";
+import { Role } from "../role/role";
+
+// Lightweight role reference returned by API
+export type RoleReference = {
+  id: string;
+  code: string;
+  name: string;
+};
 
 export type User = {
   _id: string;
@@ -10,7 +18,6 @@ export type User = {
   email: string;
   phone: string;
   country_code: string;
-  role: string;
   confirmation_code: string;
   is_archived: boolean;
   is_active: boolean;
@@ -21,14 +28,19 @@ export type User = {
     recovery_token: string;
     recovery_sent_at: string;
   };
+  customPermissions?: {
+    granted: string[];
+    denied: string[];
+  };
   // Organizational fields
+  role: RoleReference; // Changed from full Role to lightweight reference
   departmentId?: Department | null;
   positionId?: Position | null;
   branchId?: Branch | null;
   createdAt: string;
   updatedAt: string;
   __v: number;
-}
+};
 
 export type UserAuthenticated = Omit<
   User,

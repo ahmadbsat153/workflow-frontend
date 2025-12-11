@@ -2,6 +2,7 @@ export const USER_COLUMNS = [
   { name: "id", uid: "_id", sortable: true },
   { name: "name", uid: "firstname", sortable: true },
   { name: "email", uid: "email", sortable: true },
+  { name: "role", uid: "role", sortable: true },
   { name: "department", uid: "department", sortable: false },
   { name: "position", uid: "position", sortable: false },
   { name: "branch", uid: "branch", sortable: false },
@@ -14,6 +15,7 @@ export const USER_COLUMNS = [
 export const USER_VISIBLE_COL = [
   "firstname",
   "email",
+  "role",
   "department",
   "position",
   "branch",
@@ -183,6 +185,28 @@ export const BRANCH_VISIBLE_COL = [
   "country",
   "phone",
   "email",
+  "isActive",
+  "createdAt",
+  "updatedAt",
+  "actions",
+];
+
+export const ROLE_COLUMNS = [
+  { name: "id", uid: "_id", sortable: true },
+  { name: "name", uid: "name", sortable: true },
+  { name: "Code", uid: "code", sortable: true },
+  { name: "Description", uid: "description", sortable: true },
+  { name: "System Role", uid: "isSystemRole", sortable: false },
+  { name: "Active", uid: "isActive", sortable: true },
+  { name: "Created", uid: "createdAt", sortable: true },
+  { name: "Updated", uid: "updatedAt", sortable: true },
+  { name: "actions", uid: "actions" },
+];
+export const ROLE_VISIBLE_COL = [
+  "name",
+  "code",
+  "description",
+  "isSystemRole",
   "isActive",
   "createdAt",
   "updatedAt",
