@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { build_path } from "@/utils/common";
 import { handleErrors, _axios } from "../../api/_axios";
-import { AUTH_ENDPOINTS, USER_ENDPOINTS } from "../../constants/endpoints";
+import { ADUSER_ENDPOINTS, AUTH_ENDPOINTS, USER_ENDPOINTS } from "../../constants/endpoints";
 import { SuccessResponse } from "../../types/common";
-import { User, UserTable } from "../../types/user/user";
+import { ADUserTable, User, UserTable } from "../../types/user/user";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace API_USER {
@@ -89,6 +89,25 @@ export namespace API_USER {
         build_path(USER_ENDPOINTS.GET_ANALYTICS, { id })
       );
       return response.data as User;
+    } catch (error: unknown) {
+      throw handleErrors(error);
+    }
+  }
+
+  // ============================================================
+  // USER FROM ACTIVE DIRECTORY MANAGEMENT
+  // ============================================================
+
+  export async function getActiveADUsers(query?: string) {
+    try {
+      let request = `${ADUSER_ENDPOINTS.GET_ALL}`;
+
+      if (query) {
+        request = request + `${query}`;
+      }
+
+      const response = await _axios.get(request);
+      return response.data as ADUserTable;
     } catch (error: unknown) {
       throw handleErrors(error);
     }

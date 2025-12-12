@@ -27,6 +27,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { USER_COLUMNS, USER_VISIBLE_COL } from "@/lib/constants/tables";
 import { CellRenderer, AdditionalButton } from "@/lib/types/table/table_data";
 import { PERMISSIONS } from "@/lib/constants/permissions";
+import UserFromADModal from "./UserFromADModal";
 
 const UsersTable = () => {
   const { hasPermission } = usePermissions();
@@ -223,9 +224,15 @@ const UsersTable = () => {
       icon: UserRoundPlusIcon,
       permission: PERMISSIONS.ACTIVE_DIRECTORY.CREATE_USER,
       style: "",
-      onClick: () => {
-        router.push("/admin/users/create");
-      },
+      wrapper: ({ children }) => (
+        <UserFromADModal
+          title="Select a User from Active Directory"
+          description="Click the add icon to import user data to create a new user account"
+        >
+          {children}
+        </UserFromADModal>
+      ),
+      onClick: () => "",
     },
   ];
   return (

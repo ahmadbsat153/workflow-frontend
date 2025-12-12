@@ -6,7 +6,7 @@ export type Position = {
   name: string;
   code: string;
   description?: string;
-  departmentId: Department;
+  departmentId?: Department;
   level?: number;
   permissions?: string[];
   isActive: boolean;

@@ -341,14 +341,19 @@ export function DataTable<TData extends Record<string, any>>({
   }, [rowSelection, onSelectionChange]);
 
   const totalPages =
-    serverSide && meta ? meta.totalPages : table.getPageCount();
+    serverSide && meta
+      ? meta.total_pages || meta.totalPages
+      : table.getPageCount();
   const currentPage =
-    serverSide && meta ? meta.currentPage : pagination.pageIndex + 1;
+    serverSide && meta
+      ? meta.page || meta.currentPage
+      : pagination.pageIndex + 1;
   const totalItems =
     serverSide && meta
-      ? meta.totalItems
+      ? meta.count || meta.totalItems
       : table.getFilteredRowModel().rows.length;
-  const currentPageSize = serverSide && meta ? meta.limit : pagination.pageSize;
+  const currentPageSize =
+    serverSide && meta ? meta.limit || meta.pageSize : pagination.pageSize;
 
   const handlePageChange = (page: number) => {
     if (serverSide && onPageChange) {
@@ -457,23 +462,45 @@ export function DataTable<TData extends Record<string, any>>({
           {additionalButtons?.map(
             (button: AdditionalButton, index: number) =>
               (!button.permission || hasPermission(button.permission)) && (
-                <Button
-                  key={index + button.label}
-                  type={button.type || "button"}
-                  size={button.size || "sm"}
-                  className={`${button.style} flex items-center justify-center transition-all hover:scale-90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-transparent disabled:hover:bg-opacity-0`}
-                  disabled={loading}
-                  onClick={(event) => button.onClick(event)}
-                >
-                  {button.icon && (
-                    <React.Fragment>
-                      {React.createElement(button.icon, {
-                        className: "size-4",
-                      })}
-                    </React.Fragment>
+                <React.Fragment key={index + button.label}>
+                  {button.wrapper ? (
+                    <button.wrapper>
+                      <Button
+                        type={button.type || "button"}
+                        size={button.size || "sm"}
+                        className={`${button.style} flex items-center justify-center transition-all hover:scale-90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-transparent disabled:hover:bg-opacity-0`}
+                        disabled={loading}
+                        onClick={(event) => button.onClick(event)}
+                      >
+                        {button.icon && (
+                          <React.Fragment>
+                            {React.createElement(button.icon, {
+                              className: "size-4",
+                            })}
+                          </React.Fragment>
+                        )}
+                        {button.label}
+                      </Button>
+                    </button.wrapper>
+                  ) : (
+                    <Button
+                      type={button.type || "button"}
+                      size={button.size || "sm"}
+                      className={`${button.style} flex items-center justify-center transition-all hover:scale-90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-transparent disabled:hover:bg-opacity-0`}
+                      disabled={loading}
+                      onClick={(event) => button.onClick(event)}
+                    >
+                      {button.icon && (
+                        <React.Fragment>
+                          {React.createElement(button.icon, {
+                            className: "size-4",
+                          })}
+                        </React.Fragment>
+                      )}
+                      {button.label}
+                    </Button>
                   )}
-                  {button.label}
-                </Button>
+                </React.Fragment>
               )
           )}
         </div>
@@ -574,7 +601,7 @@ export function DataTable<TData extends Record<string, any>>({
                   <SelectValue placeholder={currentPageSize} />
                 </SelectTrigger>
                 <SelectContent side="top">
-                  {[10, 25, 50, 100].map((size) => (
+                  {[5, 10, 25, 50, 100].map((size) => (
                     <SelectItem key={size} value={`${size}`}>
                       {size}
                     </SelectItem>

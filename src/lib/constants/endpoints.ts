@@ -10,7 +10,7 @@ export const AUTH_ENDPOINTS = {
   RESEND_EMAIL: "/api/v1/auth/resend/email",
   MAGIC_LINK: "/api/v1/auth/magic-link",
   VALIDATE_RECOVERY_TOKEN: "/api/v1/auth/validate/recovery-token",
-  PLATFORM_INVITE: "/api/v1/auth/platform_invite",
+  PLATFORM_INVITE: "/api/v1/admin/users/invite",
 };
 
 export const USER_ENDPOINTS = {
@@ -20,6 +20,11 @@ export const USER_ENDPOINTS = {
   CREATE: "/api/v1/admin/users",
   ADMIN_UPDATE: "/api/v1/admin/users/:id",
   DELETE: "/api/v1/admin/users/:id",
+};
+
+export const ADUSER_ENDPOINTS = {
+  GET_BY_EMAIL: "/api/v1/ad/users/:email",
+  GET_ALL: "/api/v1/ad/users/all",
 };
 
 export const WORKFLOW_HISTORY_ENDPOINTS = {

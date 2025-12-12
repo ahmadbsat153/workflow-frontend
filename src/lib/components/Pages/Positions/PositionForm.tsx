@@ -44,9 +44,12 @@ const positionSchema = z.object({
     .string()
     .min(1, "Position code is required")
     .min(2, "Code must be at least 2 characters")
-    .regex(/^[A-Z0-9_]+$/, "Code must be uppercase letters, numbers, or underscores"),
+    .regex(
+      /^[A-Z0-9_]+$/,
+      "Code must be uppercase letters, numbers, or underscores"
+    ),
   description: z.string().optional(),
-  departmentId: z.string().min(1, "Department is required"),
+  departmentId: z.string().optional().nullable(),
   level: z.number().min(0, "Level must be 0 or greater").optional(),
   isActive: z.boolean(),
 });
@@ -98,7 +101,7 @@ const PositionForm = ({ isEdit = false }: { isEdit?: boolean }) => {
             name: res.name,
             code: res.code,
             description: res.description || "",
-            departmentId: res.departmentId._id,
+            departmentId: res?.departmentId?._id,
             level: res.level || 0,
             isActive: res.isActive,
           });
@@ -203,7 +206,7 @@ const PositionForm = ({ isEdit = false }: { isEdit?: boolean }) => {
               <FormLabel>Department</FormLabel>
               <Select
                 onValueChange={field.onChange}
-                value={field.value}
+                value={field.value ? field.value : undefined}
                 disabled={loading}
               >
                 <FormControl>
@@ -219,9 +222,6 @@ const PositionForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                   ))}
                 </SelectContent>
               </Select>
-              <FormDescription>
-                The department this position belongs to
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -264,9 +264,6 @@ const PositionForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                   }}
                 />
               </FormControl>
-              <FormDescription>
-                Higher numbers indicate higher authority (e.g., CEO: 15, Manager: 5)
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

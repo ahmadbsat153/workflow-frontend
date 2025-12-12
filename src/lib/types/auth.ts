@@ -8,6 +8,15 @@ export type Authentication = {
   status: number;
 };
 
+export type InvitedUser = {
+  firstname: string;
+  lastname: string;
+  email: string;
+  roleCode: string | null | undefined;
+  departmentId: string | null | undefined;
+  branchId: string | null | undefined;
+  positionId: string | null | undefined;
+};
 export type Register = Pick<User, "firstname" | "lastname" | "email"> & {
   password: string;
 };

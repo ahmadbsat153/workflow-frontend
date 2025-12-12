@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Authentication, Login, Register } from "@/lib/types/auth";
+import { Authentication, InvitedUser, Login, Register } from "@/lib/types/auth";
 import { handleErrors, _axios } from "../api/_axios";
 import { AUTH_ENDPOINTS } from "../constants/endpoints";
 import { ResendResponse, SuccessResponse } from "../types/common";
@@ -16,7 +16,7 @@ export namespace API_AUTH {
     }
   }
 
-  export async function platform_invite(data: Register) {
+  export async function platform_invite(data: InvitedUser) {
     try {
       const response = await _axios.post(AUTH_ENDPOINTS.PLATFORM_INVITE, data);
 
