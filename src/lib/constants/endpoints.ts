@@ -11,6 +11,8 @@ export const AUTH_ENDPOINTS = {
   MAGIC_LINK: "/api/v1/auth/magic-link",
   VALIDATE_RECOVERY_TOKEN: "/api/v1/auth/validate/recovery-token",
   PLATFORM_INVITE: "/api/v1/admin/users/invite",
+  VALIDATE_INVITATION: "/api/v1/invitation/validate",
+  ACCEPT_INVITATION: "/api/v1/invitation/accept",
 };
 
 export const USER_ENDPOINTS = {

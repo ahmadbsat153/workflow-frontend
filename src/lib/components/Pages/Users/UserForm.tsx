@@ -58,10 +58,10 @@ const userSchema = z
     email: z.string().email("Invalid email address"),
     phone: z.string().optional(),
     password: z.string().optional(),
-    role: z.string().nullable().optional(),
-    departmentId: z.string().nullable().optional(),
+    role: z.string().min(1, "Role is required"),
+    departmentId: z.string().min(1, "Department is required"),
     positionId: z.string().nullable().optional(),
-    branchId: z.string().nullable().optional(),
+    branchId: z.string().min(1, "Branch is required"),
     is_super_admin: z.boolean(),
     is_active: z.boolean(),
     is_archived: z.boolean(),
@@ -69,10 +69,13 @@ const userSchema = z
   })
   .refine(
     (data) => {
-      // Password is required only if sendInvitation is false/undefined
-      if (!data.sendInvitation) {
+      // Password is required only when creating a new user (sendInvitation exists) AND sendInvitation is false
+      // When editing (sendInvitation is undefined), password is always optional
+      if (data.sendInvitation === false) {
+        // Creating user without invitation - password required
         return data.password && data.password.length >= 6;
       }
+      // Editing user OR creating with invitation - password optional
       return true;
     },
     {
@@ -97,16 +100,17 @@ const UserForm = ({ userId }: UserFormProps) => {
 
   const form = useForm<z.infer<typeof userSchema>>({
     resolver: zodResolver(userSchema),
+    mode: "onChange", // Enable validation on change
     defaultValues: {
       firstname: "",
       lastname: "",
       email: "",
       phone: "",
       password: "",
-      role: null,
-      departmentId: null,
+      role: "",
+      departmentId: "",
       positionId: null,
-      branchId: null,
+      branchId: "",
       is_super_admin: false,
       is_active: true,
       is_archived: false,
@@ -149,17 +153,17 @@ const UserForm = ({ userId }: UserFormProps) => {
       // Extract role ID from role object { id, code, name }
       const roleValue = userData.role?.id || null;
 
-      form.reset({
+      const resetData = {
         firstname: userData.firstname || "",
         lastname: userData.lastname || "",
         email: userData.email || "",
         phone: userData.phone || "",
         password: undefined, // Don't populate password on edit
-        role: roleValue,
+        role: roleValue || "",
         departmentId:
           typeof userData.departmentId === "string"
             ? userData.departmentId
-            : userData.departmentId?._id || null,
+            : userData.departmentId?._id || "",
         positionId:
           typeof userData.positionId === "string"
             ? userData.positionId
@@ -167,11 +171,18 @@ const UserForm = ({ userId }: UserFormProps) => {
         branchId:
           typeof userData.branchId === "string"
             ? userData.branchId
-            : userData.branchId?._id || null,
+            : userData.branchId?._id || "",
         is_super_admin: userData.is_super_admin || false,
         is_active: userData.is_active !== undefined ? userData.is_active : true,
         is_archived: userData.is_archived || false,
-      });
+      };
+
+      form.reset(resetData);
+
+      // Trigger validation after reset to ensure form is valid
+      setTimeout(() => {
+        form.trigger();
+      }, 100);
     } catch (error) {
       handleServerError(error as ErrorResponse, (err_msg) => {
         toast.error(err_msg);
@@ -194,57 +205,6 @@ const UserForm = ({ userId }: UserFormProps) => {
 
           // First fetch dropdown data to get positions
           await fetchDropdownData();
-
-          // Try to match AD jobTitle with existing positions
-          let matchedPositionId = null;
-
-          if (adUser.jobTitle && positions.length > 0) {
-            const normalizedJobTitle = adUser.jobTitle.toLowerCase().trim();
-            // Only do exact match to avoid false positives
-            const matchedPosition = positions.find(
-              (pos) => pos.name.toLowerCase().trim() === normalizedJobTitle
-            );
-
-            if (matchedPosition) {
-              matchedPositionId = matchedPosition._id;
-              toast.success(
-                `Position "${matchedPosition.name}" matched from AD job title`
-              );
-            } else {
-              setShouldCreatePosition(true);
-              toast.info(
-                `Job title "${adUser.jobTitle}" from AD - will be created as new position on submit`
-              );
-            }
-          } else if (adUser.jobTitle) {
-            // If no positions loaded yet, mark for creation
-            setShouldCreatePosition(true);
-            toast.info(
-              `Job title "${adUser.jobTitle}" from AD - will be created as new position on submit`
-            );
-          }
-
-          // Pre-fill form with AD user data
-          form.reset({
-            firstname: adUser.givenName || "",
-            lastname: adUser.surname || "",
-            email: adUser.mail || adUser.userPrincipalName || "",
-            phone: adUser.mobilePhone || adUser.businessPhones?.[0] || "",
-            password: "", // User will need to set a password
-            role: null,
-            departmentId: null,
-            positionId: matchedPositionId,
-            branchId: null,
-            is_super_admin: false,
-            is_active:
-              adUser.accountEnabled !== undefined
-                ? adUser.accountEnabled
-                : true,
-            is_archived: false,
-            sendInvitation: true, // Default to invitation for AD users
-          });
-
-          toast.info("User data loaded from Active Directory");
         } catch (error) {
           toast.error("Failed to load AD user data");
         }
@@ -259,6 +219,57 @@ const UserForm = ({ userId }: UserFormProps) => {
     loadADUserData();
   }, [userId, searchParams]);
 
+  // Separate effect for position matching - runs after positions are loaded
+  useEffect(() => {
+    const adUserParam = searchParams.get("adUser");
+    if (
+      adUserParam &&
+      !userId &&
+      isFromAD &&
+      positions.length > 0 &&
+      adJobTitle
+    ) {
+      try {
+        const adUser: ADUser = JSON.parse(decodeURIComponent(adUserParam));
+
+        // Try to match AD jobTitle with existing positions (case-insensitive)
+        let matchedPositionId = null;
+        const normalizedJobTitle = adJobTitle.toLowerCase().trim();
+
+        const matchedPosition = positions.find(
+          (pos) => pos.name.toLowerCase().trim() === normalizedJobTitle
+        );
+
+        if (matchedPosition) {
+          matchedPositionId = matchedPosition._id;
+          setShouldCreatePosition(false);
+        } else {
+          setShouldCreatePosition(true);
+        }
+
+        // Pre-fill form with AD user data
+        form.reset({
+          firstname: adUser.givenName || "",
+          lastname: adUser.surname || "",
+          email: adUser.mail || adUser.userPrincipalName || "",
+          phone: adUser.mobilePhone || adUser.businessPhones?.[0] || "",
+          password: "", // User will need to set a password
+          role: "",
+          departmentId: "",
+          positionId: matchedPositionId,
+          branchId: "",
+          is_super_admin: false,
+          is_active:
+            adUser.accountEnabled !== undefined ? adUser.accountEnabled : true,
+          is_archived: false,
+          sendInvitation: true, // Default to invitation for AD users
+        });
+      } catch (error) {
+        console.error("Error matching position:", error);
+      }
+    }
+  }, [positions, isFromAD, adJobTitle]);
+
   const onSubmit = async (values: z.infer<typeof userSchema>) => {
     try {
       setLoading(true);
@@ -268,35 +279,23 @@ const UserForm = ({ userId }: UserFormProps) => {
       if (isEditing && !submitData.password) {
         delete submitData.password;
       }
-
-      // Handle creating position from AD if needed
-      console.log("Position creation check:", {
-        isFromAD,
-        shouldCreatePosition,
-        adJobTitle,
-        hasPositionId: !!submitData.positionId,
-        positionId: submitData.positionId,
-      });
-
-      if (
+     if (
         isFromAD &&
         shouldCreatePosition &&
         adJobTitle &&
         !submitData.positionId
       ) {
         try {
-          // Generate a code from the job title (e.g., "Senior Developer" -> "SENDEV")
-          const posCode = adJobTitle
+          // Generate a unique code from the job title with timestamp to avoid conflicts
+          const baseCode = adJobTitle
             .split(" ")
             .map((word) => word.substring(0, 3))
             .join("")
             .toUpperCase()
-            .substring(0, 10);
+            .substring(0, 7);
 
-          console.log("Creating position with:", {
-            name: adJobTitle,
-            code: posCode,
-          });
+          // Add timestamp suffix to ensure uniqueness
+          const posCode = `${baseCode}_${Date.now().toString().slice(-3)}`;
 
           const createResponse = await API_POSITION.createPosition({
             name: adJobTitle,
@@ -304,8 +303,6 @@ const UserForm = ({ userId }: UserFormProps) => {
             description: `Imported from Active Directory`,
             isActive: true,
           });
-
-          console.log("Position created, response:", createResponse);
 
           // Check if the response includes the created position data with ID
           if (
@@ -317,31 +314,18 @@ const UserForm = ({ userId }: UserFormProps) => {
             if (responseData.data && responseData.data._id) {
               // Use the ID directly from the response
               submitData.positionId = responseData.data._id;
-              toast.success(
-                `Position "${adJobTitle}" created and assigned successfully`
-              );
-              console.log("Position ID from response:", responseData.data._id);
             } else {
-              toast.warning(
-                `Position "${adJobTitle}" created but ID not returned. Please select it manually.`
-              );
-              console.warn(
-                "Position created but no ID in response:",
-                createResponse
-              );
+              toast.warning(`Please select position manually.`);
             }
-          } else {
-            toast.warning(
-              `Position "${adJobTitle}" created but response format unexpected.`
-            );
-            console.warn("Unexpected response format:", createResponse);
           }
         } catch (error) {
-          toast.error(`Failed to create position: ${adJobTitle}`);
+          // Position creation failed - might already exist or other error
+          toast.warning(
+            `Could not auto-create position. Please select manually.`
+          );
           console.error("Position creation error:", error);
+          // Don't block user creation, just let them select position manually
         }
-      } else {
-        console.log("not from AD");
       }
 
       // Handle user creation with invitation or direct creation
@@ -357,11 +341,18 @@ const UserForm = ({ userId }: UserFormProps) => {
         // If user was created successfully and invitation is enabled, send the email
         if (submitData.sendInvitation) {
           try {
+            // Find the role code from the role ID
+            let roleCode = null;
+            if (submitData.role) {
+              const selectedRole = roles.find((r) => r._id === submitData.role);
+              roleCode = selectedRole?.code || null;
+            }
+
             const invitationData = {
               firstname: submitData.firstname,
               lastname: submitData.lastname,
               email: submitData.email,
-              roleCode: submitData.role, // Optional, defaults to TEAM_MEMBER
+              roleCode: roleCode, // Use role code, not role ID
               departmentId: submitData.departmentId, // Optional
               branchId: submitData.branchId, // Optional
               positionId: submitData.positionId,
@@ -371,9 +362,7 @@ const UserForm = ({ userId }: UserFormProps) => {
             toast.success("User created successfully! Invitation email sent.");
           } catch (inviteError) {
             // User was created but invitation failed
-            toast.warning(
-              "User created, but failed to send invitation email. "
-            );
+            toast.warning("User created, but failed to send invitation email.");
             console.error("Invitation email error:", inviteError);
           }
         } else {
@@ -422,7 +411,11 @@ const UserForm = ({ userId }: UserFormProps) => {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form
+          onSubmit={(e) => {
+            form.handleSubmit(onSubmit)(e);
+          }}
+          className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Personal Information</CardTitle>
@@ -580,7 +573,7 @@ const UserForm = ({ userId }: UserFormProps) => {
                   name="role"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Role</FormLabel>
+                      <FormLabel>Role *</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value || undefined}
@@ -608,7 +601,7 @@ const UserForm = ({ userId }: UserFormProps) => {
                   name="departmentId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Department</FormLabel>
+                      <FormLabel>Department *</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value || undefined}
@@ -679,7 +672,7 @@ const UserForm = ({ userId }: UserFormProps) => {
                   name="branchId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Branch</FormLabel>
+                      <FormLabel>Branch *</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value || undefined}
@@ -787,6 +780,7 @@ const UserForm = ({ userId }: UserFormProps) => {
             >
               Cancel
             </Button>
+
             <Button type="submit" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isEditing ? "Update User" : "Create User"}

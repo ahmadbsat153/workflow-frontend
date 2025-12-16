@@ -70,8 +70,11 @@ const UserFromADModal = ({
   }, [query]);
 
   useEffect(() => {
-    getUsers();
-  }, [getUsers]);
+    // Only fetch when modal is open
+    if (isOpen) {
+      getUsers();
+    }
+  }, [isOpen, query.page, query.limit, query.search, query.sortField, query.sortOrder]);
 
   const handlePageChange = useCallback((page: number) => {
     setQuery((prev) => ({ ...prev, page }));

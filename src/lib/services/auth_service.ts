@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Authentication, InvitedUser, Login, Register } from "@/lib/types/auth";
+import { Authentication, InvitedUser, Login, Register, AcceptInvitation, ValidateInvitationToken, InvitationValidationResponse } from "@/lib/types/auth";
 import { handleErrors, _axios } from "../api/_axios";
 import { AUTH_ENDPOINTS } from "../constants/endpoints";
 import { ResendResponse, SuccessResponse } from "../types/common";
@@ -105,6 +105,26 @@ export namespace API_AUTH {
     try {
       const temp = { email };
       const response = await _axios.post(AUTH_ENDPOINTS.MAGIC_LINK, temp);
+
+      return response.data as SuccessResponse;
+    } catch (error: unknown) {
+      throw handleErrors(error);
+    }
+  }
+
+  export async function validateInvitation(data: ValidateInvitationToken) {
+    try {
+      const response = await _axios.post(AUTH_ENDPOINTS.VALIDATE_INVITATION, data);
+
+      return response.data as InvitationValidationResponse;
+    } catch (error: unknown) {
+      throw handleErrors(error);
+    }
+  }
+
+  export async function acceptInvitation(data: AcceptInvitation) {
+    try {
+      const response = await _axios.post(AUTH_ENDPOINTS.ACCEPT_INVITATION, data);
 
       return response.data as SuccessResponse;
     } catch (error: unknown) {

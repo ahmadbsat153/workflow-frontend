@@ -5,7 +5,7 @@ import { Button } from "@/lib/ui/button";
 import { Input } from "@/lib/ui/input";
 import { FadeIn, FadeInStagger } from "@/lib/components/Motion/FadeIn";
 import { useRouter, useParams } from "next/navigation";
-import { FileLock2Icon, Loader2 } from "lucide-react";
+import { UserCheck2Icon, Loader2 } from "lucide-react";
 import { MoveLeftIcon } from "lucide-react";
 import { API_AUTH } from "@/lib/services/auth_service";
 import { URLs } from "@/lib/constants/urls";
@@ -14,16 +14,14 @@ import { ErrorResponse } from "@/lib/types/common";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { toast } from "sonner";
 
-const ResetPasswordPage = () => {
+const AcceptInvitationPage = () => {
   const router = useRouter();
   const params = useParams();
-  const token = params.slug as string;
+  const token = params.token as string;
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isDisabled, setIsDisabled] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [validating, setValidating] = useState(true);
   const [passwordVisibility, setPasswordVisibility] = useState<{
     [key: string]: boolean;
   }>({
@@ -31,6 +29,13 @@ const ResetPasswordPage = () => {
     confirm_password: false,
   });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [validating, setValidating] = useState(true);
+  const [userInfo, setUserInfo] = useState<{
+    email: string;
+    firstname: string;
+    lastname: string;
+  } | null>(null);
 
   const changePasswordVisibility = (key: string) => {
     setError("");
@@ -40,37 +45,30 @@ const ResetPasswordPage = () => {
     });
   };
 
-  const handlePasswordReset = async (e: FormEvent<HTMLFormElement>) => {
+  const handleAcceptInvitation = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
     if (password.length < 8) {
-      setError("Password must be at least 8 characters long");
-      toast.error("Password must be at least 8 characters long");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      toast.error("Passwords do not match");
+      setError("Password must be at least 8 characters");
+      toast.error("Password must be at least 8 characters");
       return;
     }
 
     try {
       setLoading(true);
-      await API_AUTH.resetPassword(password, token);
-      toast.success(
-        "Password reset successfully. You can now log in with your new password."
-      );
-      // Delay redirect to show success message
-      setTimeout(() => {
-        router.push(URLs.auth.login);
-      }, 1500);
+      await API_AUTH.acceptInvitation({
+        token,
+        password,
+      });
+      toast.success("Invitation accepted! You can now log in with your password.");
+      router.push(URLs.auth.login);
     } catch (e) {
       handleServerError(e as ErrorResponse, (err_msg) => {
         setError(err_msg as string);
         toast.error(err_msg);
       });
+    } finally {
       setLoading(false);
     }
   };
@@ -78,14 +76,16 @@ const ResetPasswordPage = () => {
   const validateToken = async () => {
     try {
       setValidating(true);
-      const data = {
-        recovery_token: token,
-      };
-      const res = await API_AUTH.validateRecoveryToken(data);
-      return res.status === 200;
+      const res = await API_AUTH.validateInvitation({ token });
+
+      if (res.valid && res.data) {
+        setUserInfo(res.data);
+        return true;
+      }
+      return false;
     } catch (e) {
       handleServerError(e as ErrorResponse, (err_msg) => {
-        toast.error(err_msg || "Invalid or expired reset token");
+        toast.error(err_msg);
         return false;
       });
       return false;
@@ -113,10 +113,8 @@ const ResetPasswordPage = () => {
     const checkToken = async () => {
       const isValid = await validateToken();
       if (!isValid) {
-        toast.error("Invalid or expired reset token. Redirecting to login...");
-        setTimeout(() => {
-          router.push(URLs.auth.login);
-        }, 2000);
+        toast.error("Invalid or expired invitation link");
+        router.push(URLs.auth.login);
       }
     };
     checkToken();
@@ -127,7 +125,7 @@ const ResetPasswordPage = () => {
       <div className="h-screen w-full flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground">Validating reset link...</p>
+          <p className="text-muted-foreground">Validating invitation...</p>
         </div>
       </div>
     );
@@ -158,16 +156,21 @@ const ResetPasswordPage = () => {
             <FadeIn>
               <div className="text-center mb-2">
                 <h1 className="font-bold leading-tight text-2xl">
-                  Reset Password
+                  Accept Invitation
                 </h1>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Enter your new password below
-                </p>
+                {userInfo && (
+                  <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-sm text-muted-foreground">
+                      Welcome, <span className="font-semibold text-default">{userInfo.firstname} {userInfo.lastname}</span>
+                    </p>
+                    <p className="text-sm text-muted-foreground">{userInfo.email}</p>
+                  </div>
+                )}
               </div>
             </FadeIn>
 
             <FadeIn>
-              <form className="mt-8" onSubmit={(e) => handlePasswordReset(e)}>
+              <form className="mt-8" onSubmit={(e) => handleAcceptInvitation(e)}>
                 <div className="space-y-3 relative sm:mt-2.5">
                   <Input
                     id="password"
@@ -175,9 +178,9 @@ const ResetPasswordPage = () => {
                     type={passwordVisibility.password ? "text" : "password"}
                     required
                     size="sm"
-                    label="New Password"
+                    label="Password"
                     variant="default"
-                    placeholder="Enter new password"
+                    placeholder="Enter your password"
                     className="w-full"
                     onPostFixIconClick={() =>
                       changePasswordVisibility("password")
@@ -200,9 +203,9 @@ const ResetPasswordPage = () => {
                     }
                     required
                     size="sm"
-                    label="Confirm Password"
+                    label="Confirm password"
                     variant="default"
-                    placeholder="Confirm new password"
+                    placeholder="Confirm your password"
                     className="w-full"
                     onPostFixIconClick={() =>
                       changePasswordVisibility("confirm_password")
@@ -218,7 +221,7 @@ const ResetPasswordPage = () => {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   />
                   <div className="text-xs text-muted-foreground mt-1">
-                    Password must be at least 8 characters long
+                    Password must be at least 8 characters
                   </div>
                   <Button
                     className="w-full disabled:cursor-not-allowed disabled:opacity-50"
@@ -228,9 +231,9 @@ const ResetPasswordPage = () => {
                     {loading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      <FileLock2Icon size="5" />
+                      <UserCheck2Icon size="5" />
                     )}
-                    {loading ? "Resetting Password..." : "Reset Password"}
+                    {loading ? "Processing..." : "Accept Invitation"}
                   </Button>
                   {error && <p className="text-destructive text-sm">{error}</p>}
                 </div>
@@ -243,4 +246,4 @@ const ResetPasswordPage = () => {
   );
 };
 
-export default ResetPasswordPage;
+export default AcceptInvitationPage;
