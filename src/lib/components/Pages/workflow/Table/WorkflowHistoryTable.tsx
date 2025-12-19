@@ -31,6 +31,8 @@ import { API_WORKFLOW_HISTORY } from "@/lib/services/Workflow/workflow_history_s
 import { Form } from "@/lib/types/form/form";
 import { User } from "@/lib/types/user/user";
 import { SubmittedBy } from "@/lib/types/form/form_submission";
+import { WorkflowStatusBadge } from "@/lib/components/Workflow/WorkflowStatusBadge";
+import { WorkflowStatus as ApprovalWorkflowStatus } from "@/lib/types/approval";
 
 const WorkflowHistoryTable = () => {
   const searchParams = {
@@ -49,10 +51,10 @@ const WorkflowHistoryTable = () => {
   const [query, setQuery] = useQueryStates(
     {
       page: parseAsInteger.withDefault(1),
-      limit: parseAsInteger.withDefault(25),
+      limit: parseAsInteger.withDefault(10),
       search: parseAsString,
       sortField: parseAsString.withDefault("createdAt"),
-      sortOrder: parseAsString.withDefault("asc"),
+      sortOrder: parseAsString.withDefault("desc"),
     },
     {
       history: "push",
@@ -147,19 +149,18 @@ const WorkflowHistoryTable = () => {
       workflowCompletedAt: (value) => {
         return <span>{value ? formatDatesWithYear(value) : ""}</span>;
       },
-      is_active: (value: WorkflowStatus) => (
-        <div className="">
-          {value === WorkflowStatus.COMPLETED ? (
-            <Badge variant="active">Completed</Badge>
-          ) : value === WorkflowStatus.FAILED ? (
-            <Badge variant="destructive">Failed</Badge>
-          ) : value === WorkflowStatus.PENDING ? (
-            <Badge variant="tertiary">Pending</Badge>
-          ) : (
-            <Badge variant="active">Pending</Badge>
-          )}
-        </div>
-      ),
+      is_active: (value: WorkflowStatus, row: WorkflowHistory) => {
+        // Map the enum WorkflowStatus to the string union type for badge component
+        const statusMap: Record<WorkflowStatus, ApprovalWorkflowStatus> = {
+          [WorkflowStatus.PENDING]: "pending",
+          [WorkflowStatus.PROCESSING]: "processing",
+          [WorkflowStatus.COMPLETED]: "completed",
+          [WorkflowStatus.FAILED]: "failed",
+        };
+
+        const mappedStatus = statusMap[row.workflowStatus];
+        return <WorkflowStatusBadge status={mappedStatus} />;
+      },
     };
 
   return (

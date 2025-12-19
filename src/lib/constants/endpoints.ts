@@ -118,3 +118,11 @@ export const PERMISSION_ENDPOINTS = {
   CLEAR_USER_PERMISSIONS: "/api/v1/admin/users/:id/permissions/custom",
   UPDATE_USER_ROLE: "/api/v1/admin/users/:id/role",
 };
+
+export const APPROVAL_ENDPOINTS = {
+  GET_MY_APPROVALS: "/api/v1/approvals/my-approvals",
+  VERIFY: "/api/v1/approvals/verify/:token",
+  APPROVE: "/api/v1/approvals/approve/:token",
+  REJECT: "/api/v1/approvals/reject/:token",
+  DECIDE: "/api/v1/approvals/decide/:token",
+};

@@ -28,6 +28,7 @@ import { USER_COLUMNS, USER_VISIBLE_COL } from "@/lib/constants/tables";
 import { CellRenderer, AdditionalButton } from "@/lib/types/table/table_data";
 import { PERMISSIONS } from "@/lib/constants/permissions";
 import UserFromADModal from "./UserFromADModal";
+import { URLs } from "@/lib/constants/urls";
 
 const UsersTable = () => {
   const { hasPermission } = usePermissions();
@@ -126,7 +127,8 @@ const UsersTable = () => {
   );
 
   const navigateToDetails = (user: User) => {
-    router.push(`/admin/users/${user._id}`);
+    // router.push(`${URLs.admin.users.details}${user._id}`);
+    router.push(`${URLs.admin.users.detail.replace(":slug", user._id)}`);
   };
   const cellRenderers: Partial<Record<string, CellRenderer<User>>> = {
     firstname: (value, row) => (
@@ -192,7 +194,9 @@ const UsersTable = () => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => router.push(`/admin/users/edit/${row._id}`)}
+          onClick={() =>
+            router.push(`${URLs.admin.users.edit.replace(":id", row._id)}`)
+          }
           title="Edit User"
         >
           <PencilIcon className="size-4 text-blue-500" />
@@ -200,7 +204,11 @@ const UsersTable = () => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => router.push(`/admin/users/${row._id}/permissions`)}
+          onClick={() =>
+            router.push(
+              `${URLs.admin.users.detail.replace(":slug", row._id)}/permissions`
+            )
+          }
           title="Manage Permissions"
         >
           <ShieldCheck className="size-4 text-purple-500" />
@@ -216,7 +224,7 @@ const UsersTable = () => {
       permission: PERMISSIONS.USERS.CREATE,
       style: "",
       onClick: () => {
-        router.push("/admin/users/create");
+        router.push(URLs.admin.users.create);
       },
     },
     {

@@ -16,6 +16,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/lib/ui/button";
 import { ChevronLeftIcon, InfoIcon } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/lib/ui/tooltip";
+import { WorkflowStatus } from "@/lib/types/approval";
+import { WorkflowStatusBadge } from "../../Workflow/WorkflowStatusBadge";
 
 type SubmissionData = {
   [key: string]: any;
@@ -32,6 +34,8 @@ type SubmissionDisplayProps = {
     email: string;
   };
   createdAt?: string;
+  workflowStatus?: WorkflowStatus;
+  currentStage?: string;
 };
 
 const SubmissionDisplay = ({
@@ -41,6 +45,8 @@ const SubmissionDisplay = ({
   formDescription,
   submittedBy,
   createdAt,
+  workflowStatus,
+  currentStage,
 }: SubmissionDisplayProps) => {
   const router = useRouter();
   const sortedFields = [...fields].sort(
@@ -53,10 +59,17 @@ const SubmissionDisplay = ({
         <Card className="w-full flex flex-col max-h-[90vh]">
           {/* Header Section */}
           <CardHeader className="flex-shrink-0">
-            <CardTitle>{formName}</CardTitle>
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <CardTitle>{formName}</CardTitle>
+              </div>
+              {workflowStatus && (
+                <WorkflowStatusBadge status={workflowStatus} />
+              )}
+            </div>
             <CardDescription>
               {formDescription}
-              {(submittedBy || createdAt) && (
+              {(submittedBy || createdAt || currentStage) && (
                 <div className="flex flex-wrap gap-4 text-sm mt-2">
                   {submittedBy && (
                     <div>
@@ -68,6 +81,12 @@ const SubmissionDisplay = ({
                     <div>
                       <span className="font-medium">Submitted on:</span>{" "}
                       {formatDatesWithYear(createdAt)}
+                    </div>
+                  )}
+                  {currentStage && workflowStatus === "waiting_approval" && (
+                    <div>
+                      <span className="font-medium">Current Stage:</span>{" "}
+                      {currentStage}
                     </div>
                   )}
                 </div>

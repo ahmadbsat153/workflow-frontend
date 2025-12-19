@@ -111,6 +111,7 @@ const buildDynamicSchema = (fields: ActionConfigField[]) => {
             "branch_from_form",
           ]),
           email: z.string().optional(),
+          emails: z.array(z.string()).optional(),
           departmentId: z.string().optional(),
           positionId: z.string().optional(),
           formFieldName: z.string().optional(),
@@ -121,7 +122,10 @@ const buildDynamicSchema = (fields: ActionConfigField[]) => {
           fieldSchema = fieldSchema.refine(
             (val: any) => {
               // Validate based on mode
-              if (val.mode === "direct_email") return !!val.email;
+              if (val.mode === "direct_email") {
+                // Support both new emails array and legacy email field
+                return (val.emails && val.emails.length > 0) || !!val.email;
+              }
               if (val.mode === "department") return !!val.departmentId;
               if (val.mode === "position_in_department")
                 return !!val.departmentId && !!val.positionId;

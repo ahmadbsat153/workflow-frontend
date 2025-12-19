@@ -33,6 +33,7 @@ import { handleServerError } from "@/lib/api/_axios";
 import { ErrorResponse } from "@/lib/types/common";
 import { API_DEPARTMENT } from "@/lib/services/Department/department_service";
 import { DepartmentOption } from "@/lib/types/department/department";
+import { URLs } from "@/lib/constants/urls";
 
 const departmentSchema = z.object({
   name: z
@@ -43,7 +44,10 @@ const departmentSchema = z.object({
     .string()
     .min(1, "Department code is required")
     .min(2, "Code must be at least 2 characters")
-    .regex(/^[A-Z0-9_]+$/, "Code must be uppercase letters, numbers, or underscores"),
+    .regex(
+      /^[A-Z0-9_]+$/,
+      "Code must be uppercase letters, numbers, or underscores"
+    ),
   description: z.string().optional(),
   parentId: z.string().nullable().optional(),
   isActive: z.boolean(),
@@ -76,9 +80,10 @@ const DepartmentForm = ({ isEdit = false }: { isEdit?: boolean }) => {
       try {
         const res = await API_DEPARTMENT.getActiveDepartments();
         // Filter out current department if editing to prevent circular reference
-        const filteredDepts = isEdit && params.id
-          ? res.data.filter((dept) => dept._id !== params.id)
-          : res.data;
+        const filteredDepts =
+          isEdit && params.id
+            ? res.data.filter((dept) => dept._id !== params.id)
+            : res.data;
         setDepartments(filteredDepts);
       } catch (error) {
         handleServerError(error as ErrorResponse, (msg) => {
@@ -107,7 +112,7 @@ const DepartmentForm = ({ isEdit = false }: { isEdit?: boolean }) => {
         } catch (error) {
           handleServerError(error as ErrorResponse, (msg) => {
             toast.error(msg);
-            router.push("/admin/departments");
+            router.push(URLs.admin.departments.index);
           });
         } finally {
           setInitialLoading(false);
@@ -130,10 +135,7 @@ const DepartmentForm = ({ isEdit = false }: { isEdit?: boolean }) => {
       };
 
       if (isEdit && params.id) {
-        await API_DEPARTMENT.updateDepartment(
-          params.id as string,
-          submitData
-        );
+        await API_DEPARTMENT.updateDepartment(params.id as string, submitData);
         toast.success("Department updated successfully");
       } else {
         await API_DEPARTMENT.createDepartment(submitData);
@@ -285,7 +287,7 @@ const DepartmentForm = ({ isEdit = false }: { isEdit?: boolean }) => {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push("/admin/departments")}
+            onClick={() => router.push(URLs.admin.departments.index)}
             disabled={loading}
           >
             Cancel

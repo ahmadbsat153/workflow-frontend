@@ -42,6 +42,7 @@ import type {
 import { Loader2, MoveLeftIcon, AlertTriangle } from "lucide-react";
 import { handleServerError } from "@/lib/api/_axios";
 import { ErrorResponse } from "@/lib/types/common";
+import { URLs } from "@/lib/constants/urls";
 
 type RoleFormProps = {
   roleId?: string;
@@ -162,7 +163,7 @@ const RoleForm = ({ roleId }: RoleFormProps) => {
         toast.success("Role created successfully");
       }
 
-      router.push("/admin/roles");
+      router.push(URLs.admin.roles.index);
     } catch (error) {
       handleServerError(error as ErrorResponse, (err_msg) => {
         toast.error(err_msg);

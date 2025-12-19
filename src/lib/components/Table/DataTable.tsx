@@ -101,17 +101,19 @@ const SortableHeader: React.FC<{
 
   const handleSort = () => {
     if (serverSide && onSort && field) {
-      // Cycle through: none -> asc -> desc -> none -> ...
-      if (currentSortField === field) {
-        // If currently sorting by this field, cycle through the states
+      // Check if we're currently sorting by this field
+      const isCurrentlySorted = currentSortField === field && currentSortOrder;
+
+      if (isCurrentlySorted) {
         if (currentSortOrder === "asc") {
+          // First click: asc -> desc
           onSort(field, "desc");
         } else if (currentSortOrder === "desc") {
-          // Remove sort by passing empty string or null
-          onSort("", "asc"); // This will clear the sort
+          // Second click: desc -> remove sort
+          onSort("", "asc");
         }
       } else {
-        // If not currently sorting by this field, start with asc
+        // Not currently sorted by this field, start with asc
         onSort(field, "asc");
       }
     } else {
@@ -127,11 +129,18 @@ const SortableHeader: React.FC<{
     );
   }
 
-  // Determine the current sort state for this specific field
-  const isSortedByThisField = serverSide ? currentSortField === field : false;
-  const sortDirection = isSortedByThisField
-    ? currentSortOrder
-    : column.getIsSorted();
+  // Determine the sort direction for this column
+  let sortDirection: "asc" | "desc" | false = false;
+
+  if (serverSide) {
+    // For server-side sorting, check if this field is currently sorted
+    if (currentSortField === field && currentSortOrder) {
+      sortDirection = currentSortOrder as "asc" | "desc";
+    }
+  } else {
+    // For client-side sorting, use TanStack Table's state
+    sortDirection = column.getIsSorted();
+  }
 
   return (
     <Button
@@ -240,7 +249,7 @@ export function DataTable<TData extends Record<string, any>>({
           cellRenderers[col.uid as string] || ((val) => val?.toString() || "");
         return (
           <div
-            className={`${
+            className={`truncate max-w-[250px] ${
               col.align === "center"
                 ? "text-center"
                 : col.align === "right"
@@ -546,7 +555,7 @@ export function DataTable<TData extends Record<string, any>>({
                   onClick={() => onRowClick?.(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

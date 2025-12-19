@@ -21,12 +21,15 @@ import { Form, FormList } from "@/lib/types/form/form";
 import { INITIAL_META } from "@/lib/constants/initials";
 import { useCallback, useEffect, useState } from "react";
 import { API_FORM } from "@/lib/services/Form/form_service";
+import { PermissionGuard } from "../../Auth/PermissionGuard";
+import { PERMISSIONS } from "@/lib/constants/permissions";
+import { usePermissions } from "@/lib/hooks/usePermissions";
 
 const FormCardList = () => {
   const router = useRouter();
-  const { isAdmin } = useAuth();
   const [loading, setLoading] = useState(true);
-
+  const { hasPermission, hasAllPermissions, hasAnyPermission } =
+    usePermissions();
   const searchParams = {
     page: parseAsInteger,
     limit: parseAsInteger,
@@ -83,7 +86,7 @@ const FormCardList = () => {
   }
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {isAdmin && (
+      <PermissionGuard permission={PERMISSIONS.FORMS.CREATE}>
         <FormCard
           title="Create from scratch"
           icon={Plus}
@@ -96,7 +99,7 @@ const FormCardList = () => {
           }}
           variant="create"
         />
-      )}
+      </PermissionGuard>
 
       {forms.data.map((form: Form) => {
         return (
@@ -106,9 +109,11 @@ const FormCardList = () => {
             title={form.name}
             iconColor={"white"}
             icon={BookCheckIcon}
-            editable={isAdmin}
+            editable={hasPermission(PERMISSIONS.FORMS.EDIT)}
             createdAt={form.createdAt}
-            createdBy={form.createdBy?.firstname + " " + form.createdBy?.lastname}
+            createdBy={
+              form.createdBy?.firstname + " " + form.createdBy?.lastname
+            }
             description={form.description}
             iconBackgroundColor={"bg-blue-500"}
             onClick={() => {
@@ -122,7 +127,9 @@ const FormCardList = () => {
                 })
               );
 
-              const url = isAdmin ? admin_url : user_url;
+              const url = hasPermission(PERMISSIONS.FORMS.CREATE)
+                ? admin_url
+                : user_url;
               router.push(url);
             }}
             disabled={!form.isActive}

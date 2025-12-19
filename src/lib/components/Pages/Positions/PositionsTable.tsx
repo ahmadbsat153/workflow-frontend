@@ -30,6 +30,7 @@ import {
   SelectValue,
 } from "@/lib/ui/select";
 import { DepartmentOption } from "@/lib/types/department/department";
+import { URLs } from "@/lib/constants/urls";
 
 const PositionsTable = () => {
   const searchParams = {
@@ -148,7 +149,9 @@ const PositionsTable = () => {
   const cellRenderers: Partial<Record<string, CellRenderer<Position>>> = {
     name: (value, row) => (
       <span
-        onClick={() => router.push(`/admin/positions/edit/${row._id}`)}
+        onClick={() =>
+          router.push(`${URLs.admin.positions.edit.replace(":id", row._id)}`)
+        }
         className="font-medium cursor-pointer hover:text-blue-600"
       >
         {value}
@@ -171,7 +174,9 @@ const PositionsTable = () => {
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => router.push(`/admin/positions/edit/${row._id}`)}
+        onClick={() =>
+          router.push(`${URLs.admin.positions.edit.replace(":id", row._id)}`)
+        }
       >
         <PencilIcon className="size-4 text-blue-500" />
       </Button>
@@ -184,7 +189,7 @@ const PositionsTable = () => {
       icon: PlusIcon,
       style: "bg-primary text-primary-foreground hover:bg-primary/60",
       onClick: () => {
-        router.push("/admin/positions/create");
+        router.push(URLs.admin.positions.create);
       },
     },
   ];

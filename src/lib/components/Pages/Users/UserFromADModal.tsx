@@ -21,6 +21,7 @@ import { CellRenderer } from "@/lib/types/table/table_data";
 import { Button } from "@/lib/ui/button";
 import { UserPlus2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { URLs } from "@/lib/constants/urls";
 
 type UserFromADModalProps = {
   title: string;
@@ -74,7 +75,14 @@ const UserFromADModal = ({
     if (isOpen) {
       getUsers();
     }
-  }, [isOpen, query.page, query.limit, query.search, query.sortField, query.sortOrder]);
+  }, [
+    isOpen,
+    query.page,
+    query.limit,
+    query.search,
+    query.sortField,
+    query.sortOrder,
+  ]);
 
   const handlePageChange = useCallback((page: number) => {
     setQuery((prev) => ({ ...prev, page }));
@@ -100,7 +108,7 @@ const UserFromADModal = ({
   const handleAddUserFromAD = (adUser: ADUser) => {
     // Encode the AD user data to pass it via URL
     const encodedData = encodeURIComponent(JSON.stringify(adUser));
-    router.push(`/admin/users/create?adUser=${encodedData}`);
+    router.push(URLs.admin.users.create + `?adUser=${encodedData}`);
     setIsOpen(false);
   };
 

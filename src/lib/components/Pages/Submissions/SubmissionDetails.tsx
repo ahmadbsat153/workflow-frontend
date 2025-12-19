@@ -64,6 +64,8 @@ const SubmissionDetails = () => {
         formDescription={submission.form.description}
         submittedBy={submission.submittedBy}
         createdAt={submission.createdAt}
+        workflowStatus={submission.workflowStatus}
+        currentStage={submission.currentStage}
       />
   );
 };

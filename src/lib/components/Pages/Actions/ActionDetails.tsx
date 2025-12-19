@@ -21,6 +21,7 @@ import { API_ACTION } from "@/lib/services/Actions/action_service";
 import { Action } from "@/lib/types/actions/action";
 import { getUrl, URLs } from "@/lib/constants/urls";
 import { build_path } from "@/utils/common";
+import DotsLoader from "../../Loader/DotsLoader";
 
 type ActionDetailsProps = {
   action_id: string;
@@ -99,9 +100,8 @@ export const ActionDetails = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-2 text-muted-foreground">Loading action...</span>
+      <div className="h-[100dvh] w-full flex items-center justify-center">
+        <DotsLoader />
       </div>
     );
   }

@@ -34,6 +34,7 @@ import { ErrorResponse } from "@/lib/types/common";
 import { API_POSITION } from "@/lib/services/Position/position_service";
 import { API_DEPARTMENT } from "@/lib/services/Department/department_service";
 import { DepartmentOption } from "@/lib/types/department/department";
+import { URLs } from "@/lib/constants/urls";
 
 const positionSchema = z.object({
   name: z
@@ -108,7 +109,7 @@ const PositionForm = ({ isEdit = false }: { isEdit?: boolean }) => {
         } catch (error) {
           handleServerError(error as ErrorResponse, (msg) => {
             toast.error(msg);
-            router.push("/admin/positions");
+            router.push(URLs.admin.positions.index);
           });
         } finally {
           setInitialLoading(false);
@@ -132,7 +133,7 @@ const PositionForm = ({ isEdit = false }: { isEdit?: boolean }) => {
         toast.success("Position created successfully");
       }
 
-      router.push("/admin/positions");
+      router.push(URLs.admin.positions.index);
     } catch (error) {
       handleServerError(error as ErrorResponse, (msg) => {
         toast.error(msg);
@@ -295,7 +296,7 @@ const PositionForm = ({ isEdit = false }: { isEdit?: boolean }) => {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push("/admin/positions")}
+            onClick={() => router.push(URLs.admin.positions.index)}
             disabled={loading}
           >
             Cancel

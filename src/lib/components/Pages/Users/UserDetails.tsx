@@ -22,6 +22,7 @@ import DotsLoader from "../../Loader/DotsLoader";
 import UserOverview from "./UserOverview";
 import UserAnalytics from "./UserAnalytics";
 import { Button } from "@/lib/ui/button";
+import { URLs } from "@/lib/constants/urls";
 
 const UserDetails = () => {
   const params = useParams();
@@ -33,7 +34,7 @@ const UserDetails = () => {
   };
 
   const handleManagePermissions = () => {
-    router.push(`/admin/users/${user_slug}/permissions`);
+    router.push(URLs.admin.users.detail.replace(":slug", user_slug) + "/permissions");
   };
 
   const [loading, setLoading] = useState(true);

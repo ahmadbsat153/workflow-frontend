@@ -34,6 +34,7 @@ import {
   FormMessage,
 } from "@/lib/ui/form";
 import { URLs } from "@/lib/constants/urls";
+import DotsLoader from "../../Loader/DotsLoader";
 
 type ActionFormProps = {
   action_id?: string;
@@ -174,9 +175,8 @@ export const ActionForm = ({ action_id, onCancel }: ActionFormProps) => {
   // Show loading state while fetching
   if (isFetching) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-2 text-muted-foreground">Loading action...</span>
+      <div className="h-[100dvh] w-full flex items-center justify-center">
+        <DotsLoader />
       </div>
     );
   }

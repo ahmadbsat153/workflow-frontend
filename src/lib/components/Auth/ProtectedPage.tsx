@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { usePermissions } from "../../hooks/usePermissions";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { URLs } from "@/lib/constants/urls";
 
 type ProtectedPageProps = {
   /**
@@ -47,7 +48,7 @@ export const ProtectedPage = ({
   permission,
   requireAll = false,
   children,
-  redirectTo = "/admin/dashboard",
+  redirectTo = URLs.admin.dashboard,
 }: ProtectedPageProps) => {
   const router = useRouter();
   const { hasPermission, hasAllPermissions, hasAnyPermission } = usePermissions();

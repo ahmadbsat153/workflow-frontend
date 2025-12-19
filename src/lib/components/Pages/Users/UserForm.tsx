@@ -46,6 +46,7 @@ import { Loader2, MoveLeftIcon } from "lucide-react";
 import { handleServerError } from "@/lib/api/_axios";
 import { ErrorResponse } from "@/lib/types/common";
 import type { ADUser } from "@/lib/types/user/user";
+import { URLs } from "@/lib/constants/urls";
 
 type UserFormProps = {
   userId?: string;
@@ -370,7 +371,7 @@ const UserForm = ({ userId }: UserFormProps) => {
         }
       }
 
-      router.push("/admin/users");
+      router.push(URLs.admin.users.index);
     } catch (error) {
       handleServerError(error as ErrorResponse, (err_msg) => {
         toast.error(err_msg);

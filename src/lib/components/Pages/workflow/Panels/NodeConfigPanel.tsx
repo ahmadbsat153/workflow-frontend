@@ -54,7 +54,6 @@ export const NodeConfigPanel = ({
       setLoadingTemplates(true);
       try {
         const response = await API_FORM.getFieldsTemplate(formId);
-        console.log("Fetched field templates:", response);
         const allTemplates = [...response.fields, ...response.metadata];
         setAvailableTemplates(allTemplates);
       } catch (error) {

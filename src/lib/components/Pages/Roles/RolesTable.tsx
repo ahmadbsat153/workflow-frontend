@@ -24,6 +24,7 @@ import { DataTable } from "../../Table/DataTable";
 import { CellRenderer, AdditionalButton } from "@/lib/types/table/table_data";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ROLE_COLUMNS, ROLE_VISIBLE_COL } from "@/lib/constants/tables";
+import { URLs } from "@/lib/constants/urls";
 
 const RolesTable = () => {
   const searchParams = {
@@ -120,7 +121,7 @@ const RolesTable = () => {
   );
 
   const navigateToEdit = (role: Role) => {
-    router.push(`/admin/roles/edit/${role._id}`);
+    router.push(URLs.admin.roles.edit.replace(":id", role._id));
   };
 
   const handleDelete = async (roleId: string) => {
@@ -187,11 +188,7 @@ const RolesTable = () => {
 
     actions: (value, row) => (
       <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigateToEdit(row)}
-        >
+        <Button variant="ghost" size="sm" onClick={() => navigateToEdit(row)}>
           <PencilIcon className="size-4 text-blue-500" />
         </Button>
         {!row.isSystemRole && (
@@ -213,7 +210,7 @@ const RolesTable = () => {
       icon: ShieldPlusIcon,
       style: "bg-primary text-primary-foreground hover:bg-primary/60",
       onClick: () => {
-        router.push("/admin/roles/create");
+        router.push(URLs.admin.roles.create);
       },
     },
   ];
