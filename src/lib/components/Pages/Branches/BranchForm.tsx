@@ -33,9 +33,11 @@ import { handleServerError } from "@/lib/api/_axios";
 import { API_BRANCH } from "@/lib/services/Branch/branch_service";
 import { DepartmentOption } from "@/lib/types/department/department";
 import { API_DEPARTMENT } from "@/lib/services/Department/department_service";
-import { BranchFormValues, branchSchema } from "@/utils/Validation/branchValidationScehma";
-
-
+import {
+  BranchFormValues,
+  branchSchema,
+} from "@/utils/Validation/branchValidationScehma";
+import { URLs } from "@/lib/constants/urls";
 
 const BranchForm = ({ isEdit = false }: { isEdit?: boolean }) => {
   const router = useRouter();
@@ -109,7 +111,7 @@ const BranchForm = ({ isEdit = false }: { isEdit?: boolean }) => {
         } catch (error) {
           handleServerError(error as ErrorResponse, (msg) => {
             toast.error(msg);
-            router.push("/admin/branches");
+            router.push(URLs.admin.branches.index);
           });
         } finally {
           setInitialLoading(false);
@@ -143,7 +145,7 @@ const BranchForm = ({ isEdit = false }: { isEdit?: boolean }) => {
         toast.success("Branch created successfully");
       }
 
-      router.push("/admin/branches");
+      router.push(URLs.admin.branches.index);
     } catch (error) {
       handleServerError(error as ErrorResponse, (msg) => {
         toast.error(msg);
@@ -415,7 +417,7 @@ const BranchForm = ({ isEdit = false }: { isEdit?: boolean }) => {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push("/admin/branches")}
+            onClick={() => router.push(URLs.admin.branches.index)}
             disabled={loading}
           >
             Cancel

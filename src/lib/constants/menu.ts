@@ -11,6 +11,7 @@ import {
   WorkflowIcon,
   Network,
   ShieldCheck,
+  ClipboardCheck,
 } from "lucide-react";
 
 export type MenuItem = {
@@ -40,14 +41,14 @@ export const NAVIGATION: MenuSection[] = [
       {
         key: "users",
         name: "Users",
-        link: URLs.admin.users,
+        link: URLs.admin.users.index,
         icon: UsersRound,
         permission: "users.view",
       },
       {
         key: "roles",
         name: "Roles & Permissions",
-        link: URLs.admin.roles,
+        link: URLs.admin.roles.index,
         icon: ShieldCheck,
         permission: "roles.view",
       },
@@ -59,18 +60,32 @@ export const NAVIGATION: MenuSection[] = [
         permission: "forms.view",
       },
       {
+        key: "submissions",
+        name: "Submissions",
+        link: URLs.app.submissions.index,
+        icon: BookCheckIcon,
+        permission: "forms.view_submissions",
+      },
+      {
         key: "actions",
         name: "Actions",
         link: URLs.admin.actions.index,
         icon: ZapIcon,
-        // TODO: Add permission when actions module has permissions defined
+        permission: "actions.view",
       },
       {
         key: "workflows",
         name: "Workflows History",
         link: URLs.admin.workflow.index,
         icon: WorkflowIcon,
-        permission: "workflows.view",
+        permission: "workflows.view_history",
+      },
+      {
+        key: "approvals",
+        name: "My Approvals",
+        link: URLs.admin.approvals.index,
+        icon: ClipboardCheck,
+        permission: "approvals.view",
       },
     ],
   },
@@ -82,7 +97,7 @@ export const NAVIGATION: MenuSection[] = [
         name: "Departments",
         link: URLs.admin.departments.index,
         icon: BuildingIcon,
-        permission: "organization.view_departments",
+        permission: "departments.view",
       },
       {
         key: "positions",
@@ -96,26 +111,7 @@ export const NAVIGATION: MenuSection[] = [
         name: "Branches",
         link: URLs.admin.branches.index,
         icon: MapPinIcon,
-        permission: "organization.view_branches",
-      },
-    ],
-  },
-  {
-    title: "general",
-    data: [
-      {
-        key: "forms",
-        name: "Forms",
-        link: URLs.app.forms.index,
-        icon: LibraryBigIcon,
-        permission: "forms.submit",
-      },
-      {
-        key: "submissions",
-        name: "Submissions",
-        link: URLs.app.submissions.index,
-        icon: BookCheckIcon,
-        permission: "forms.view_submissions",
+        permission: "branches.view",
       },
     ],
   },

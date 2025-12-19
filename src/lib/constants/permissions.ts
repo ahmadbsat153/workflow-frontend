@@ -49,6 +49,13 @@ export const PERMISSIONS = {
   SUBMISSIONS: {
     VIEW: "submissions.view",
   },
+
+  APPROVALS: {
+    VIEW: "approvals.view",
+    APPROVE: "approvals.approve",
+    REJECT: "approvals.reject",
+  },
+
   USERS: {
     VIEW: "users.view",
     CREATE: "users.create",
@@ -59,5 +66,23 @@ export const PERMISSIONS = {
 
   ACTIVE_DIRECTORY: {
     CREATE_USER: "active_directory.create_user",
-  }
+  },
+
+  REPORTS: {
+    VIEW: "reports.view",
+    EXPORT: "reports.export",
+    VIEW_ANALYTICS: "reports.view_analytics",
+  },
+
+  FILES: {
+    VIEW: "files.view",
+    UPLOAD: "files.upload",
+    DOWNLOAD: "files.download",
+    DELETE: "files.delete",
+  },
+
+  SYSTEM: {
+    VIEW_LOGS: "system.view_logs",
+    MANAGE_SETTINGS: "system.manage_settings",
+  },
 };

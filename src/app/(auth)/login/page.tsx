@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/context/AuthContext";
 import { handleServerError } from "@/lib/api/_axios";
 import { FormEvent, useState, useEffect } from "react";
 import { API_AUTH } from "@/lib/services/auth_service";
+import { microsoftOAuthService } from "@/lib/services/microsoft_oauth_service";
 import DotsLoader from "@/lib/components/Loader/DotsLoader";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
@@ -53,7 +54,6 @@ export default function Login() {
     setCredentials(temp);
   };
 
-  //TODO: Check how we're going to handle azure login
   const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -83,6 +83,43 @@ export default function Login() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleMicrosoftLogin = async () => {
+    setLoadingAzure(true);
+
+    try {
+      const result = await microsoftOAuthService.openLoginPopup();
+
+      // Store token and user data
+      localStorage.setItem("AFW_token", JSON.stringify(result.token));
+
+      const authData = {
+        user: result.user,
+        token: result.token,
+        permissions: result.permissions,
+        status: 200,
+      };
+
+      setUser(authData);
+      setSuccess(true);
+
+      toast.success("Successfully logged in with Microsoft!");
+
+      // Redirect to appropriate page
+      router.push(
+        getUrl(
+          result.user.is_super_admin || isAdmin
+            ? URLs.admin.users
+            : URLs.app.forms.index
+        )
+      );
+    } catch (error: any) {
+      console.error("Microsoft login error:", error);
+      toast.error(error.message || "Failed to login with Microsoft");
+    } finally {
+      setLoadingAzure(false);
     }
   };
 
@@ -183,8 +220,8 @@ export default function Login() {
                         {success ? "Success" : "Log In"}
                       </Button>
 
-                      {/* TODO: Implement Azure Login */}
-                      <div className="hidden">
+                      {/* Microsoft Login */}
+                      <div>
                         <div className="my-[3vh] w-full flex justify-center items-center h-[1px] bg-gray-400 relative">
                           <span className="text-gray-400 text-sm bg-white px-4">
                             OR CONTINUE WITH
@@ -192,13 +229,15 @@ export default function Login() {
                         </div>
                         <Button
                           size="sm"
+                          type="button"
+                          onClick={handleMicrosoftLogin}
                           isLoading={loadingAzure}
                           isDisabled={loading || loadingAzure}
-                          className="w-full text-base "
+                          className="w-full text-base"
+                          variant="outline"
                         >
-                          Microsoft
+                          {loadingAzure ? "Connecting..." : "Microsoft"}
                         </Button>
-                        {/* <span className="text-destructive text-lg">{error}</span> */}
                       </div>
                     </div>
                   </div>

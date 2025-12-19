@@ -1,9 +1,21 @@
+import { success } from "zod";
+
 export const URLs = {
   home: "/",
   admin: {
     dashboard: "/admin/dashboard/",
-    users: "/admin/users/",
-    roles: "/admin/roles/",
+    users: {
+      index: "/admin/users/",
+      detail: "/admin/users/:slug",
+      create: "/admin/users/create/",
+      edit: "/admin/users/edit/:id",
+    },
+    roles: {
+      index: "/admin/roles/",
+      detail: "/admin/roles/:slug",
+      create: "/admin/roles/create/",
+      edit: "/admin/roles/edit/:id",
+    },
     forms: {
       index: "/admin/forms/",
       detail: "/admin/forms/:slug",
@@ -39,6 +51,11 @@ export const URLs = {
     },
     organization: {
       dashboard: "/admin/organization/dashboard/",
+    },
+    approvals: {
+      index: "/admin/approvals/",
+      details: "/admin/approvals/:submissionId",
+      success: "/approval/success",
     },
   },
   app: {

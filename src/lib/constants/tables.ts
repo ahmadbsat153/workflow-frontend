@@ -212,3 +212,31 @@ export const ROLE_VISIBLE_COL = [
   "updatedAt",
   "actions",
 ];
+
+export const AD_USERS_COLUMNS = [
+  { name: "Name", uid: "displayName", sortable: true },
+  { name: "Email", uid: "mail", sortable: true },
+  { name: "Job Title", uid: "jobTitle", sortable: true },
+  { name: "actions", uid: "actions" },
+];
+
+export const APPROVAL_COLUMNS = [
+  { name: "id", uid: "_id", sortable: true },
+  { name: "Form Name", uid: "formName", sortable: true },
+  { name: "Submitted By", uid: "submittedBy", sortable: true },
+  { name: "Submitted At", uid: "submittedAt", sortable: true },
+  { name: "Stage", uid: "stage", sortable: false },
+  { name: "Status", uid: "overallApprovalStatus", sortable: true },
+  { name: "My Decision", uid: "myDecision", sortable: false },
+  { name: "actions", uid: "actions" },
+];
+
+export const APPROVAL_VISIBLE_COL = [
+  "formName",
+  "submittedBy",
+  "submittedAt",
+  "stage",
+  "overallApprovalStatus",
+  "myDecision",
+  "actions",
+];

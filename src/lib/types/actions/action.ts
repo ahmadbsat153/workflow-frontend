@@ -56,7 +56,8 @@ export enum UserSelectionMode {
 export type UserFieldValue = {
   mode: UserSelectionMode;
   // For DIRECT_EMAIL mode
-  email?: string;
+  email?: string; // Legacy single email support
+  emails?: string[]; // Multiple emails support
   // For DEPARTMENT mode
   departmentId?: string;
   // For POSITION_IN_DEPARTMENT mode

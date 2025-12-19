@@ -15,7 +15,13 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/lib/ui/sidebar";
-import { Bell, UserIcon, BadgeCheck, ChevronsUpDown } from "lucide-react";
+import {
+  Bell,
+  UserIcon,
+  BadgeCheck,
+  ChevronsUpDown,
+  Settings2,
+} from "lucide-react";
 import PanelSidebarLogout from "./PanelSiderbarLogout";
 
 const PanelSidebarAccount = () => {
@@ -65,6 +71,10 @@ const PanelSidebarAccount = () => {
               <DropdownMenuItem>
                 <Bell />
                 Notifications
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Settings2 />
+                Settings
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

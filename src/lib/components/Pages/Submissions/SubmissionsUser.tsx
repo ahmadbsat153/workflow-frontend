@@ -23,6 +23,7 @@ import { useParams, useRouter } from "next/navigation";
 import { getUrl, URLs } from "@/lib/constants/urls";
 import DotsLoader from "../../Loader/DotsLoader";
 import { useAuth } from "@/lib/context/AuthContext";
+import { WorkflowStatusBadge } from "../../Workflow/WorkflowStatusBadge";
 
 const SubmissionsUserTable = () => {
   const params = useParams();
@@ -65,6 +66,11 @@ const SubmissionsUserTable = () => {
       {
         name: "form name",
         uid: "form.name",
+        sortable: true,
+      },
+      {
+        name: "Status",
+        uid: "workflowStatus",
         sortable: true,
       },
     ];
@@ -157,6 +163,12 @@ const SubmissionsUserTable = () => {
       return <div>{row.form?.name}</div>;
     },
     submittedBy: (value) => <div>{value.email}</div>,
+    workflowStatus: (value, row) => {
+      if (!row.workflowStatus) {
+        return <span className="text-muted-foreground text-sm">No workflow</span>;
+      }
+      return <WorkflowStatusBadge status={row.workflowStatus} />;
+    },
   };
 
   const handleFormView = (submission: FormSubmission) => {

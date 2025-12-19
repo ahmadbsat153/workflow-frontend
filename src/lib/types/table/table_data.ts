@@ -97,7 +97,13 @@ export interface AdditionalButton {
   permission?: string;
   // Button properties
   type?: "button" | "submit" | "reset";
+
+  // Size of the button
   size?: "default" | "sm" | "md" | "lg" | "icon";
+
+  // Custom wrapper for the button
+  wrapper?: React.ComponentType<{ children: React.ReactNode }>;
+  
   variant?:
     | "default"
     | "destructive"

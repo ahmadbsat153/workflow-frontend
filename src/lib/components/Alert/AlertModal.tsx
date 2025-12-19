@@ -9,7 +9,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/lib/ui/alert-dialog";
-import { title } from "process";
 
 type AlertModalProps = {
   title: string;

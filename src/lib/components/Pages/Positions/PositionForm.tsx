@@ -34,6 +34,7 @@ import { ErrorResponse } from "@/lib/types/common";
 import { API_POSITION } from "@/lib/services/Position/position_service";
 import { API_DEPARTMENT } from "@/lib/services/Department/department_service";
 import { DepartmentOption } from "@/lib/types/department/department";
+import { URLs } from "@/lib/constants/urls";
 
 const positionSchema = z.object({
   name: z
@@ -44,9 +45,12 @@ const positionSchema = z.object({
     .string()
     .min(1, "Position code is required")
     .min(2, "Code must be at least 2 characters")
-    .regex(/^[A-Z0-9_]+$/, "Code must be uppercase letters, numbers, or underscores"),
+    .regex(
+      /^[A-Z0-9_]+$/,
+      "Code must be uppercase letters, numbers, or underscores"
+    ),
   description: z.string().optional(),
-  departmentId: z.string().min(1, "Department is required"),
+  departmentId: z.string().optional().nullable(),
   level: z.number().min(0, "Level must be 0 or greater").optional(),
   isActive: z.boolean(),
 });
@@ -98,14 +102,14 @@ const PositionForm = ({ isEdit = false }: { isEdit?: boolean }) => {
             name: res.name,
             code: res.code,
             description: res.description || "",
-            departmentId: res.departmentId._id,
+            departmentId: res?.departmentId?._id,
             level: res.level || 0,
             isActive: res.isActive,
           });
         } catch (error) {
           handleServerError(error as ErrorResponse, (msg) => {
             toast.error(msg);
-            router.push("/admin/positions");
+            router.push(URLs.admin.positions.index);
           });
         } finally {
           setInitialLoading(false);
@@ -129,7 +133,7 @@ const PositionForm = ({ isEdit = false }: { isEdit?: boolean }) => {
         toast.success("Position created successfully");
       }
 
-      router.push("/admin/positions");
+      router.push(URLs.admin.positions.index);
     } catch (error) {
       handleServerError(error as ErrorResponse, (msg) => {
         toast.error(msg);
@@ -203,7 +207,7 @@ const PositionForm = ({ isEdit = false }: { isEdit?: boolean }) => {
               <FormLabel>Department</FormLabel>
               <Select
                 onValueChange={field.onChange}
-                value={field.value}
+                value={field.value ? field.value : undefined}
                 disabled={loading}
               >
                 <FormControl>
@@ -219,9 +223,6 @@ const PositionForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                   ))}
                 </SelectContent>
               </Select>
-              <FormDescription>
-                The department this position belongs to
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -264,9 +265,6 @@ const PositionForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                   }}
                 />
               </FormControl>
-              <FormDescription>
-                Higher numbers indicate higher authority (e.g., CEO: 15, Manager: 5)
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -298,7 +296,7 @@ const PositionForm = ({ isEdit = false }: { isEdit?: boolean }) => {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push("/admin/positions")}
+            onClick={() => router.push(URLs.admin.positions.index)}
             disabled={loading}
           >
             Cancel

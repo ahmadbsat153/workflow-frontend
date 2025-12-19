@@ -14,10 +14,7 @@ import { ErrorResponse } from "@/lib/types/common";
 import { formatDatesWithYear } from "@/utils/common";
 import { handleServerError } from "@/lib/api/_axios";
 import { INITIAL_META } from "@/lib/constants/initials";
-import {
-  Department,
-  DepartmentTable,
-} from "@/lib/types/department/department";
+import { Department, DepartmentTable } from "@/lib/types/department/department";
 import { API_DEPARTMENT } from "@/lib/services/Department/department_service";
 import {
   DEPARTMENT_COLUMNS,
@@ -27,6 +24,7 @@ import { CellRenderer, AdditionalButton } from "@/lib/types/table/table_data";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/lib/ui/button";
 import { Badge } from "@/lib/ui/badge";
+import { URLs } from "@/lib/constants/urls";
 
 const DepartmentsTable = () => {
   const searchParams = {
@@ -121,7 +119,9 @@ const DepartmentsTable = () => {
   const cellRenderers: Partial<Record<string, CellRenderer<Department>>> = {
     name: (value, row) => (
       <span
-        onClick={() => router.push(`/admin/departments/edit/${row._id}`)}
+        onClick={() =>
+          router.push(`${URLs.admin.departments.edit.replace(":id", row._id)}`)
+        }
         className="font-medium cursor-pointer hover:text-blue-600"
       >
         {value}
@@ -143,7 +143,9 @@ const DepartmentsTable = () => {
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => router.push(`/admin/departments/edit/${row._id}`)}
+        onClick={() =>
+          router.push(`${URLs.admin.departments.edit.replace(":id", row._id)}`)
+        }
       >
         <PencilIcon className="size-4 text-blue-500" />
       </Button>
@@ -156,7 +158,7 @@ const DepartmentsTable = () => {
       icon: PlusIcon,
       style: "bg-primary text-primary-foreground hover:bg-primary/60",
       onClick: () => {
-        router.push("/admin/departments/create");
+        router.push(URLs.admin.departments.create);
       },
     },
   ];

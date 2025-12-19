@@ -21,6 +21,7 @@ import { CellRenderer, AdditionalButton } from "@/lib/types/table/table_data";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/lib/ui/button";
 import { Badge } from "@/lib/ui/badge";
+import { URLs } from "@/lib/constants/urls";
 
 const BranchesTable = () => {
   const searchParams = {
@@ -48,9 +49,7 @@ const BranchesTable = () => {
   );
 
   const router = useRouter();
-  const [visibleColumns] = useState<Set<string>>(
-    new Set(BRANCH_VISIBLE_COL)
-  );
+  const [visibleColumns] = useState<Set<string>>(new Set(BRANCH_VISIBLE_COL));
   const [loading, setLoading] = useState(true);
 
   const headerColumns = useMemo(() => {
@@ -115,16 +114,16 @@ const BranchesTable = () => {
   const cellRenderers: Partial<Record<string, CellRenderer<Branch>>> = {
     name: (value, row) => (
       <span
-        onClick={() => router.push(`/admin/branches/edit/${row._id}`)}
+        onClick={() =>
+          router.push(`${URLs.admin.branches.edit.replace(":id", row._id)}`)
+        }
         className="font-medium cursor-pointer hover:text-blue-600"
       >
         {value}
       </span>
     ),
     department: (value, row) => (
-      <span className="text-sm">
-        {row.department?.name || "-"}
-      </span>
+      <span className="text-sm">{row.department?.name || "-"}</span>
     ),
     city: (value, row) => (
       <span className="text-sm">{row.location?.city || "-"}</span>
@@ -133,10 +132,14 @@ const BranchesTable = () => {
       <span className="text-sm">{row.location?.country || "-"}</span>
     ),
     phone: (value, row) => (
-      <span className="text-sm text-muted-foreground">{row.contactInfo?.phone || "-"}</span>
+      <span className="text-sm text-muted-foreground">
+        {row.contactInfo?.phone || "-"}
+      </span>
     ),
     email: (value, row) => (
-      <span className="text-sm text-muted-foreground">{row.contactInfo?.email || "-"}</span>
+      <span className="text-sm text-muted-foreground">
+        {row.contactInfo?.email || "-"}
+      </span>
     ),
     createdAt: (value) => <span>{formatDatesWithYear(value)}</span>,
     updatedAt: (value) => <span>{formatDatesWithYear(value)}</span>,
@@ -149,7 +152,9 @@ const BranchesTable = () => {
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => router.push(`/admin/branches/edit/${row._id}`)}
+        onClick={() =>
+          router.push(`${URLs.admin.branches.edit.replace(":id", row._id)}`)
+        }
       >
         <PencilIcon className="size-4 text-blue-500" />
       </Button>
@@ -162,7 +167,7 @@ const BranchesTable = () => {
       icon: PlusIcon,
       style: "bg-primary text-primary-foreground hover:bg-primary/60",
       onClick: () => {
-        router.push("/admin/branches/create");
+        router.push(URLs.admin.branches.create);
       },
     },
   ];

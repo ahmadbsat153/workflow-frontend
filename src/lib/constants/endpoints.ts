@@ -10,7 +10,9 @@ export const AUTH_ENDPOINTS = {
   RESEND_EMAIL: "/api/v1/auth/resend/email",
   MAGIC_LINK: "/api/v1/auth/magic-link",
   VALIDATE_RECOVERY_TOKEN: "/api/v1/auth/validate/recovery-token",
-  PLATFORM_INVITE: "/api/v1/auth/platform_invite",
+  PLATFORM_INVITE: "/api/v1/admin/users/invite",
+  VALIDATE_INVITATION: "/api/v1/invitation/validate",
+  ACCEPT_INVITATION: "/api/v1/invitation/accept",
 };
 
 export const USER_ENDPOINTS = {
@@ -20,6 +22,11 @@ export const USER_ENDPOINTS = {
   CREATE: "/api/v1/admin/users",
   ADMIN_UPDATE: "/api/v1/admin/users/:id",
   DELETE: "/api/v1/admin/users/:id",
+};
+
+export const ADUSER_ENDPOINTS = {
+  GET_BY_EMAIL: "/api/v1/ad/users/:email",
+  GET_ALL: "/api/v1/ad/users/all",
 };
 
 export const WORKFLOW_HISTORY_ENDPOINTS = {
@@ -110,4 +117,12 @@ export const PERMISSION_ENDPOINTS = {
   DENY_USER_PERMISSIONS: "/api/v1/admin/users/:id/permissions/deny",
   CLEAR_USER_PERMISSIONS: "/api/v1/admin/users/:id/permissions/custom",
   UPDATE_USER_ROLE: "/api/v1/admin/users/:id/role",
+};
+
+export const APPROVAL_ENDPOINTS = {
+  GET_MY_APPROVALS: "/api/v1/approvals/my-approvals",
+  VERIFY: "/api/v1/approvals/verify/:token",
+  APPROVE: "/api/v1/approvals/approve/:token",
+  REJECT: "/api/v1/approvals/reject/:token",
+  DECIDE: "/api/v1/approvals/decide/:token",
 };

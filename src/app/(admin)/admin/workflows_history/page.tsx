@@ -6,7 +6,7 @@ import { PERMISSIONS } from "@/lib/constants/permissions";
 
 const page = () => {
   return (
-    <ProtectedPage permission={PERMISSIONS.WORKFLOWS.VIEW}>
+    <ProtectedPage permission={PERMISSIONS.WORKFLOWS.VIEW_HISTORY}>
       <PageContainer>
         <HeaderContainer
           title="Workflows History"

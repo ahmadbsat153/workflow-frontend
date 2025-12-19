@@ -28,7 +28,7 @@ export const getInitials = (userName?: string) => {
 export const isLinkActive = (url: string, pathname: string) => {
   let link = url;
 
-  if (link.endsWith("/")) {
+  if (link && typeof link === "string" && link.endsWith("/")) {
     link = link.slice(0, -1);
   }
 

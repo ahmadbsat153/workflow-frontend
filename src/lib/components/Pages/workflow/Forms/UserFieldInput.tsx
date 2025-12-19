@@ -8,7 +8,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/lib/ui/select";
-import { Input } from "@/lib/ui/input";
 import { Label } from "@/lib/ui/label";
 import { UserSelectionMode, UserFieldValue } from "@/lib/types/actions/action";
 import { API_DEPARTMENT } from "@/lib/services/Department/department_service";
@@ -18,6 +17,7 @@ import { Department } from "@/lib/types/department/department";
 import { Position } from "@/lib/types/position/position";
 import { Branch } from "@/lib/types/branch/branch";
 import { FieldTemplate } from "@/lib/types/form/form";
+import { MultiEmailInput } from "./MultiEmailInput";
 
 type UserFieldInputProps = {
   value: UserFieldValue | undefined;
@@ -67,6 +67,7 @@ export const UserFieldInput = ({
     onChange({
       mode,
       email: undefined,
+      emails: undefined,
       departmentId: undefined,
       positionId: undefined,
       formFieldName: undefined,
@@ -136,16 +137,22 @@ export const UserFieldInput = ({
       <div className="space-y-2">
         {currentMode === UserSelectionMode.DIRECT_EMAIL && (
           <div className="space-y-2">
-            <Label>Email Address</Label>
-            <Input
-              type="email"
-              placeholder={placeholder || "user@example.com"}
-              value={value?.email || ""}
-              onChange={(e) => handleValueChange("email", e.target.value)}
+            <Label>Email Addresses</Label>
+            <MultiEmailInput
+              value={value?.emails || []}
+              onChange={(emails) => {
+                onChange({
+                  ...value,
+                  mode: currentMode,
+                  emails,
+                  email: undefined, // Clear legacy single email
+                } as UserFieldValue);
+              }}
               onBlur={onBlur}
+              placeholder={placeholder || "Enter email addresses"}
             />
             <p className="text-xs text-muted-foreground">
-              Enter a specific email address to target a single user
+              Enter one or more email addresses to target specific users
             </p>
           </div>
         )}

@@ -101,17 +101,19 @@ const SortableHeader: React.FC<{
 
   const handleSort = () => {
     if (serverSide && onSort && field) {
-      // Cycle through: none -> asc -> desc -> none -> ...
-      if (currentSortField === field) {
-        // If currently sorting by this field, cycle through the states
+      // Check if we're currently sorting by this field
+      const isCurrentlySorted = currentSortField === field && currentSortOrder;
+
+      if (isCurrentlySorted) {
         if (currentSortOrder === "asc") {
+          // First click: asc -> desc
           onSort(field, "desc");
         } else if (currentSortOrder === "desc") {
-          // Remove sort by passing empty string or null
-          onSort("", "asc"); // This will clear the sort
+          // Second click: desc -> remove sort
+          onSort("", "asc");
         }
       } else {
-        // If not currently sorting by this field, start with asc
+        // Not currently sorted by this field, start with asc
         onSort(field, "asc");
       }
     } else {
@@ -127,11 +129,18 @@ const SortableHeader: React.FC<{
     );
   }
 
-  // Determine the current sort state for this specific field
-  const isSortedByThisField = serverSide ? currentSortField === field : false;
-  const sortDirection = isSortedByThisField
-    ? currentSortOrder
-    : column.getIsSorted();
+  // Determine the sort direction for this column
+  let sortDirection: "asc" | "desc" | false = false;
+
+  if (serverSide) {
+    // For server-side sorting, check if this field is currently sorted
+    if (currentSortField === field && currentSortOrder) {
+      sortDirection = currentSortOrder as "asc" | "desc";
+    }
+  } else {
+    // For client-side sorting, use TanStack Table's state
+    sortDirection = column.getIsSorted();
+  }
 
   return (
     <Button
@@ -240,7 +249,7 @@ export function DataTable<TData extends Record<string, any>>({
           cellRenderers[col.uid as string] || ((val) => val?.toString() || "");
         return (
           <div
-            className={`${
+            className={`truncate max-w-[250px] ${
               col.align === "center"
                 ? "text-center"
                 : col.align === "right"
@@ -341,14 +350,19 @@ export function DataTable<TData extends Record<string, any>>({
   }, [rowSelection, onSelectionChange]);
 
   const totalPages =
-    serverSide && meta ? meta.totalPages : table.getPageCount();
+    serverSide && meta
+      ? meta.total_pages || meta.totalPages
+      : table.getPageCount();
   const currentPage =
-    serverSide && meta ? meta.currentPage : pagination.pageIndex + 1;
+    serverSide && meta
+      ? meta.page || meta.currentPage
+      : pagination.pageIndex + 1;
   const totalItems =
     serverSide && meta
-      ? meta.totalItems
+      ? meta.count || meta.totalItems
       : table.getFilteredRowModel().rows.length;
-  const currentPageSize = serverSide && meta ? meta.limit : pagination.pageSize;
+  const currentPageSize =
+    serverSide && meta ? meta.limit || meta.pageSize : pagination.pageSize;
 
   const handlePageChange = (page: number) => {
     if (serverSide && onPageChange) {
@@ -457,23 +471,45 @@ export function DataTable<TData extends Record<string, any>>({
           {additionalButtons?.map(
             (button: AdditionalButton, index: number) =>
               (!button.permission || hasPermission(button.permission)) && (
-                <Button
-                  key={index + button.label}
-                  type={button.type || "button"}
-                  size={button.size || "sm"}
-                  className={`${button.style} flex items-center justify-center transition-all hover:scale-90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-transparent disabled:hover:bg-opacity-0`}
-                  disabled={loading}
-                  onClick={(event) => button.onClick(event)}
-                >
-                  {button.icon && (
-                    <React.Fragment>
-                      {React.createElement(button.icon, {
-                        className: "size-4",
-                      })}
-                    </React.Fragment>
+                <React.Fragment key={index + button.label}>
+                  {button.wrapper ? (
+                    <button.wrapper>
+                      <Button
+                        type={button.type || "button"}
+                        size={button.size || "sm"}
+                        className={`${button.style} flex items-center justify-center transition-all hover:scale-90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-transparent disabled:hover:bg-opacity-0`}
+                        disabled={loading}
+                        onClick={(event) => button.onClick(event)}
+                      >
+                        {button.icon && (
+                          <React.Fragment>
+                            {React.createElement(button.icon, {
+                              className: "size-4",
+                            })}
+                          </React.Fragment>
+                        )}
+                        {button.label}
+                      </Button>
+                    </button.wrapper>
+                  ) : (
+                    <Button
+                      type={button.type || "button"}
+                      size={button.size || "sm"}
+                      className={`${button.style} flex items-center justify-center transition-all hover:scale-90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-transparent disabled:hover:bg-opacity-0`}
+                      disabled={loading}
+                      onClick={(event) => button.onClick(event)}
+                    >
+                      {button.icon && (
+                        <React.Fragment>
+                          {React.createElement(button.icon, {
+                            className: "size-4",
+                          })}
+                        </React.Fragment>
+                      )}
+                      {button.label}
+                    </Button>
                   )}
-                  {button.label}
-                </Button>
+                </React.Fragment>
               )
           )}
         </div>
@@ -519,7 +555,7 @@ export function DataTable<TData extends Record<string, any>>({
                   onClick={() => onRowClick?.(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -574,7 +610,7 @@ export function DataTable<TData extends Record<string, any>>({
                   <SelectValue placeholder={currentPageSize} />
                 </SelectTrigger>
                 <SelectContent side="top">
-                  {[10, 25, 50, 100].map((size) => (
+                  {[5, 10, 25, 50, 100].map((size) => (
                     <SelectItem key={size} value={`${size}`}>
                       {size}
                     </SelectItem>

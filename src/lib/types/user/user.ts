@@ -68,3 +68,20 @@ export type UserForm = Omit<
 > & { password: string };
 
 export type UserTable = { data: User[]; meta: Meta };
+
+export type ADUser = {
+  id: string;
+  userPrincipalName: string;
+  displayName: string;
+  givenName: string;
+  surname: string;
+  mail: string;
+  jobTitle: string;
+  department: string;
+  officeLocation: string;
+  mobilePhone: string;
+  businessPhones: string[];
+  accountEnabled: boolean;
+};
+
+export type ADUserTable = { data: ADUser[]; meta: Meta };
