@@ -17,13 +17,13 @@ import {
 } from "@/lib/ui/sidebar";
 
 import { cn } from "@/lib/utils";
-import { BellIcon } from "lucide-react";
 import { isLinkActive } from "@/utils/common";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
 import { usePermissions } from "@/lib/hooks/usePermissions";
 import PanelSidebarAccount from "./PanelSidebarAccount";
 import { NAVIGATION } from "@/lib/constants/menu";
+import { NotificationBell } from "@/lib/components/Navigations/Notifications/NotificationBell";
 
 const HIDDEN_SIDEBAR_ROUTES = ["/admin/forms/create", "/admin/forms/edit"];
 
@@ -93,7 +93,7 @@ export function PanelSidebar({
 
       <SidebarInset className="overflow-hidden">
         <header className="flex h-12 shrink-0 items-center justify-end gap-2 border-b w-full px-2 xl:px-8 2xl:px-16">
-          <BellIcon className="size-5 text-default-500" />
+          <NotificationBell />
         </header>
         {children}
       </SidebarInset>

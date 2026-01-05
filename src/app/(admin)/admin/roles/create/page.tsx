@@ -7,13 +7,10 @@ import { PERMISSIONS } from "@/lib/constants/permissions";
 const page = () => {
   return (
     <ProtectedPage permission={PERMISSIONS.ROLES.CREATE}>
-      <PageContainer>
-        <HeaderContainer
-          title="Create New Role"
-          description="Define a new role with specific permissions for your team"
-        />
-        <RoleForm />
-      </PageContainer>
+      <RoleForm
+        title="Create New Role"
+        description="Define a new role with specific permissions for your team"
+      />
     </ProtectedPage>
   );
 };

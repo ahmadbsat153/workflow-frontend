@@ -35,17 +35,17 @@ import {
 } from "@/lib/ui/accordion";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { API_ROLE } from "@/lib/services/Role/role_service";
-import type {
-  PermissionGroup,
-  Permission,
-} from "@/lib/types/role/role";
+import type { PermissionGroup, Permission } from "@/lib/types/role/role";
 import { Loader2, MoveLeftIcon, AlertTriangle } from "lucide-react";
 import { handleServerError } from "@/lib/api/_axios";
 import { ErrorResponse } from "@/lib/types/common";
 import { URLs } from "@/lib/constants/urls";
+import FixedHeaderFooterLayout from "../../Layout/FixedHeaderFooterLayout";
 
 type RoleFormProps = {
   roleId?: string;
+  title: string;
+  description: string;
 };
 
 const roleSchema = z.object({
@@ -97,13 +97,12 @@ const ModuleCheckbox = ({
   );
 };
 
-const RoleForm = ({ roleId }: RoleFormProps) => {
+const RoleForm = ({ roleId, title, description }: RoleFormProps) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
-  const [permissionGroups, setPermissionGroups] = useState<PermissionGroup | null>(
-    null
-  );
+  const [permissionGroups, setPermissionGroups] =
+    useState<PermissionGroup | null>(null);
   const isEditing = !!roleId;
 
   const form = useForm<z.infer<typeof roleSchema>>({
@@ -132,7 +131,9 @@ const RoleForm = ({ roleId }: RoleFormProps) => {
           code: roleData.code,
           description: roleData.description,
           permissions: Array.isArray(roleData.permissions)
-            ? roleData.permissions.map((p) => typeof p === 'string' ? p : p.key)
+            ? roleData.permissions.map((p) =>
+                typeof p === "string" ? p : p.key
+              )
             : [],
           is_active: roleData.isActive,
         });
@@ -185,10 +186,15 @@ const RoleForm = ({ roleId }: RoleFormProps) => {
     }
   };
 
-  const handleModuleToggle = (modulePermissions: string[], checked: boolean) => {
+  const handleModuleToggle = (
+    modulePermissions: string[],
+    checked: boolean
+  ) => {
     const currentPermissions = form.getValues("permissions");
     if (checked) {
-      const newPermissions = [...new Set([...currentPermissions, ...modulePermissions])];
+      const newPermissions = [
+        ...new Set([...currentPermissions, ...modulePermissions]),
+      ];
       form.setValue("permissions", newPermissions);
     } else {
       form.setValue(
@@ -203,8 +209,12 @@ const RoleForm = ({ roleId }: RoleFormProps) => {
   };
 
   const isModuleIndeterminate = (modulePermissions: string[]) => {
-    const hasAny = modulePermissions.some((key) => watchedPermissions.includes(key));
-    const hasAll = modulePermissions.every((key) => watchedPermissions.includes(key));
+    const hasAny = modulePermissions.some((key) =>
+      watchedPermissions.includes(key)
+    );
+    const hasAll = modulePermissions.every((key) =>
+      watchedPermissions.includes(key)
+    );
     return hasAny && !hasAll;
   };
 
@@ -221,221 +231,248 @@ const RoleForm = ({ roleId }: RoleFormProps) => {
   }
 
   return (
-    <div className="space-y-6 max-w-5xl">
-      <div>
-        <Button
-          onClick={handleGoBack}
-          className="bg-gray-50 text-default hover:bg-primary/20"
-          variant="outline"
-        >
-          <MoveLeftIcon className="size-4" />
-          Back
-        </Button>
-      </div>
+    <FixedHeaderFooterLayout
+      title={title}
+      description={description}
+      footer={
+        <div className="flex items-center gap-4 w-full justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleGoBack}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" form="role-form" disabled={loading}>
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isEditing ? "Update Role" : "Create Role"}
+          </Button>
+        </div>
+      }
+      maxWidth="3xl"
+      maxHeight="90vh"
+    >
+      <div className="space-y-6 max-w-5xl">
+        <Form {...form}>
+          <form
+            id="role-form"
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-6"
+          >
+            <Card>
+              <CardHeader>
+                <CardTitle>Role Information</CardTitle>
+                <CardDescription>Basic details about the role</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Role Name *</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., Project Manager"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Role Information</CardTitle>
-              <CardDescription>Basic details about the role</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="code"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Role Code *</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., PROJECT_MANAGER"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(e.target.value.toUpperCase())
+                            }
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Uppercase letters and underscores only
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Role Name *</FormLabel>
+                      <FormLabel>Description *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Project Manager" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="code"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Role Code *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., PROJECT_MANAGER"
+                        <Textarea
+                          placeholder="Describe the role and its responsibilities"
                           {...field}
-                          onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                          rows={3}
                         />
                       </FormControl>
-                      <FormDescription>
-                        Uppercase letters and underscores only
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
 
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description *</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Describe the role and its responsibilities"
-                        {...field}
-                        rows={3}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="is_active"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Active Role</FormLabel>
+                        <FormDescription>
+                          Allow this role to be assigned to users
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
 
-              <FormField
-                control={form.control}
-                name="is_active"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Active Role</FormLabel>
-                      <FormDescription>
-                        Allow this role to be assigned to users
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Permissions</CardTitle>
-              <CardDescription>
-                Select the permissions for this role. Click on a module to select/deselect
-                all its permissions.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <FormField
-                control={form.control}
-                name="permissions"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      {permissionGroups && (
-                        <Accordion type="multiple" className="w-full">
-                          {Object.entries(permissionGroups).map(([moduleName, permissions]) => {
-                            const modulePermissionKeys = permissions.map((p) => p.key);
-                            return (
-                              <AccordionItem key={moduleName} value={moduleName}>
-                                <AccordionTrigger className="hover:no-underline">
-                                  <div className="flex items-center gap-3">
-                                    <ModuleCheckbox
-                                      checked={isModuleChecked(modulePermissionKeys)}
-                                      indeterminate={isModuleIndeterminate(
-                                        modulePermissionKeys
-                                      )}
-                                      onCheckedChange={(checked) =>
-                                        handleModuleToggle(
-                                          modulePermissionKeys,
-                                          checked === true
-                                        )
-                                      }
-                                      onClick={(e) => e.stopPropagation()}
-                                    />
-                                    <span className="font-semibold">{moduleName}</span>
-                                    <Badge variant="outline" className="text-xs">
-                                      {permissions.length}
-                                    </Badge>
-                                  </div>
-                                </AccordionTrigger>
-                                <AccordionContent>
-                                  <div className="space-y-3 pl-8 pt-2">
-                                    {permissions.map((permission: Permission) => (
-                                      <div
-                                        key={permission.key}
-                                        className="flex items-start gap-3"
-                                      >
-                                        <Checkbox
-                                          id={permission.key}
-                                          checked={field.value.includes(permission.key)}
+            <Card>
+              <CardHeader>
+                <CardTitle>Permissions</CardTitle>
+                <CardDescription>
+                  Select the permissions for this role. Click on a module to
+                  select/deselect all its permissions.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={form.control}
+                  name="permissions"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        {permissionGroups && (
+                          <Accordion type="multiple" className="w-full">
+                            {Object.entries(permissionGroups).map(
+                              ([moduleName, permissions]) => {
+                                const modulePermissionKeys = permissions.map(
+                                  (p) => p.key
+                                );
+                                return (
+                                  <AccordionItem
+                                    key={moduleName}
+                                    value={moduleName}
+                                  >
+                                    <AccordionTrigger className="hover:no-underline">
+                                      <div className="flex items-center gap-3">
+                                        <ModuleCheckbox
+                                          checked={isModuleChecked(
+                                            modulePermissionKeys
+                                          )}
+                                          indeterminate={isModuleIndeterminate(
+                                            modulePermissionKeys
+                                          )}
                                           onCheckedChange={(checked) =>
-                                            handlePermissionToggle(
-                                              permission.key,
+                                            handleModuleToggle(
+                                              modulePermissionKeys,
                                               checked === true
                                             )
                                           }
+                                          onClick={(e) => e.stopPropagation()}
                                         />
-                                        <label
-                                          htmlFor={permission.key}
-                                          className="text-sm cursor-pointer leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex-1"
+                                        <span className="font-semibold">
+                                          {moduleName}
+                                        </span>
+                                        <Badge
+                                          variant="outline"
+                                          className="text-xs"
                                         >
-                                          <div className="flex items-center gap-2">
-                                            <span className="font-medium">
-                                              {permission.label}
-                                            </span>
-                                            {permission.dangerous && (
-                                              <Badge
-                                                variant="destructive"
-                                                className="text-xs"
-                                              >
-                                                <AlertTriangle className="h-3 w-3 mr-1" />
-                                                Dangerous
-                                              </Badge>
-                                            )}
-                                          </div>
-                                          {permission.description && (
-                                            <div className="text-xs text-muted-foreground mt-1">
-                                              {permission.description}
-                                            </div>
-                                          )}
-                                          <div className="text-xs text-muted-foreground mt-1 font-mono">
-                                            {permission.key}
-                                          </div>
-                                        </label>
+                                          {permissions.length}
+                                        </Badge>
                                       </div>
-                                    ))}
-                                  </div>
-                                </AccordionContent>
-                              </AccordionItem>
-                            );
-                          })}
-                        </Accordion>
-                      )}
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          <div className="flex items-center gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleGoBack}
-              disabled={loading}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isEditing ? "Update Role" : "Create Role"}
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
+                                    </AccordionTrigger>
+                                    <AccordionContent>
+                                      <div className="space-y-3 pl-8 pt-2">
+                                        {permissions.map(
+                                          (permission: Permission) => (
+                                            <div
+                                              key={permission.key}
+                                              className="flex items-start gap-3"
+                                            >
+                                              <Checkbox
+                                                id={permission.key}
+                                                checked={field.value.includes(
+                                                  permission.key
+                                                )}
+                                                onCheckedChange={(checked) =>
+                                                  handlePermissionToggle(
+                                                    permission.key,
+                                                    checked === true
+                                                  )
+                                                }
+                                              />
+                                              <label
+                                                htmlFor={permission.key}
+                                                className="text-sm cursor-pointer leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex-1"
+                                              >
+                                                <div className="flex items-center gap-2">
+                                                  <span className="font-medium">
+                                                    {permission.label}
+                                                  </span>
+                                                  {permission.dangerous && (
+                                                    <Badge
+                                                      variant="destructive"
+                                                      className="text-xs"
+                                                    >
+                                                      <AlertTriangle className="h-3 w-3 mr-1" />
+                                                      Dangerous
+                                                    </Badge>
+                                                  )}
+                                                </div>
+                                                {permission.description && (
+                                                  <div className="text-xs text-muted-foreground mt-1">
+                                                    {permission.description}
+                                                  </div>
+                                                )}
+                                                <div className="text-xs text-muted-foreground mt-1 font-mono">
+                                                  {permission.key}
+                                                </div>
+                                              </label>
+                                            </div>
+                                          )
+                                        )}
+                                      </div>
+                                    </AccordionContent>
+                                  </AccordionItem>
+                                );
+                              }
+                            )}
+                          </Accordion>
+                        )}
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+          </form>
+        </Form>
+      </div>
+    </FixedHeaderFooterLayout>
   );
 };
 

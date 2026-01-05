@@ -126,3 +126,13 @@ export const APPROVAL_ENDPOINTS = {
   REJECT: "/api/v1/approvals/reject/:token",
   DECIDE: "/api/v1/approvals/decide/:token",
 };
+
+export const NOTIFICATION_ENDPOINTS = {
+  GET_ALL: "/api/v1/notifications",
+  GET_UNREAD_COUNT: "/api/v1/notifications/unread-count",
+  MARK_READ: "/api/v1/notifications/:id/read",
+  MARK_ALL_READ: "/api/v1/notifications/mark-all-read",
+  DELETE: "/api/v1/notifications/:id",
+  GET_PREFERENCES: "/api/v1/notifications/preferences",
+  UPDATE_PREFERENCES: "/api/v1/notifications/preferences",
+};

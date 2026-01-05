@@ -8,10 +8,7 @@ import { PERMISSIONS } from "@/lib/constants/permissions";
 const CreateActionPage = () => {
   return (
     <ProtectedPage permission={PERMISSIONS.ACTIONS.CREATE}>
-      <PageContainer>
-        <HeaderContainer title="Create Action" />
-        <ActionForm />
-      </PageContainer>
+      <ActionForm title="Create Action" />
     </ProtectedPage>
   );
 };

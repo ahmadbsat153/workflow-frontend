@@ -67,6 +67,10 @@ export const URLs = {
       submit: "/submissions/submit/:form_slug",
       view: "/submissions/view/:id",
     },
+    notifications: {
+      index: "/notifications",
+      preferences: "/notifications/preferences",
+    },
   },
   auth: {
     register: "/register/",
@@ -87,14 +91,16 @@ export function getUrl(
   lang?: string,
   props?: Record<string, string> | undefined
 ) {
+  let result = String(path);
+
   if (props) {
     for (const prop in props) {
-      path = path.replaceAll(`{${prop}}`, props[prop]);
+      result = result.replace(new RegExp(`\\{${prop}\\}`, 'g'), props[prop]);
     }
   }
   if (lang) {
-    path = `/${lang}/${path}`;
+    result = `/${lang}/${result}`;
   }
 
-  return path.replaceAll("//", "/"); // just in case anyone formats Urls in a wrong way.
+  return result.replace(/\/+/g, "/"); // just in case anyone formats Urls in a wrong way.
 }

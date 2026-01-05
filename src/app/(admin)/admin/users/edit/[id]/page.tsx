@@ -13,13 +13,11 @@ const page = async ({ params }: PageProps) => {
 
   return (
     <ProtectedPage permission={PERMISSIONS.USERS.EDIT}>
-      <PageContainer>
-        <HeaderContainer
-          title="Edit User"
-          description="Update user details and settings"
-        />
-        <UserForm userId={id} />
-      </PageContainer>
+      <UserForm
+        userId={id}
+        title="Edit User"
+        description="Update user details and settings"
+      />
     </ProtectedPage>
   );
 };

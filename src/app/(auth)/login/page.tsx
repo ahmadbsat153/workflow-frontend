@@ -1,6 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { toast } from "sonner";
+import { Input } from "@/lib/ui/input";
+import { Button } from "@/lib/ui/button";
 import { redirect } from "@/utils/common";
 import { ErrorResponse } from "@/lib/types/common";
 import { URLs, getUrl } from "@/lib/constants/urls";
@@ -8,15 +11,11 @@ import { useAuth } from "@/lib/context/AuthContext";
 import { handleServerError } from "@/lib/api/_axios";
 import { FormEvent, useState, useEffect } from "react";
 import { API_AUTH } from "@/lib/services/auth_service";
-import { microsoftOAuthService } from "@/lib/services/microsoft_oauth_service";
 import DotsLoader from "@/lib/components/Loader/DotsLoader";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import { FadeIn, FadeInStagger } from "@/lib/components/Motion/FadeIn";
-import { Button } from "@/lib/ui/button";
-import { Input } from "@/lib/ui/input";
-import { Label } from "@/lib/ui/label";
-import { toast } from "sonner";
+import { microsoftOAuthService } from "@/lib/services/microsoft_oauth_service";
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
@@ -33,14 +32,7 @@ export default function Login() {
 
   useEffect(() => {
     if (user?.user) {
-      router.push(
-        //TODO: Make it dynamic based on permissions
-        getUrl(
-          user.user.is_super_admin || isAdmin
-            ? URLs.admin.users
-            : URLs.app.forms.index
-        )
-      );
+      router.push(getUrl(URLs.app.forms.index));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
@@ -68,14 +60,7 @@ export default function Login() {
 
         localStorage.setItem("AFW_token", JSON.stringify(response.token));
 
-        //TODO: Make it dynamic based on permissions
-        router.push(
-          getUrl(
-            response.user.is_super_admin || isAdmin
-              ? URLs.admin.users
-              : URLs.app.forms.index
-          )
-        );
+        router.push(getUrl(URLs.app.forms.index));
       }
     } catch (e) {
       handleServerError(e as ErrorResponse, (err_msg) => {
@@ -108,13 +93,7 @@ export default function Login() {
       toast.success("Successfully logged in with Microsoft!");
 
       // Redirect to appropriate page
-      router.push(
-        getUrl(
-          result.user.is_super_admin || isAdmin
-            ? URLs.admin.users
-            : URLs.app.forms.index
-        )
-      );
+      router.push(getUrl(URLs.app.forms.index));
     } catch (error: any) {
       console.error("Microsoft login error:", error);
       toast.error(error.message || "Failed to login with Microsoft");
