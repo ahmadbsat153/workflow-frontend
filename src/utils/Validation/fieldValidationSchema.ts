@@ -402,6 +402,15 @@ export const buildValidationSchema = (fields: Field[]) => {
 
         fieldSchema = fileSchema;
         break;
+
+      case FieldsType.TABLE:
+        // Table field validation - expects EditableTableConfig object
+        fieldSchema = z.any(); // The table component handles its own internal validation
+        if (!field.required) {
+          fieldSchema = fieldSchema.optional();
+        }
+        break;
+
       default:
         fieldSchema = z.string().optional();
     }
@@ -650,6 +659,9 @@ export const buildFieldSettingsSchema = (field: Field) => {
             return data.minFiles <= data.maxFiles;
           }, "Minimum files cannot be greater than maximum files");
 
+      case FieldsType.TABLE:
+        return z.any().optional();
+
       default:
         return z.any().optional();
     }
@@ -674,6 +686,14 @@ export const buildFieldSettingsSchema = (field: Field) => {
           const values = options.map((opt) => opt.value);
           return new Set(values).size === values.length;
         }, "Option values must be unique"),
+    });
+  }
+
+  // Special handling for TABLE field type
+  if (field.type === FieldsType.TABLE) {
+    return z.object({
+      ...baseSchema,
+      tableConfig: z.any(), // EditableTableConfig type
     });
   }
 

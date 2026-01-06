@@ -1,3 +1,5 @@
+import { EditableTableConfig } from "./editableTable";
+
 // export type FieldWidth = 25 | 33 | 50 | 66 | 75 | 100;
 export type FieldWidth = 33 | 50 | 66 | 100;
 
@@ -27,6 +29,9 @@ export enum FieldsType {
   IMAGE = "image",
   ALERT = "alert",
   HTML = "html",
+
+  // Complex fields
+  TABLE = "table",
 }
 
 
@@ -59,6 +64,7 @@ export type Field = {
   order: number;
   style: FieldStyle;
   autofill?: boolean; // For organizational fields (department, position, branch)
+  tableConfig?: EditableTableConfig; // For table fields
 };
 
 export type FormFieldValidation = {

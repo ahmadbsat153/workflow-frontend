@@ -23,6 +23,7 @@ import {
   SquareCheckBigIcon,
   PaletteIcon,
   TypeIcon,
+  TableIcon,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/lib/ui/tabs";
 import FieldProperties from "@/lib/components/Tabs/Fields/FieldProperties";
@@ -36,6 +37,7 @@ import {
 } from "@/lib/constants/formFields";
 import DisplayElementContent from "@/lib/components/Tabs/Fields/DisplayElementContent";
 import DisplayElementStyle from "@/lib/components/Tabs/Fields/DisplayElementStyle";
+import TableConfig from "@/lib/components/Tabs/Fields/TableConfig";
 
 type FieldSettingsSheetProps = {
   field: Field;
@@ -110,6 +112,7 @@ const FieldSettingsSheet = ({
             sensitiveInfo: field.display?.sensitiveInfo ?? false,
           },
           options: field.options || [],
+          tableConfig: field.tableConfig,
         } as FormValues),
   });
 
@@ -153,6 +156,7 @@ const FieldSettingsSheet = ({
         options: inputValues.options || field.options,
         display: inputValues.display,
         autofill: inputValues.autofill,
+        tableConfig: inputValues.tableConfig,
       };
     }
 
@@ -183,7 +187,7 @@ const FieldSettingsSheet = ({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent className="w-full sm:max-w-md flex flex-col p-0">
+      <SheetContent className="w-full sm:max-w-xl flex flex-col p-0">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -233,9 +237,36 @@ const FieldSettingsSheet = ({
                     </div>
                   </TabsContent>
                 </Tabs>
+              ) : field.type === FieldsType.TABLE ? (
+                <Tabs
+                  defaultValue={
+                    field.type === FieldsType.TABLE ? "table" : "setting"
+                  }
+                  className=""
+                >
+                  <TabsContent value="table">
+                    <div className="py-4">
+                      <TableConfig
+                        field={field}
+                        form={form}
+                        loading={loading}
+                      />
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="setting">
+                    <div className="py-4">
+                      <FieldProperties
+                        field={field}
+                        form={form}
+                        loading={loading}
+                      />
+                    </div>
+                  </TabsContent>
+                </Tabs>
               ) : (
                 // Input Field Tabs
-                <Tabs defaultValue="setting" className="mt-5">
+                <Tabs defaultValue={"setting"} className="mt-5">
                   <TabsList className="sticky top-0 z-10">
                     <TabsTrigger value="setting" className="cursor-pointer">
                       <Settings2 className="!size-4" />
@@ -268,6 +299,16 @@ const FieldSettingsSheet = ({
                       Display
                     </TabsTrigger>
                   </TabsList>
+
+                  <TabsContent value="table">
+                    <div className="py-4">
+                      <TableConfig
+                        field={field}
+                        form={form}
+                        loading={loading}
+                      />
+                    </div>
+                  </TabsContent>
 
                   <TabsContent value="setting">
                     <div className="py-4">

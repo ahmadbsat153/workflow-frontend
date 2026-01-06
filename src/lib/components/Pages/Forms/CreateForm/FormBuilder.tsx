@@ -408,6 +408,12 @@ const FormBuilder = () => {
       if (field.autofill) {
         cleanField.autofill = field.autofill;
       }
+
+      // Add tableConfig for TABLE field type
+      if (field.tableConfig) {
+        cleanField.tableConfig = field.tableConfig;
+      }
+
       // Add style if it exists
       if (field.style) {
         const cleanStyle = removeEmpty(field.style);
@@ -463,6 +469,8 @@ const FormBuilder = () => {
   };
 
   const handleUpdateForm = async () => {
+
+
     const result = formInformationSchema.safeParse(formInfo);
 
     if (!result.success) {
@@ -478,6 +486,7 @@ const FormBuilder = () => {
 
     setFormInfoErrors({});
 
+    console.log(droppedFields)
     // Clean fields before submission
     const cleanedFields = droppedFields.map(cleanFieldForSubmission);
 
@@ -488,6 +497,7 @@ const FormBuilder = () => {
       fields: cleanedFields,
     };
 
+    console.log(cleanedFields)
     setLoading(true);
     const id = "form-update";
 

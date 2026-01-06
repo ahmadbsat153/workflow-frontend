@@ -82,6 +82,9 @@ const SubmissionFormBuilder = () => {
         field.type === FieldsType.RADIO
       ) {
         acc[field.name] = field.defaultValue || undefined;
+      } else if (field.type === FieldsType.TABLE) {
+        // Initialize table field with the tableConfig structure
+        acc[field.name] = field.tableConfig || undefined;
       } else {
         acc[field.name] = field.defaultValue || "";
       }

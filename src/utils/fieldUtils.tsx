@@ -739,6 +739,53 @@ export const renderFormFieldSubmission = (
           )}
         />
       );
+
+    case FieldsType.TABLE:
+      return (
+        <Controller
+          name={field.name}
+          control={control}
+          render={({ field: formField }) => {
+            const EditableTableField = React.lazy(() =>
+              import("@/lib/components/Forms/EditableTableField")
+            );
+
+            if (!field.tableConfig) {
+              return (
+                <div className="p-4 border border-red-300 bg-red-50 rounded text-red-700">
+                  <p className="font-semibold">Table Not Configured</p>
+                  <p className="text-sm">
+                    Please configure the table in the form builder.
+                  </p>
+                </div>
+              );
+            }
+
+            return (
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  {field.label}
+                  {field.required && <span className="text-red-500 ml-1">*</span>}
+                </label>
+                <React.Suspense fallback={<div>Loading table...</div>}>
+                  <EditableTableField
+                    config={field.tableConfig}
+                    value={formField.value}
+                    onChange={formField.onChange}
+                    disabled={false}
+                  />
+                </React.Suspense>
+                {error && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {error.message as string}
+                  </p>
+                )}
+              </div>
+            );
+          }}
+        />
+      );
+
     default:
       return null;
   }
@@ -963,6 +1010,31 @@ export const renderSubmittedFieldValue = (field: Field, value: any) => {
         );
       }
       return null;
+
+    case FieldsType.TABLE:
+      // Display submitted table data in a read-only view
+      if (!value || !field.tableConfig) {
+        return (
+          <div className="py-2 text-gray-400 italic">No data submitted</div>
+        );
+      }
+
+      const EditableTableField = React.lazy(() =>
+        import("@/lib/components/Forms/EditableTableField")
+      );
+
+      return (
+        <div className="py-2">
+          <React.Suspense fallback={<div>Loading table...</div>}>
+            <EditableTableField
+              config={value}
+              value={value}
+              onChange={() => {}}
+              disabled={true}
+            />
+          </React.Suspense>
+        </div>
+      );
 
     default:
       return (
