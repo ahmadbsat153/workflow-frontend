@@ -34,7 +34,7 @@ export const NAVIGATION: MenuSection[] = [
       {
         key: "dashboard",
         name: "Dashboard",
-        link: URLs.admin.dashboard,
+        link: URLs.app.dashboard,
         icon: ChartPie,
         // No permission required - everyone can see dashboard
       },

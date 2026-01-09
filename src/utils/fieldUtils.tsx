@@ -28,6 +28,7 @@ import { isDisplayElement, isInputField } from "@/lib/constants/formFields";
 import { Switch } from "@/lib/ui/switch";
 import { Label } from "@/lib/ui/label";
 import { useAuth } from "@/lib/context/AuthContext";
+import EditableTableField from "@/lib/components/Forms/EditableTableField";
 
 export const renderFieldPreview = (field: Field) => {
   //TODO: Fix background color issue in display elements
@@ -746,10 +747,6 @@ export const renderFormFieldSubmission = (
           name={field.name}
           control={control}
           render={({ field: formField }) => {
-            const EditableTableField = React.lazy(() =>
-              import("@/lib/components/Forms/EditableTableField")
-            );
-
             if (!field.tableConfig) {
               return (
                 <div className="p-4 border border-red-300 bg-red-50 rounded text-red-700">
@@ -767,14 +764,12 @@ export const renderFormFieldSubmission = (
                   {field.label}
                   {field.required && <span className="text-red-500 ml-1">*</span>}
                 </label>
-                <React.Suspense fallback={<div>Loading table...</div>}>
-                  <EditableTableField
-                    config={field.tableConfig}
-                    value={formField.value}
-                    onChange={formField.onChange}
-                    disabled={false}
-                  />
-                </React.Suspense>
+                <EditableTableField
+                  config={field.tableConfig}
+                  value={formField.value}
+                  onChange={formField.onChange}
+                  disabled={false}
+                />
                 {error && (
                   <p className="text-red-500 text-sm mt-1">
                     {error.message as string}
@@ -1019,20 +1014,14 @@ export const renderSubmittedFieldValue = (field: Field, value: any) => {
         );
       }
 
-      const EditableTableField = React.lazy(() =>
-        import("@/lib/components/Forms/EditableTableField")
-      );
-
       return (
         <div className="py-2">
-          <React.Suspense fallback={<div>Loading table...</div>}>
-            <EditableTableField
-              config={value}
-              value={value}
-              onChange={() => {}}
-              disabled={true}
-            />
-          </React.Suspense>
+          <EditableTableField
+            config={value}
+            value={value}
+            onChange={() => {}}
+            disabled={true}
+          />
         </div>
       );
 

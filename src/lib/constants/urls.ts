@@ -59,6 +59,7 @@ export const URLs = {
     },
   },
   app: {
+    dashboard: "/dashboard/",
     forms: {
       index: "/forms/",
     },
