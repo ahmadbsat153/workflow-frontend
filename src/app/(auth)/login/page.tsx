@@ -16,6 +16,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import { FadeIn, FadeInStagger } from "@/lib/components/Motion/FadeIn";
 import { microsoftOAuthService } from "@/lib/services/microsoft_oauth_service";
+import { API_SETTINGS } from "@/lib/services/Settings/settings_service";
+import { authImages } from "@/lib/constants/authImages";
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
@@ -23,12 +25,14 @@ export default function Login() {
   const [success, setSuccess] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [loginBgImage, setLoginBgImage] = useState<string | null>(null);
+  const [logo, setLogo] = useState<string | null>(null);
 
   const router = useRouter();
   const searchparams = useSearchParams();
   const callback = searchparams.get("callback");
 
-  const { user, setUser, validating, isAdmin } = useAuth();
+  const { user, setUser, validating } = useAuth();
 
   useEffect(() => {
     if (user?.user) {
@@ -36,6 +40,26 @@ export default function Login() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  useEffect(() => {
+    // Fetch public auth images (no auth required)
+    const fetchImages = async () => {
+      try {
+        const backendHost =
+          process.env.NEXT_PUBLIC_BACKEND_HOST || "http://localhost:8080";
+        const response = await API_SETTINGS.getPublicAuthImages();
+        setLoginBgImage(
+          backendHost + response.data[authImages.login]?.value || null
+        );
+        setLogo(backendHost + response.data[authImages.logo]?.value || null);
+      } catch (err) {
+        console.error("Failed to load auth images:", err);
+        // Fail silently - use default images if API fails
+      }
+    };
+
+    fetchImages();
+  }, []);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
@@ -60,7 +84,7 @@ export default function Login() {
 
         localStorage.setItem("AFW_token", JSON.stringify(response.token));
 
-        router.push(getUrl(URLs.app.forms.index));
+        router.push(getUrl(URLs.app.dashboard));
       }
     } catch (e) {
       handleServerError(e as ErrorResponse, (err_msg) => {
@@ -93,7 +117,7 @@ export default function Login() {
       toast.success("Successfully logged in with Microsoft!");
 
       // Redirect to appropriate page
-      router.push(getUrl(URLs.app.forms.index));
+      router.push(getUrl(URLs.app.dashboard));
     } catch (error: any) {
       console.error("Microsoft login error:", error);
       toast.error(error.message || "Failed to login with Microsoft");
@@ -115,14 +139,23 @@ export default function Login() {
       <div className="h-full flex items-center justify-center w-full rounded-lg shadow-sm">
         <div className="w-1/2 h-full bg-muted relative hidden lg:block">
           <img
-            src="/images/login.png"
-            alt=""
+            src={loginBgImage || "/images/login.png"}
+            alt="Login background"
             className="absolute inset-0 h-full w-full object-cover"
           />
         </div>
         <div className="w-1/2 h-full flex items-center">
           <FadeInStagger className="w-full sm:max-w-md xl:mx-auto ">
             <FadeIn>
+              {logo && (
+                <div className="flex justify-center mb-6">
+                  <img
+                    src={logo}
+                    alt="Logo"
+                    className="h-16 w-auto object-contain"
+                  />
+                </div>
+              )}
               <h1 className="font-bold leading-tight text-2xl text-center">
                 Log In
               </h1>

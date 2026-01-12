@@ -13,6 +13,8 @@ import { handleServerError } from "@/lib/api/_axios";
 import { ErrorResponse } from "@/lib/types/common";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { toast } from "sonner";
+import { authImages } from "@/lib/constants/authImages";
+import { API_SETTINGS } from "@/lib/services/Settings/settings_service";
 
 const ResetPasswordPage = () => {
   const router = useRouter();
@@ -31,6 +33,7 @@ const ResetPasswordPage = () => {
     confirm_password: false,
   });
   const [error, setError] = useState("");
+  const [imageUrl, setImageUrl] = useState("/images/login.png");
 
   const changePasswordVisibility = (key: string) => {
     setError("");
@@ -122,6 +125,26 @@ const ResetPasswordPage = () => {
     checkToken();
   }, []);
 
+  useEffect(() => {
+    // Fetch the reset password image from backend
+    const fetchImage = async () => {
+      try {
+        const backendHost =
+          process.env.NEXT_PUBLIC_BACKEND_HOST || "http://localhost:8080";
+        const response = await API_SETTINGS.getPublicAuthImages();
+        const fetchedUrl =
+          backendHost + response.data[authImages.resetPassword]?.value ||
+          "/images/login.png";
+        setImageUrl(fetchedUrl);
+      } catch (err) {
+        console.error("Failed to load auth images:", err);
+        // Fail silently - use default image if API fails
+      }
+    };
+
+    fetchImage();
+  }, []);
+
   if (validating) {
     return (
       <div className="h-screen w-full flex items-center justify-center">
@@ -137,10 +160,10 @@ const ResetPasswordPage = () => {
     <div className="h-screen w-full flex items-center justify-center">
       <div className="h-full flex items-center justify-center w-full rounded-lg shadow-sm relative">
         {/* The Image */}
-        <div className="w-1/2 h-full bg-muted hidden lg:block">
+        <div className="w-1/2 h-full bg-muted relative hidden lg:block">
           <img
-            src="/images/login.png"
-            alt=""
+            src={imageUrl || "/images/login.png"}
+            alt="Login background"
             className="absolute inset-0 h-full w-full object-cover"
           />
         </div>

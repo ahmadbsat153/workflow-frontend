@@ -136,3 +136,10 @@ export const NOTIFICATION_ENDPOINTS = {
   GET_PREFERENCES: "/api/v1/notifications/preferences",
   UPDATE_PREFERENCES: "/api/v1/notifications/preferences",
 };
+
+export const PROFILE_ENDPOINTS = {
+  GET_PROFILE: "/api/v1/profile",
+  UPDATE_PROFILE: "/api/v1/profile",
+  CHANGE_PASSWORD: "/api/v1/profile/change-password",
+  GET_STATISTICS: "/api/v1/profile/statistics",
+};

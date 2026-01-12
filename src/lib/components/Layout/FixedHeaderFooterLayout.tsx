@@ -36,7 +36,7 @@ const FixedHeaderFooterLayout = ({
     <PageContainer className="bg-cultured !p-0 flex justify-center overflow-hidden">
       <div className={`w-full ${maxWidthClasses[maxWidth]} flex items-center`}>
         <Card
-          className="w-full flex flex-col"
+          className="w-full flex flex-col gap-0"
           style={{ maxHeight: maxHeight }}
         >
           {/* Header Section */}

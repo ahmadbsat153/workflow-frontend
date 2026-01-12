@@ -224,6 +224,14 @@ const FormsSubmissionsTable = () => {
               </a>
             );
           default:
+            // Handle objects and arrays by converting to string
+            if (typeof fieldValue === "object") {
+              return (
+                <span className="text-gray-600">
+                  {JSON.stringify(fieldValue)}
+                </span>
+              );
+            }
             return <span>{fieldValue}</span>;
         }
       };
@@ -238,7 +246,11 @@ const FormsSubmissionsTable = () => {
   };
 
   if (loading) {
-    return <DotsLoader />;
+    return (
+      <div className="h-full w-full flex justify-center items-center ">
+        <DotsLoader />
+      </div>
+    );
   }
 
   return (

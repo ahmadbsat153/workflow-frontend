@@ -57,6 +57,9 @@ export const URLs = {
       details: "/admin/approvals/:submissionId",
       success: "/approval/success",
     },
+    settings: {
+      index: "/admin/settings/",
+    }
   },
   app: {
     dashboard: "/dashboard/",
@@ -72,6 +75,7 @@ export const URLs = {
       index: "/notifications",
       preferences: "/notifications/preferences",
     },
+    profile: "/profile/",
   },
   auth: {
     register: "/register/",

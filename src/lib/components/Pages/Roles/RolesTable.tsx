@@ -25,6 +25,16 @@ import { CellRenderer, AdditionalButton } from "@/lib/types/table/table_data";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ROLE_COLUMNS, ROLE_VISIBLE_COL } from "@/lib/constants/tables";
 import { URLs } from "@/lib/constants/urls";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/lib/ui/alert-dialog";
 
 const RolesTable = () => {
   const searchParams = {
@@ -56,6 +66,8 @@ const RolesTable = () => {
   const router = useRouter();
   const [visibleColumns] = useState<Set<string>>(new Set(ROLE_VISIBLE_COL));
   const [loading, setLoading] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [roleToDelete, setRoleToDelete] = useState<string | null>(null);
 
   const headerColumns = useMemo(() => {
     if (typeof visibleColumns === "string" && visibleColumns === "all")
@@ -124,17 +136,25 @@ const RolesTable = () => {
     router.push(URLs.admin.roles.edit.replace(":id", role._id));
   };
 
-  const handleDelete = async (roleId: string) => {
-    if (!confirm("Are you sure you want to delete this role?")) return;
+  const handleDelete = (roleId: string) => {
+    setRoleToDelete(roleId);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!roleToDelete) return;
 
     try {
-      await API_ROLE.deleteRole(roleId);
-      toast.success("Role deleted successfully");
+      await API_ROLE.deleteRole(roleToDelete);
+      toast.success("Role deactivated successfully");
       getRoles();
     } catch (error) {
       handleServerError(error as ErrorResponse, (err_msg) => {
         toast.error(err_msg);
       });
+    } finally {
+      setDeleteDialogOpen(false);
+      setRoleToDelete(null);
     }
   };
 
@@ -243,6 +263,24 @@ const RolesTable = () => {
           additionalButtons={additionalButtons}
         />
       </div>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This won't acutally delete the role but will deactivate it.
+              All users assigned to this role will not be able to access the system.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };

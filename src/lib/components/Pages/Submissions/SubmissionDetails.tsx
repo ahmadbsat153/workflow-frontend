@@ -38,7 +38,11 @@ const SubmissionDetails = () => {
   }, []);
 
   if (loading) {
-    return <DotsLoader />;
+    return (
+      <div className="h-full w-full flex justify-center items-center ">
+        <DotsLoader />
+      </div>
+    );
   }
 
   if (!submission) {
@@ -57,16 +61,16 @@ const SubmissionDetails = () => {
     );
   }
   return (
-      <SubmissionDisplay
-        fields={submission.form.fields}
-        submissionData={submission.submissionData}
-        formName={submission.form.name}
-        formDescription={submission.form.description}
-        submittedBy={submission.submittedBy}
-        createdAt={submission.createdAt}
-        workflowStatus={submission.workflowStatus}
-        currentStage={submission.currentStage}
-      />
+    <SubmissionDisplay
+      fields={submission.form.fields}
+      submissionData={submission.submissionData}
+      formName={submission.form.name}
+      formDescription={submission.form.description}
+      submittedBy={submission.submittedBy}
+      createdAt={submission.createdAt}
+      workflowStatus={submission.workflowStatus}
+      currentStage={submission.currentStage}
+    />
   );
 };
 

@@ -66,9 +66,11 @@ const PanelSidebarAccount = () => {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
+              <DropdownMenuItem asChild>
+                <Link href={URLs.app.profile}>
+                  <BadgeCheck />
+                  My Profile
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href={URLs.app.notifications.preferences}>
@@ -76,9 +78,11 @@ const PanelSidebarAccount = () => {
                   Notifications
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings2 />
-                Settings
+              <DropdownMenuItem asChild>
+                <Link href={URLs.admin.settings.index}>
+                  <Settings2 />
+                  Settings
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

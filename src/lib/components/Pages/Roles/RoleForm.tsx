@@ -60,7 +60,7 @@ const roleSchema = z.object({
     .regex(/^[A-Z_]+$/, "Code must be uppercase letters and underscores only"),
   description: z.string().min(1, "Description is required"),
   permissions: z.array(z.string()),
-  is_active: z.boolean(),
+  isActive: z.boolean(),
 });
 
 type ModuleCheckboxProps = {
@@ -112,7 +112,7 @@ const RoleForm = ({ roleId, title, description }: RoleFormProps) => {
       code: "",
       description: "",
       permissions: [],
-      is_active: true,
+      isActive: true,
     },
   });
 
@@ -135,7 +135,7 @@ const RoleForm = ({ roleId, title, description }: RoleFormProps) => {
                 typeof p === "string" ? p : p.key
               )
             : [],
-          is_active: roleData.isActive,
+          isActive: roleData.isActive,
         });
       }
     } catch (error) {
@@ -328,7 +328,7 @@ const RoleForm = ({ roleId, title, description }: RoleFormProps) => {
 
                 <FormField
                   control={form.control}
-                  name="is_active"
+                  name="isActive"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">

@@ -4,7 +4,13 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { API_NOTIFICATION } from "@/lib/services/notification_service";
 import { Button } from "@/lib/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/lib/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/lib/ui/card";
 import { Switch } from "@/lib/ui/switch";
 import { Label } from "@/lib/ui/label";
 import { Separator } from "@/lib/ui/separator";
@@ -16,6 +22,12 @@ import {
   CheckCircleIcon,
 } from "@heroicons/react/24/outline";
 import type { NotificationPreferences } from "@/lib/types/notification";
+import FixedHeaderFooterLayout from "@/lib/components/Layout/FixedHeaderFooterLayout";
+
+type NotificationPrefProps = {
+  title: string;
+  description: string;
+};
 
 /**
  * Notification type configuration
@@ -36,7 +48,8 @@ const notificationTypes = [
   {
     key: "approval_decision" as const,
     title: "Approval Decisions",
-    description: "Get notified when your approval request is approved or rejected",
+    description:
+      "Get notified when your approval request is approved or rejected",
     icon: <CheckCircleIcon className="size-5" />,
   },
   {
@@ -115,7 +128,9 @@ const PreferenceRow = ({
             <Label
               htmlFor={`${type}-email`}
               className={`text-xs text-muted-foreground ${
-                disableEmail ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                disableEmail
+                  ? "cursor-not-allowed opacity-50"
+                  : "cursor-pointer"
               }`}
             >
               Email
@@ -151,10 +166,12 @@ const PreferenceSkeleton = () => (
 /**
  * Notification Preferences Page
  */
-export default function NotificationPreferencesPage() {
-  const [preferences, setPreferences] = useState<NotificationPreferences | null>(
-    null
-  );
+export default function NotificationPreferencesPage({
+  title = "Notification Preferences",
+  description = "Manage how you receive notifications for different events",
+}: NotificationPrefProps) {
+  const [preferences, setPreferences] =
+    useState<NotificationPreferences | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
@@ -211,114 +228,116 @@ export default function NotificationPreferencesPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Notification Preferences</h1>
-        <p className="text-muted-foreground">
-          Manage how you receive notifications for different events
-        </p>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Notification Settings</CardTitle>
-          <CardDescription>
-            Choose how you want to be notified for each type of event. You can
-            receive notifications in-app, via email, or both.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i}>
-                  <PreferenceSkeleton />
-                  {i < 4 && <Separator />}
-                </div>
-              ))}
-            </div>
-          ) : preferences ? (
-            <>
-              <div className="space-y-0 divide-y">
-                {notificationTypes.map((type, index) => (
-                  <PreferenceRow
-                    key={type.key}
-                    type={type.key}
-                    title={type.title}
-                    description={type.description}
-                    icon={type.icon}
-                    inApp={preferences[type.key].inApp}
-                    email={preferences[type.key].email}
-                    onInAppChange={(checked) =>
-                      updatePreference(type.key, "inApp", checked)
-                    }
-                    onEmailChange={(checked) =>
-                      updatePreference(type.key, "email", checked)
-                    }
-                    disableEmail={type.key === "approval_request"}
-                  />
+    <FixedHeaderFooterLayout
+      title={title}
+      description={description}
+      // footer={}
+      maxWidth="3xl"
+      maxHeight="90vh"
+    >
+      <div className="">
+        <Card>
+          <CardHeader>
+            <CardTitle>Notification Settings</CardTitle>
+            <CardDescription>
+              Choose how you want to be notified for each type of event. You can
+              receive notifications in-app, via email, or both.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="space-y-4">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i}>
+                    <PreferenceSkeleton />
+                    {i < 4 && <Separator />}
+                  </div>
                 ))}
               </div>
-
-              <Separator className="my-6" />
-
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  Changes will be applied immediately after saving
-                </p>
-                <div className="flex items-center gap-3">
-                  {hasChanges && (
-                    <Button
-                      variant="outline"
-                      onClick={fetchPreferences}
-                      disabled={saving}
-                    >
-                      Reset
-                    </Button>
-                  )}
-                  <Button
-                    onClick={handleSave}
-                    disabled={!hasChanges || saving}
-                  >
-                    {saving ? "Saving..." : "Save Preferences"}
-                  </Button>
+            ) : preferences ? (
+              <>
+                <div className="space-y-0 divide-y">
+                  {notificationTypes.map((type, index) => (
+                    <PreferenceRow
+                      key={type.key}
+                      type={type.key}
+                      title={type.title}
+                      description={type.description}
+                      icon={type.icon}
+                      inApp={preferences[type.key].inApp}
+                      email={preferences[type.key].email}
+                      onInAppChange={(checked) =>
+                        updatePreference(type.key, "inApp", checked)
+                      }
+                      onEmailChange={(checked) =>
+                        updatePreference(type.key, "email", checked)
+                      }
+                      disableEmail={type.key === "approval_request"}
+                    />
+                  ))}
                 </div>
-              </div>
-            </>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">
-                Failed to load preferences. Please try again.
-              </p>
-              <Button
-                variant="outline"
-                onClick={fetchPreferences}
-                className="mt-4"
-              >
-                Retry
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
-      {/* Info Card */}
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle className="text-sm">About Notifications</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground space-y-2">
-          <p>
-            <strong>In-App Notifications:</strong> Appear in your notification
-            bell and show real-time updates while you&apos;re using the application.
-          </p>
-          <p>
-            <strong>Email Notifications:</strong> Sent to your registered email
-            address. Useful for staying updated when you&apos;re not actively using
-            the application.
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+                <Separator className="my-6" />
+
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    Changes will be applied immediately after saving
+                  </p>
+                  <div className="flex items-center gap-3">
+                    {hasChanges && (
+                      <Button
+                        variant="outline"
+                        onClick={fetchPreferences}
+                        disabled={saving}
+                      >
+                        Reset
+                      </Button>
+                    )}
+                    <Button
+                      onClick={handleSave}
+                      disabled={!hasChanges || saving}
+                    >
+                      {saving ? "Saving..." : "Save Preferences"}
+                    </Button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">
+                  Failed to load preferences. Please try again.
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={fetchPreferences}
+                  className="mt-4"
+                >
+                  Retry
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Info Card */}
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle className="text-sm">About Notifications</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted-foreground space-y-2">
+            <p>
+              <strong>In-App Notifications:</strong> Appear in your notification
+              bell and show real-time updates while you&apos;re using the
+              application.
+            </p>
+            <p>
+              <strong>Email Notifications:</strong> Sent to your registered
+              email address. Useful for staying updated when you&apos;re not
+              actively using the application.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    </FixedHeaderFooterLayout>
   );
 }

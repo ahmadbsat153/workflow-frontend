@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Button } from "@/lib/ui/button";
 import { Input } from "@/lib/ui/input";
 import { FadeIn, FadeInStagger } from "@/lib/components/Motion/FadeIn";
@@ -12,6 +12,9 @@ import { URLs } from "@/lib/constants/urls";
 import { toast } from "sonner";
 import { handleServerError } from "@/lib/api/_axios";
 import { ErrorResponse } from "@/lib/types/common";
+import { API_SETTINGS } from "@/lib/services/Settings/settings_service";
+import Image from "next/image";
+import { authImages } from "@/lib/constants/authImages";
 
 const ForgotPasswordPage = () => {
   const router = useRouter();
@@ -20,6 +23,7 @@ const ForgotPasswordPage = () => {
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
 
+  const image_url = authImages.forgotPassword;
   const handleMagicLinkSending = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -35,7 +39,6 @@ const ForgotPasswordPage = () => {
       setError("");
       await API_AUTH.sendMagicLink(email);
       setEmailSent(true);
-
     } catch (e) {
       handleServerError(e as ErrorResponse, (err_msg) => {
         setError(err_msg as string);
@@ -47,25 +50,49 @@ const ForgotPasswordPage = () => {
   };
 
   const GoBack = () => router.push(URLs.auth.login);
+  // Initialize with default image if image_url is not a valid path
+  const initialImage =
+    image_url.startsWith("/") || image_url.startsWith("http")
+      ? image_url
+      : "/images/404.png";
+  const [imageUrl, setImageUrl] = useState(initialImage);
+
+  useEffect(() => {
+    // Only fetch if image_url is a key (not a valid path)
+    const isImageKey =
+      !image_url.startsWith("/") && !image_url.startsWith("http");
+
+    if (isImageKey) {
+      const fetchImages = async () => {
+        try {
+          const backendHost =
+            process.env.NEXT_PUBLIC_BACKEND_HOST || "http://localhost:8080";
+          const response = await API_SETTINGS.getPublicAuthImages();
+          const fetchedUrl =
+            backendHost + response.data[image_url]?.value || "/images/404.png";
+          setImageUrl(fetchedUrl);
+          console.log("Image URL:", fetchedUrl);
+        } catch (err) {
+          console.error("Failed to load auth images:", err);
+          // Fail silently - use default images if API fails
+          setImageUrl("/images/404.png");
+        }
+      };
+
+      fetchImages();
+    }
+  }, [image_url]);
 
   return (
     <div className="h-screen w-full flex items-center justify-center">
       <div className="h-full flex items-center justify-center w-full rounded-lg shadow-sm relative">
         {/* The Image */}
-        <div className="w-1/2 h-full bg-muted hidden lg:block">
+        <div className="w-1/2 h-full bg-muted relative hidden lg:block">
           <img
-            src="/images/login.png"
-            alt=""
-            // className="absolute inset-0 h-full w-full object-cover"
+            src={imageUrl || "/images/login.png"}
+            alt="Login background"
+            className="absolute inset-0 h-full w-full object-cover"
           />
-        </div>
-        <div className="absolute bg-white top-[1px] p-1 left-[49vw] rounded-bl-xl text-primary hover:bg-primary/80 hover:text-white!">
-          <Button
-            variant="ghost"
-            className="rounded-full bg-transparent hover:bg-transparent"
-          >
-            <MoveLeftIcon size="5" onClick={GoBack} />
-          </Button>
         </div>
         {/* The Form */}
         <div className="w-1/2 h-full flex items-center">
@@ -95,11 +122,7 @@ const ForgotPasswordPage = () => {
                     The link will expire in 60 minutes. Please check your spam
                     folder if you don't see it.
                   </p>
-                  <Button
-                    variant="outline"
-                    onClick={GoBack}
-                    className="w-full"
-                  >
+                  <Button variant="outline" onClick={GoBack} className="w-full">
                     Back to Login
                   </Button>
                 </div>

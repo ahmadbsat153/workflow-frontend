@@ -91,7 +91,7 @@ export function PanelSidebar({
         </Sidebar>
       )}
 
-      <SidebarInset className="overflow-hidden">
+      <SidebarInset className="overflow-hidden bg-gray-50">
         <header className="flex h-12 shrink-0 items-center justify-end gap-2 border-b w-full px-2 xl:px-8 2xl:px-16">
           <NotificationBell />
         </header>
