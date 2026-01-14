@@ -27,8 +27,6 @@ import { toast } from "sonner";
 import {
   Trash2,
   Save,
-  Undo,
-  Redo,
   Maximize,
   GitBranch,
   CheckCircle,
@@ -48,13 +46,13 @@ import {
   findNonOverlappingPosition,
   getDefaultNodePosition,
   snapToGrid,
+  nodesOverlap,
   NODE_WIDTH,
   NODE_HEIGHT,
 } from "@/utils/Workflow/nodePositioning";
 import { API_WORKFLOW } from "@/lib/services/Workflow/workflow_service";
 import { ActionSelectionModal } from "./Panels/ActionSelectModal";
 import { SaveWorkflowDialog } from "./Dialog/SaveWorkflowDialog";
-import { useHistory } from "@/lib/hooks/Workflow/useHistory";
 import { validateWorkflow } from "@/utils/Workflow/validation";
 import { useParams } from "next/navigation";
 import DotsLoader from "../../Loader/DotsLoader";
@@ -79,15 +77,6 @@ const WorkflowBuilderInner = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [pendingNodeId, setPendingNodeId] = useState<string | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-
-  // History for undo/redo
-  const history = useHistory<{
-    nodes: Node<WorkflowNodeData>[];
-    edges: Edge[];
-  }>({
-    nodes: [],
-    edges: [],
-  });
 
   // Load workflow by form ID on mount
   useEffect(() => {
@@ -132,33 +121,6 @@ const WorkflowBuilderInner = () => {
     }
   }, [form_id]);
 
-  // Sync nodes/edges with history
-  useEffect(() => {
-    if (nodes.length > 0 || edges.length > 0) {
-      history.set({ nodes, edges });
-    }
-  }, [nodes, edges]);
-
-  // Undo
-  const handleUndo = useCallback(() => {
-    if (history.canUndo) {
-      history.undo();
-      setNodes(history.state.nodes);
-      setEdges(history.state.edges);
-      toast.success("Undone");
-    }
-  }, [history, setNodes, setEdges]);
-
-  // Redo
-  const handleRedo = useCallback(() => {
-    if (history.canRedo) {
-      history.redo();
-      setNodes(history.state.nodes);
-      setEdges(history.state.edges);
-      toast.success("Redone");
-    }
-  }, [history, setNodes, setEdges]);
-
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -175,16 +137,6 @@ const WorkflowBuilderInner = () => {
           deleteSelectedNodes();
         }
 
-        // Undo/Redo
-        if ((event.ctrlKey || event.metaKey) && event.key === "z") {
-          event.preventDefault();
-          if (event.shiftKey) {
-            handleRedo();
-          } else {
-            handleUndo();
-          }
-        }
-
         // Save
         if ((event.ctrlKey || event.metaKey) && event.key === "s") {
           event.preventDefault();
@@ -195,7 +147,7 @@ const WorkflowBuilderInner = () => {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [handleUndo, handleRedo]);
+  }, []);
 
   // Listen for custom events from node toolbar
   useEffect(() => {
@@ -251,24 +203,31 @@ const WorkflowBuilderInner = () => {
       if (!actionData) return;
 
       const action: Action = JSON.parse(actionData);
+      // Get the position where user dropped
       let position = screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
       });
 
-      // Only adjust position if there's an overlap
-      const hasOverlap = nodes.some(
-        (node) =>
-          Math.abs(position.x - node.position.x) < NODE_WIDTH &&
-          Math.abs(position.y - node.position.y) < NODE_HEIGHT
-      );
+      // Offset to center node on cursor
+      position = {
+        x: position.x - NODE_WIDTH / 2,
+        y: position.y - NODE_HEIGHT / 2,
+      };
 
-      if (hasOverlap) {
-        position = findNonOverlappingPosition(position, nodes, "diagonal");
-      }
-
+      // Apply snap to grid if enabled
       if (snapToGridEnabled) {
         position = snapToGrid(position);
+      }
+
+      // Check for overlap after snapping
+      const hasOverlap = nodes.some((node) =>
+        nodesOverlap(position, node.position, 20)
+      );
+
+      // Only adjust if there's still an overlap after snapping
+      if (hasOverlap) {
+        position = findNonOverlappingPosition(position, nodes, "bottom");
       }
 
       const nodeId = `action-${Date.now()}`;
@@ -733,25 +692,6 @@ const WorkflowBuilderInner = () => {
                 </Badge>
               )}
             </div>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleUndo}
-              disabled={!history.canUndo}
-            >
-              <Undo className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleRedo}
-              disabled={!history.canRedo}
-            >
-              <Redo className="h-4 w-4" />
-            </Button>
-
-            <div className="h-6 w-px bg-border" />
 
             <Button variant="default" size="sm" onClick={addActionNode}>
               Add Action

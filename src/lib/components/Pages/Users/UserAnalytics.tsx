@@ -11,10 +11,20 @@ import { ChartBarMultiple } from "@/lib/ui/bar-chart";
 import { CellRenderer } from "@/lib/types/table/table_data";
 
 const UserAnalytics = ({ data }: { data: any }) => {
+  console.log("UserAnalytics received data:", data);
   const [visibleColumns] = useState<Set<string>>(
     new Set(USER_ACTIVITY_VISIBLE_COL)
   );
   const [loading, setLoading] = useState(false);
+
+  // Handle empty array or null/undefined data
+  if (!data || (Array.isArray(data) && data.length === 0)) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        No analytics data available
+      </div>
+    );
+  }
 
   const headerColumns = useMemo(() => {
     if (typeof visibleColumns === "string" && visibleColumns === "all")
@@ -49,15 +59,13 @@ const UserAnalytics = ({ data }: { data: any }) => {
 
   const footer = (description: string) => {
     return (
-      <div className="text-muted-foreground leading-none">
-        {description}
-      </div>
+      <div className="text-muted-foreground leading-none">{description}</div>
     );
   };
 
   const pieData = [
-    { category: "forms", count: data.forms, fill: "#7c86ff" },
-    { category: "submissions", count: data.submissions, fill: "#ff637e" },
+    { category: "forms", count: data.forms || 0, fill: "#7c86ff" },
+    { category: "submissions", count: data.submissions || 0, fill: "#ff637e" },
   ];
   const pieChartConfig = {
     forms: {
@@ -70,39 +78,42 @@ const UserAnalytics = ({ data }: { data: any }) => {
     },
   };
 
-const barChartConfig = {
-  workflows: {
-    label: "Workflows",
-    color: "#8ec5ff",
-  },
-  forms: {
-    label: "Forms",
-    color: "#2b7fff",
-  },
-};
+  const barChartConfig = {
+    workflows: {
+      label: "Workflows",
+      color: "#8ec5ff",
+    },
+    forms: {
+      label: "Forms",
+      color: "#2b7fff",
+    },
+  };
   return (
     <div className="grid grid-cols-1 gap-4 py-4">
       {/* CHARTS */}
       <div className="flex flex-col lg:flex-row gap-2 min-h-[30vh]">
         <ChartBarMultiple
-            data={data.barChartAnalytics}
-            chartConfig={barChartConfig}
-            footer={footer("Showing total forms and workflows created over last 6 months")}
+          data={data.barChartAnalytics || []}
+          chartConfig={barChartConfig}
+          footer={footer(
+            "Showing total forms and workflows created over last 6 months"
+          )}
         />
         <ChartPieDonutText
-            chartConfig={pieChartConfig}
-            content={{ label: "Total", value: data.total }}
-            data={pieData}
-            nameKey="category"
-            dataKey="count"
-            footer={footer("Showing forms created and submitted over last 6 months")}
+          chartConfig={pieChartConfig}
+          content={{ label: "Total", value: data.total || 0 }}
+          data={pieData}
+          nameKey="category"
+          dataKey="count"
+          footer={footer(
+            "Showing forms created and submitted over last 6 months"
+          )}
         />
-
       </div>
 
       {/* RECENT ACTIVITY TABLE  */}
       <DataTable
-        data={data.recentActivities}
+        data={data.recentActivities || []}
         columns={headerColumns}
         cellRenderers={cellRenderers}
         loading={loading}

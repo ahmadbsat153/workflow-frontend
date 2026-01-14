@@ -1,34 +1,49 @@
 "use client";
 
 import FormBuilder from "./CreateForm/FormBuilder";
-import { TextCursorInput, Workflow } from "lucide-react";
+import { FileText, TextCursorInput, Workflow } from "lucide-react";
 import WorkflowBuilder from "../workflow/WorkflowBuilder";
 import { useLayoutState } from "../../Common/ConditionalSelector";
 import { LayoutOption, LayoutSelector } from "../../Common/LayoutSelector";
+import FormDetailsTab from "./FormDetailsTab";
 
-type LayoutType = "forms" | "workflow";
+type LayoutType = "details" | "forms" | "workflow";
 
 const layoutOptions: LayoutOption<any>[] = [
+  { value: "details", label: "Form Details", icon: FileText },
   { value: "forms", label: "Form Edit", icon: TextCursorInput },
   { value: "workflow", label: "Workflow Edit", icon: Workflow },
 ];
 
 const FormEditContent = () => {
-  const [currentLayout, setCurrentLayout] = useLayoutState<LayoutType>("forms");
+  const [currentLayout, setCurrentLayout] = useLayoutState<LayoutType>("details");
+
+  const renderContent = () => {
+    switch (currentLayout) {
+      case "details":
+        return <FormDetailsTab />;
+      case "forms":
+        return <FormBuilder />;
+      case "workflow":
+        return <WorkflowBuilder />;
+      default:
+        return <FormDetailsTab />;
+    }
+  };
 
   return (
     <div className="bg-gray-50 w-full h-full flex flex-col px-2">
-      <div className="flex justify-center">
+      <div className="flex justify-start">
         <LayoutSelector
           options={layoutOptions}
-          defaultValue="forms"
+          defaultValue="details"
           onLayoutChange={setCurrentLayout}
           displayMode="tabs"
         />
       </div>
 
       <div className="flex-1 h-full">
-        {currentLayout === "forms" ? <FormBuilder /> : <WorkflowBuilder />}
+        {renderContent()}
       </div>
     </div>
   );

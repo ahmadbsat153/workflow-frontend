@@ -117,19 +117,11 @@ const FormCardList = () => {
             description={form.description}
             iconBackgroundColor={"bg-blue-500"}
             onClick={() => {
-              const admin_url = getUrl(
-                build_path(URLs.admin.forms.detail, { slug: form.slug })
-              );
-
-              const user_url = getUrl(
+              const url = getUrl(
                 build_path(URLs.app.submissions.submit, {
                   form_slug: form.slug,
                 })
               );
-
-              const url = hasPermission(PERMISSIONS.FORMS.CREATE)
-                ? admin_url
-                : user_url;
               router.push(url);
             }}
             disabled={!form.isActive}

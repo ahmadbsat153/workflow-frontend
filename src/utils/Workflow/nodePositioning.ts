@@ -139,16 +139,34 @@ export const getDefaultNodePosition = (
   viewportCenter?: XYPosition
 ): XYPosition => {
   if (nodes.length === 0) {
-    return snapToGrid(viewportCenter || { x: 250, y: 100 });
+    // If viewport center is provided, use it, otherwise use default center
+    const defaultPosition = viewportCenter || { x: 0, y: 0 };
+    return snapToGrid(defaultPosition);
   }
 
   const lastNode = nodes[nodes.length - 1];
 
-  return findNonOverlappingPosition(lastNode.position, nodes, "diagonal");
+  // Place directly below the last node
+  const newPosition = {
+    x: lastNode.position.x,
+    y: lastNode.position.y + NODE_HEIGHT + MIN_SPACING * 2,
+  };
+
+  // Check if this position overlaps with any existing node
+  const hasOverlap = nodes.some((node) =>
+    nodesOverlap(newPosition, node.position, 20)
+  );
+
+  if (hasOverlap) {
+    // If there's overlap, find a non-overlapping position below
+    return findNonOverlappingPosition(newPosition, nodes, "bottom");
+  }
+
+  return snapToGrid(newPosition);
 };
 
 /**
- * Auto-arrange nodes in a hierarchical layout
+ * Auto-arrange nodes in a vertical layout
  */
 export const autoArrangeNodes = (
   nodes: Node<WorkflowNodeData>[],
@@ -156,9 +174,25 @@ export const autoArrangeNodes = (
 ): Node<WorkflowNodeData>[] => {
   if (nodes.length === 0) return nodes;
 
+  // Find root nodes (nodes with no incoming edges)
   const nodesWithIncoming = new Set(edges.map((e) => e.target));
   const rootNodes = nodes.filter((n) => !nodesWithIncoming.has(n.id));
 
+  // If no root nodes exist, arrange all nodes vertically
+  if (rootNodes.length === 0 || edges.length === 0) {
+    // All nodes are disconnected, arrange them vertically
+    return nodes.map((node, index) => {
+      return {
+        ...node,
+        position: snapToGrid({
+          x: 250, // Center horizontally
+          y: index * (NODE_HEIGHT + MIN_SPACING * 3),
+        }),
+      };
+    });
+  }
+
+  // Build adjacency map
   const adjacency = new Map<string, string[]>();
   edges.forEach((edge) => {
     if (!adjacency.has(edge.source)) {
@@ -167,21 +201,32 @@ export const autoArrangeNodes = (
     adjacency.get(edge.source)!.push(edge.target);
   });
 
+  // Calculate levels (depth in the tree) using BFS
   const levels = new Map<string, number>();
-  const positioned = new Set<string>();
+  const visited = new Set<string>();
 
   const calculateLevel = (nodeId: string, level: number = 0) => {
-    if (positioned.has(nodeId)) return;
+    if (visited.has(nodeId)) return;
 
-    levels.set(nodeId, Math.max(level, levels.get(nodeId) || 0));
-    positioned.add(nodeId);
+    visited.add(nodeId);
+    const currentLevel = levels.get(nodeId) || 0;
+    levels.set(nodeId, Math.max(level, currentLevel));
 
     const children = adjacency.get(nodeId) || [];
     children.forEach((childId) => calculateLevel(childId, level + 1));
   };
 
+  // Process all root nodes
   rootNodes.forEach((node) => calculateLevel(node.id));
 
+  // Handle orphaned nodes (disconnected from the main graph)
+  nodes.forEach((node) => {
+    if (!levels.has(node.id)) {
+      levels.set(node.id, 0);
+    }
+  });
+
+  // Group nodes by level
   const nodesByLevel = new Map<number, string[]>();
   levels.forEach((level, nodeId) => {
     if (!nodesByLevel.has(level)) {
@@ -190,13 +235,18 @@ export const autoArrangeNodes = (
     nodesByLevel.get(level)!.push(nodeId);
   });
 
+  // Calculate positions - arrange vertically with branching horizontally
   const arrangedNodes = nodes.map((node) => {
     const level = levels.get(node.id) || 0;
     const nodesInLevel = nodesByLevel.get(level) || [];
     const indexInLevel = nodesInLevel.indexOf(node.id);
 
-    const x = indexInLevel * (NODE_WIDTH + MIN_SPACING * 2);
-    const y = level * (NODE_HEIGHT + MIN_SPACING * 3);
+    // If only one node in level, center it
+    // If multiple nodes in level (branching), spread them horizontally
+    const x = nodesInLevel.length === 1
+      ? 250 // Center single nodes
+      : 250 + (indexInLevel - (nodesInLevel.length - 1) / 2) * (NODE_WIDTH + MIN_SPACING * 3);
+    const y = level * (NODE_HEIGHT + MIN_SPACING * 4);
 
     return {
       ...node,

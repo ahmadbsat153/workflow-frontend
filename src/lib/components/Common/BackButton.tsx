@@ -1,21 +1,32 @@
 import { Button } from "@/lib/ui/button";
-import { MoveLeftIcon } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-const BackButton = () => {
+type BackButtonProps = {
+  handleGoBack?: () => void;
+  text?: string;
+};
+const BackButton = ({
+  handleGoBack: customHandleGoBack,
+  text = "Back",
+}: BackButtonProps) => {
   const router = useRouter();
   const handleGoBack = () => {
-    router.back();
+    if (customHandleGoBack) {
+      customHandleGoBack();
+    } else {
+      router.back();
+    }
   };
 
   return (
     <Button
       onClick={handleGoBack}
-      className="bg-gray-50 text-default hover:bg-primary/20"
-      variant="outline"
+      // className="bg-gray-50 text-default hover:bg-gray-300"
+      variant="secondary"
     >
-      <MoveLeftIcon className="size-4" />
-      Back
+      <ArrowLeft className="h-4 w-4 mr-2" />
+      {text}
     </Button>
   );
 };

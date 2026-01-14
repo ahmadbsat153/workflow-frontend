@@ -109,6 +109,9 @@ export const format_pricing = (price: number) => {
 };
 
 export const formatDatesWithYear = (date: string) => {
+  if (!date) {
+    return "N/A";
+  }
   const parsedDate = parseISO(date);
   const formattedDate = format(parsedDate, "MMMM d, yyyy h:mm a");
 

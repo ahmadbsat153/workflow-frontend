@@ -12,9 +12,7 @@ const page = async ({ params }: PageProps) => {
 
   return (
     <ProtectedPage permission={PERMISSIONS.USERS.VIEW}>
-      <PageContainer>
-        <UserDetails />
-      </PageContainer>
+      <UserDetails userId={id} />
     </ProtectedPage>
   );
 };

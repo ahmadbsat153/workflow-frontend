@@ -154,7 +154,7 @@ const ProfilePage = () => {
     <FixedHeaderFooterLayout title="My Profile">
       <div className="container mx-auto px-4 py-8 max-w-4xl space-y-6">
         {/* Personal Information Card */}
-        <Card>
+        <Card >
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -385,17 +385,6 @@ const ProfilePage = () => {
                 }`}
               >
                 {profile.is_active ? "Active" : "Inactive"}
-              </span>
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Admin Access</span>
-              <span
-                className={`text-sm font-medium ${
-                  profile.is_super_admin ? "text-blue-600" : "text-gray-600"
-                }`}
-              >
-                {profile.is_super_admin ? "Yes" : "No"}
               </span>
             </div>
             <Separator />

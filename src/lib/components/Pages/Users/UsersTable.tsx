@@ -31,7 +31,6 @@ import UserFromADModal from "./UserFromADModal";
 import { URLs } from "@/lib/constants/urls";
 
 const UsersTable = () => {
-  const { hasPermission } = usePermissions();
 
   const searchParams = {
     page: parseAsInteger,
@@ -232,6 +231,7 @@ const UsersTable = () => {
       icon: UserRoundPlusIcon,
       permission: PERMISSIONS.ACTIVE_DIRECTORY.CREATE_USER,
       style: "",
+
       wrapper: ({ children }) => (
         <UserFromADModal
           title="Select a User from Active Directory"

@@ -64,7 +64,7 @@ export namespace API_POSITION {
 
   export async function updatePosition(id: string, data: any) {
     try {
-      const response = await _axios.patch(
+      const response = await _axios.put<SuccessResponse>(
         build_path(POSITION_ENDPOINTS.UPDATE, { id }),
         data
       );
