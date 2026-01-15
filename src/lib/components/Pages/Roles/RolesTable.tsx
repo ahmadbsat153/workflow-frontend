@@ -34,15 +34,15 @@ import {
   AlertDialogTitle,
 } from "@/lib/ui/alert-dialog";
 
-const RolesTable = () => {
-  const searchParams = {
-    page: parseAsInteger,
-    limit: parseAsInteger,
-    search: parseAsString,
-    sortField: parseAsString,
-    sortOrder: parseAsString,
-  };
+const searchParams = {
+  page: parseAsInteger,
+  limit: parseAsInteger,
+  search: parseAsString,
+  sortField: parseAsString,
+  sortOrder: parseAsString,
+};
 
+const RolesTable = () => {
   const [roles, setRoles] = useState<RoleTableType>({
     data: [],
     meta: INITIAL_META,
@@ -91,7 +91,7 @@ const RolesTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [searchParams, query]);
+  }, [query]);
 
   useEffect(() => {
     getRoles();

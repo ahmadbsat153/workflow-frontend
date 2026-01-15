@@ -13,11 +13,11 @@ const nextConfig: NextConfig = {
         pathname: "/uploads/**",
       },
       // Add production domain when ready
-      // {
-      //   protocol: "https",
-      //   hostname: "your-production-domain.com", //TODO: replace with actual domain after deployment
-      //   pathname: "/uploads/**",
-      // },
+      {
+        protocol: "https",
+        hostname: "workflow-api.gtls.store",
+        pathname: "/uploads/**",
+      },
     ],
   },
 };

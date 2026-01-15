@@ -26,17 +26,17 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { FORM_COLUMNS, FORM_VISIBLE_COL } from "@/lib/constants/tables";
 import Link from "next/link";
 
+const searchParams = {
+  page: parseAsInteger,
+  limit: parseAsInteger,
+  search: parseAsString,
+  sortField: parseAsString,
+  sortOrder: parseAsString,
+};
+
 const FormsTable = () => {
   const router = useRouter();
   const { isAdmin } = useAuth();
-
-  const searchParams = {
-    page: parseAsInteger,
-    limit: parseAsInteger,
-    search: parseAsString,
-    sortField: parseAsString,
-    sortOrder: parseAsString,
-  };
 
   const [forms, setForms] = useState<FormList>({
     data: [],
@@ -85,7 +85,7 @@ const FormsTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [searchParams, query]);
+  }, [query]);
 
   useEffect(() => {
     getForms();

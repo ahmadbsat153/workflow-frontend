@@ -32,16 +32,16 @@ import {
 import { DepartmentOption } from "@/lib/types/department/department";
 import { URLs } from "@/lib/constants/urls";
 
-const PositionsTable = () => {
-  const searchParams = {
-    page: parseAsInteger,
-    limit: parseAsInteger,
-    search: parseAsString,
-    sortField: parseAsString,
-    sortOrder: parseAsString,
-    departmentId: parseAsString,
-  };
+const searchParams = {
+  page: parseAsInteger,
+  limit: parseAsInteger,
+  search: parseAsString,
+  sortField: parseAsString,
+  sortOrder: parseAsString,
+  departmentId: parseAsString,
+};
 
+const PositionsTable = () => {
   const [positions, setPositions] = useState<PositionTable>({
     data: [],
     meta: INITIAL_META,
@@ -101,7 +101,7 @@ const PositionsTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [searchParams, query]);
+  }, [query]);
 
   useEffect(() => {
     getPositions();
