@@ -1,0 +1,32 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Next.js build output
+.next
+out
+build
+
+# Environment variables (handled by Dokploy)
+.env
+.env.local
+.env.production
+.env.development
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Git
+.git
+.gitignore
+
+# OS files
+.DS_Store
+thumbs.db
+
+# Docker
+Dockerfile
+.dockerignore
