@@ -173,6 +173,7 @@ function Sidebar({
 }) {
   const context = React.useContext(SidebarContext);
   const [nestedOpen, setNestedOpen] = React.useState(true);
+  const sidebarContext = useSidebar();
 
   if (isNested) {
     const width = nestedOpen ? "16rem" : "3rem";
@@ -223,7 +224,7 @@ function Sidebar({
     throw new Error("Sidebar must be used within a SidebarProvider.");
   }
 
-  const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+  const { isMobile, state, openMobile, setOpenMobile } = sidebarContext;
 
   if (collapsible === "none") {
     return (

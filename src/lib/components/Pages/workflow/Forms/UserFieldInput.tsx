@@ -121,7 +121,7 @@ export const UserFieldInput = ({
               Position in Any Department
             </SelectItem>
             <SelectItem value={UserSelectionMode.POSITION_IN_SUBMITTER_DEPT}>
-              Position in Submitter's Department
+              {`Position in Submitter's Department`}
             </SelectItem>
             <SelectItem value={UserSelectionMode.BRANCH}>
               All Users in Branch
@@ -242,7 +242,7 @@ export const UserFieldInput = ({
                   ) : (
                     positions.map((pos) => (
                       <SelectItem key={pos._id} value={pos._id}>
-                        {pos.name} 
+                        {pos.name}
                       </SelectItem>
                     ))
                   )}
@@ -307,7 +307,7 @@ export const UserFieldInput = ({
                 ) : (
                   positions.map((pos) => (
                     <SelectItem key={pos._id} value={pos._id}>
-                      {pos.name} 
+                      {pos.name}
                     </SelectItem>
                   ))
                 )}
@@ -348,7 +348,7 @@ export const UserFieldInput = ({
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              Users with this position in the form submitter's department
+              {` Users with this position in the form submitter's department`}
             </p>
           </div>
         )}

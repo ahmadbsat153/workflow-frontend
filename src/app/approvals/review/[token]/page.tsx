@@ -43,17 +43,13 @@ export default function ApprovalReviewPage() {
     null
   );
 
-  useEffect(() => {
-    verifyToken();
-  }, [token]);
-
   const verifyToken = async () => {
     try {
       setState("loading");
       const response = await API_APPROVAL.verifyToken(token);
       setData(response.data);
       setState("loaded");
-    } catch (err: any) {
+    } catch (err: unknown) {
       handleServerError(err as ErrorResponse, (err_msg) => {
         setError(err_msg as string);
         toast.error(err_msg);
@@ -61,6 +57,10 @@ export default function ApprovalReviewPage() {
       setState("error");
     }
   };
+
+  useEffect(() => {
+    verifyToken();
+  }, [verifyToken, token]);
 
   const handleApprove = async () => {
     try {
@@ -76,7 +76,7 @@ export default function ApprovalReviewPage() {
       setTimeout(() => {
         router.push(URLs.admin.approvals.success);
       }, 3000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       handleServerError(err as ErrorResponse, (err_msg) => {
         toast.error(err_msg);
       });
@@ -103,7 +103,7 @@ export default function ApprovalReviewPage() {
       setTimeout(() => {
         router.push(URLs.admin.approvals.success);
       }, 3000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       handleServerError(err as ErrorResponse, (err_msg) => {
         toast.error(err_msg);
       });
@@ -195,7 +195,7 @@ export default function ApprovalReviewPage() {
 
   if (!data) return null;
 
-  const { submission, approvalStage, approver } = data;
+  const { submission, approvalStage } = data;
 
   return (
     <div className="min-h-screen w-full bg-gray-50 py-8 px-4">

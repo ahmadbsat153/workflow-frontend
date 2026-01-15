@@ -1,13 +1,5 @@
 "use client";
 
-import { z } from "zod";
-import { toast } from "sonner";
-import { useForm } from "react-hook-form";
-import { useEffect, useState, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Button } from "@/lib/ui/button";
-import { Input } from "@/lib/ui/input";
-import { Switch } from "@/lib/ui/switch";
 import {
   Form,
   FormControl,
@@ -31,25 +23,38 @@ import {
   CardHeader,
   CardTitle,
 } from "@/lib/ui/card";
+
+import { z } from "zod";
+import { toast } from "sonner";
+import { Input } from "@/lib/ui/input";
+import { Loader2 } from "lucide-react";
+import { Button } from "@/lib/ui/button";
+import { Switch } from "@/lib/ui/switch";
+import { useForm } from "react-hook-form";
+import { URLs } from "@/lib/constants/urls";
+import type { Role } from "@/lib/types/role/role";
+import { ErrorResponse, SuccessResponse } from "@/lib/types/common";
+import type { ADUser } from "@/lib/types/user/user";
+import { handleServerError } from "@/lib/api/_axios";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { API_AUTH } from "@/lib/services/auth_service";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import { API_USER } from "@/lib/services/User/user_service";
 import { API_ROLE } from "@/lib/services/Role/role_service";
-import { API_DEPARTMENT } from "@/lib/services/Department/department_service";
-import { API_POSITION } from "@/lib/services/Position/position_service";
-import { API_BRANCH } from "@/lib/services/Branch/branch_service";
-import { API_AUTH } from "@/lib/services/auth_service";
-import type { Role } from "@/lib/types/role/role";
-import type { DepartmentOption } from "@/lib/types/department/department";
-import type { PositionOption } from "@/lib/types/position/position";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { BranchOption } from "@/lib/types/branch/branch";
-import { Loader2, MoveLeftIcon } from "lucide-react";
-import { handleServerError } from "@/lib/api/_axios";
-import { ErrorResponse } from "@/lib/types/common";
-import type { ADUser } from "@/lib/types/user/user";
-import { URLs } from "@/lib/constants/urls";
+import { API_BRANCH } from "@/lib/services/Branch/branch_service";
+import type { PositionOption } from "@/lib/types/position/position";
+import { API_POSITION } from "@/lib/services/Position/position_service";
+import type { DepartmentOption } from "@/lib/types/department/department";
+import FixedHeaderFooterLayout from "../../Layout/FixedHeaderFooterLayout";
+import { API_DEPARTMENT } from "@/lib/services/Department/department_service";
+import DotsLoader from "../../Loader/DotsLoader";
 
 type UserFormProps = {
   userId?: string;
+  title: string;
+  description: string;
 };
 
 const userSchema = z
@@ -85,7 +90,7 @@ const userSchema = z
     }
   );
 
-const UserForm = ({ userId }: UserFormProps) => {
+const UserForm = ({ userId, title, description }: UserFormProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
@@ -207,7 +212,10 @@ const UserForm = ({ userId }: UserFormProps) => {
           // First fetch dropdown data to get positions
           await fetchDropdownData();
         } catch (error) {
-          toast.error("Failed to load AD user data");
+          const err_result = error as ErrorResponse;
+          handleServerError(err_result, (err_msg) => {
+            toast.error(err_msg || "Failed to load AD user data");
+          });
         }
       } else if (userId) {
         await fetchDropdownData();
@@ -280,7 +288,7 @@ const UserForm = ({ userId }: UserFormProps) => {
       if (isEditing && !submitData.password) {
         delete submitData.password;
       }
-     if (
+      if (
         isFromAD &&
         shouldCreatePosition &&
         adJobTitle &&
@@ -311,7 +319,9 @@ const UserForm = ({ userId }: UserFormProps) => {
             typeof createResponse === "object" &&
             "data" in createResponse
           ) {
-            const responseData = createResponse as any;
+            const responseData = createResponse as SuccessResponse & {
+              data: { _id: string };
+            };
             if (responseData.data && responseData.data._id) {
               // Use the ID directly from the response
               submitData.positionId = responseData.data._id;
@@ -394,403 +404,419 @@ const UserForm = ({ userId }: UserFormProps) => {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
-      <div className="flex items-center justify-between">
-        <Button
-          onClick={handleGoBack}
-          className="bg-gray-50 text-default hover:bg-primary/20"
-          variant="outline"
-        >
-          <MoveLeftIcon className="size-4" />
-          Back
-        </Button>
-        {isFromAD && (
-          <div className="text-sm text-muted-foreground bg-blue-50 px-3 py-1 rounded-md border border-blue-200">
-            Data loaded from Active Directory
-          </div>
-        )}
-      </div>
+    <FixedHeaderFooterLayout
+      title={title}
+      description={description}
+      footer={
+        <div className="flex justify-end gap-3 w-full">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleGoBack}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
 
-      <Form {...form}>
-        <form
-          onSubmit={(e) => {
-            form.handleSubmit(onSubmit)(e);
-          }}
-          className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
-              <CardDescription>
-                {isFromAD
-                  ? "Review and complete user details from Active Directory"
-                  : "Basic user details and contact information"}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="firstname"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>First Name *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter first name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="lastname"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Last Name *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter last name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email *</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="user@example.com"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
-                      <FormControl>
-                        <Input placeholder="+1234567890" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {!isEditing && (
-                <>
+          <Button type="submit" form="user-form" disabled={loading}>
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isEditing ? "Update User" : "Create User"}
+          </Button>
+        </div>
+      }
+      maxWidth="3xl"
+      maxHeight="90vh"
+    >
+      <div className="space-y-6 max-w-4xl">
+        <Form {...form}>
+          <form
+            id="user-form"
+            onSubmit={(e) => {
+              form.handleSubmit(onSubmit)(e);
+            }}
+            className="space-y-6"
+          >
+            <Card>
+              <CardHeader>
+                <CardTitle>Personal Information</CardTitle>
+                <CardDescription>
+                  {isFromAD
+                    ? "Review and complete user details from Active Directory"
+                    : "Basic user details and contact information"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
-                    name="sendInvitation"
+                    name="firstname"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 bg-blue-50 border-blue-200">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base">
-                            Send Invitation Email
-                          </FormLabel>
-                          <FormDescription className="text-xs">
-                            {field.value
-                              ? "User will receive an email to set their own password"
-                              : "You must set a password for this user"}
-                          </FormDescription>
-                        </div>
+                      <FormItem>
+                        <FormLabel>First Name *</FormLabel>
                         <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
+                          <Input placeholder="Enter first name" {...field} />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
 
                   <FormField
                     control={form.control}
-                    name="password"
-                    render={({ field }) => {
-                      const sendInvitation = form.watch("sendInvitation");
-                      return (
-                        <FormItem>
-                          <FormLabel>
-                            Password {!sendInvitation && "*"}
-                          </FormLabel>
+                    name="lastname"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Last Name *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter last name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email *</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="email"
+                            placeholder="user@example.com"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone Number</FormLabel>
+                        <FormControl>
+                          <Input placeholder="+1234567890" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {!isEditing && (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="sendInvitation"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 bg-blue-50 border-blue-200">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">
+                              Send Invitation Email
+                            </FormLabel>
+                            <FormDescription className="text-xs">
+                              {field.value
+                                ? "User will receive an email to set their own password"
+                                : "You must set a password for this user"}
+                            </FormDescription>
+                          </div>
                           <FormControl>
-                            <Input
-                              type="password"
-                              placeholder={
-                                sendInvitation
-                                  ? "Not required - user will set their own"
-                                  : "Enter password"
-                              }
-                              disabled={sendInvitation}
-                              {...field}
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
                             />
                           </FormControl>
-                          {sendInvitation ? (
-                            <FormDescription className="text-green-600">
-                              Password not required. User will set their
-                              password via invitation email.
-                            </FormDescription>
-                          ) : (
-                            <FormDescription>
-                              Minimum 6 characters required
-                            </FormDescription>
-                          )}
-                          <FormMessage />
                         </FormItem>
-                      );
-                    }}
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => {
+                        const sendInvitation = form.watch("sendInvitation");
+                        return (
+                          <FormItem>
+                            <FormLabel>
+                              Password {!sendInvitation && "*"}
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                type="password"
+                                placeholder={
+                                  sendInvitation
+                                    ? "Not required - user will set their own"
+                                    : "Enter password"
+                                }
+                                disabled={sendInvitation}
+                                {...field}
+                              />
+                            </FormControl>
+                            {sendInvitation ? (
+                              <FormDescription className="text-green-600">
+                                Password not required. User will set their
+                                password via invitation email.
+                              </FormDescription>
+                            ) : (
+                              <FormDescription>
+                                Minimum 6 characters required
+                              </FormDescription>
+                            )}
+                            <FormMessage />
+                          </FormItem>
+                        );
+                      }}
+                    />
+                  </>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Role & Organization</CardTitle>
+                <CardDescription>
+                  Assign role and organizational details
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="role"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Role *</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value || undefined}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a role" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {roles.map((role) => (
+                              <SelectItem key={role._id} value={role._id}>
+                                {role.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </>
-              )}
-            </CardContent>
-          </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Role & Organization</CardTitle>
-              <CardDescription>
-                Assign role and organizational details
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="departmentId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Department *</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value || undefined}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a department" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {departments.map((dept) => (
+                              <SelectItem key={dept._id} value={dept._id}>
+                                {dept.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="positionId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Position{" "}
+                          {isFromAD && adJobTitle && (
+                            <span className="text-xs text-muted-foreground ml-2">
+                              (AD: {adJobTitle})
+                            </span>
+                          )}
+                        </FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value || undefined}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue
+                                placeholder={
+                                  isFromAD && adJobTitle
+                                    ? `Select position for: ${adJobTitle}`
+                                    : "Select a position"
+                                }
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {positions.map((pos) => (
+                              <SelectItem key={pos._id} value={pos._id}>
+                                {pos.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="branchId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Branch *</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value || undefined}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a branch" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {branches.map((branch) => (
+                              <SelectItem key={branch._id} value={branch._id}>
+                                {branch.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Account Settings</CardTitle>
+                <CardDescription>
+                  Configure user account status and permissions
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
                 <FormField
                   control={form.control}
-                  name="role"
+                  name="is_super_admin"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Role *</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value || undefined}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a role" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {roles.map((role) => (
-                            <SelectItem key={role._id} value={role._id}>
-                              {role.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Super Admin</FormLabel>
+                        <FormDescription>
+                          Grant super admin privileges to this user
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
                     </FormItem>
                   )}
                 />
 
                 <FormField
                   control={form.control}
-                  name="departmentId"
+                  name="is_active"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Department *</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value || undefined}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a department" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {departments.map((dept) => (
-                            <SelectItem key={dept._id} value={dept._id}>
-                              {dept.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="positionId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Position{" "}
-                        {isFromAD && adJobTitle && (
-                          <span className="text-xs text-muted-foreground ml-2">
-                            (AD: {adJobTitle})
-                          </span>
-                        )}
-                      </FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value || undefined}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue
-                              placeholder={
-                                isFromAD && adJobTitle
-                                  ? `Select position for: ${adJobTitle}`
-                                  : "Select a position"
-                              }
-                            />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {positions.map((pos) => (
-                            <SelectItem key={pos._id} value={pos._id}>
-                              {pos.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">
+                          Active Status
+                        </FormLabel>
+                        <FormDescription>
+                          Turn this user active or inactive
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
                     </FormItem>
                   )}
                 />
 
                 <FormField
                   control={form.control}
-                  name="branchId"
+                  name="is_archived"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Branch *</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value || undefined}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a branch" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {branches.map((branch) => (
-                            <SelectItem key={branch._id} value={branch._id}>
-                              {branch.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Archived</FormLabel>
+                        <FormDescription>
+                          Archive this user account
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
                     </FormItem>
                   )}
                 />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Account Settings</CardTitle>
-              <CardDescription>
-                Configure user account status and permissions
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <FormField
-                control={form.control}
-                name="is_super_admin"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Super Admin</FormLabel>
-                      <FormDescription>
-                        Grant super admin privileges to this user
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="is_active"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Active Status</FormLabel>
-                      <FormDescription>
-                        Turn this user active or inactive
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="is_archived"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Archived</FormLabel>
-                      <FormDescription>
-                        Archive this user account
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          <div className="flex justify-end gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleGoBack}
-              disabled={loading}
-            >
-              Cancel
-            </Button>
-
-            <Button type="submit" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isEditing ? "Update User" : "Create User"}
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
+              </CardContent>
+            </Card>
+          </form>
+        </Form>
+      </div>
+    </FixedHeaderFooterLayout>
   );
 };
 
-export default UserForm;
+export default function CreateUserPage({
+  userId,
+  title,
+  description,
+}: UserFormProps) {
+  return (
+    <Suspense
+      fallback={
+        <div className="h-screen w-full flex items-center justify-center">
+          <DotsLoader />
+        </div>
+      }
+    >
+      <UserForm
+        userId={userId}
+        title={title}
+        description={description}
+      />
+    </Suspense>
+  );
+}

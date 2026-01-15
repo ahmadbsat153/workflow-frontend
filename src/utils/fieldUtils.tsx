@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import {
   Select,
   SelectContent,
@@ -11,7 +12,7 @@ import {
 import { Input } from "@/lib/ui/input";
 import { Textarea } from "@/lib/ui/textarea";
 import { Field, FieldsType } from "@/lib/types/form/fields";
-import { Control, Controller, FieldError } from "react-hook-form";
+import { Control, Controller, FieldError, FieldValues } from "react-hook-form";
 import {
   Calendar,
   CheckCircle,
@@ -19,15 +20,16 @@ import {
   SquareCheckBigIcon,
   ToggleRightIcon,
   XCircle,
-  UploadIcon,
   FileIcon,
 } from "lucide-react";
-import { formatDates, formatDatesWithYear } from "./common";
+import { formatDatesWithYear } from "./common";
 import { Badge } from "@/lib/ui/badge";
 import { isDisplayElement, isInputField } from "@/lib/constants/formFields";
 import { Switch } from "@/lib/ui/switch";
 import { Label } from "@/lib/ui/label";
 import { useAuth } from "@/lib/context/AuthContext";
+import EditableTableField from "@/lib/components/Forms/EditableTableField";
+import { EditableTableConfig } from "@/lib/types/form/editableTable";
 
 export const renderFieldPreview = (field: Field) => {
   //TODO: Fix background color issue in display elements
@@ -101,7 +103,7 @@ export const renderFieldPreview = (field: Field) => {
               style={{
                 fontSize: field.style?.fontSize || "1rem",
                 color: field.style?.color || "#6b7280",
-                textAlign: (field.style?.alignment as any) || "left",
+                textAlign: (field.style?.alignment as React.CSSProperties["textAlign"]) || "left",
                 margin: field.style?.margin || "0",
               }}
             >
@@ -132,16 +134,19 @@ export const renderFieldPreview = (field: Field) => {
         return (
           <div
             className="px-4 py-2"
-            style={{ textAlign: (field.style?.alignment as any) || "center" }}
+            style={{ textAlign: (field.style?.alignment as React.CSSProperties["textAlign"]) || "center" }}
           >
-            <img
+            <Image
               src={field.content?.imageUrl || "https://placehold.co/600x400"}
               alt={field.content?.imageAlt || ""}
+              width={600}
+              height={400}
               style={{
                 maxWidth: "100%",
                 height: "auto",
                 display: "inline-block",
               }}
+              unoptimized
             />
           </div>
         );
@@ -209,14 +214,29 @@ export const renderFieldPreview = (field: Field) => {
   }
 };
 
+// Type for organizational data items
+interface OrganizationalItem {
+  _id: string;
+  name: string;
+  code: string;
+}
+
+// Props interface for FormFieldSubmission component
+interface FormFieldSubmissionProps {
+  field: Field;
+  control: Control<FieldValues>;
+  error?: FieldError;
+}
+
 // Renders a form field for submission based on its type
 // Used in form submission forms
-export const renderFormFieldSubmission = (
-  field: Field,
-  control: Control<any>,
-  error?: FieldError
-) => {
+export const FormFieldSubmission: React.FC<FormFieldSubmissionProps> = ({
+  field,
+  control,
+  error,
+}) => {
   const { user } = useAuth();
+
   if (isDisplayElement(field.type)) {
     return renderFieldPreview(field);
   }
@@ -484,13 +504,7 @@ export const renderFormFieldSubmission = (
         <Controller
           name={field.name}
           control={control}
-          // defaultValue={
-          //   field.defaultValue === "true" ||
-          //   field.defaultValue === true ||
-          //   false
-          // }
-          // rules={{ required: field.required }}
-          render={({ field: formField, fieldState: { error } }) => (
+          render={({ field: formField, fieldState: { error: switchError } }) => (
             <div className="space-y-2">
               <div className="flex flex-row items-center justify-between rounded-lg border p-4">
                 <Label
@@ -511,9 +525,9 @@ export const renderFormFieldSubmission = (
               {field.placeholder && (
                 <p className="text-sm text-gray-500">{field.placeholder}</p>
               )}
-              {error && (
+              {switchError && (
                 <p className="text-red-500 text-sm">
-                  {error.message as string}
+                  {switchError.message as string}
                 </p>
               )}
             </div>
@@ -525,163 +539,11 @@ export const renderFormFieldSubmission = (
     case FieldsType.POSITION:
     case FieldsType.BRANCH:
       return (
-        <Controller
-          name={field.name}
+        <OrganizationalFieldController
+          field={field}
           control={control}
-          render={({ field: formField }) => {
-            const [options, setOptions] = React.useState<
-              Array<{ value: string; label: string }>
-            >([]);
-            const [loading, setLoading] = React.useState(true);
-            const [currentUser, setCurrentUser] = React.useState<any>(null);
-            const [userHasValue, setUserHasValue] = React.useState(false);
-
-            // Load current user for autofill check
-            React.useEffect(() => {
-              const loadUser = () => {
-                try {
-                  if (user) {
-                    setCurrentUser(user);
-                    const submittingUser = user.user;
-                    // Check if user has this organizational field
-                    if (
-                      field.type === FieldsType.DEPARTMENT &&
-                      submittingUser.departmentId
-                    ) {
-                      setUserHasValue(true);
-                    } else if (
-                      field.type === FieldsType.POSITION &&
-                      submittingUser.positionId
-                    ) {
-                      setUserHasValue(true);
-                    } else if (
-                      field.type === FieldsType.BRANCH &&
-                      submittingUser.branchId
-                    ) {
-                      setUserHasValue(true);
-                    }
-                  }
-                } catch (error) {
-                  console.error("Error loading user:", error);
-                }
-              };
-              loadUser();
-            }, [field.type]);
-
-            React.useEffect(() => {
-              const loadOptions = async () => {
-                try {
-                  setLoading(true);
-                  let data: any[] = [];
-
-                  if (field.type === FieldsType.DEPARTMENT) {
-                    const { API_DEPARTMENT } = await import(
-                      "@/lib/services/Department/department_service"
-                    );
-                    const response =
-                      await API_DEPARTMENT.getActiveDepartments();
-                    data = response.data;
-                  } else if (field.type === FieldsType.POSITION) {
-                    const { API_POSITION } = await import(
-                      "@/lib/services/Position/position_service"
-                    );
-                    const response = await API_POSITION.getActivePositions();
-                    data = response.data;
-                  } else if (field.type === FieldsType.BRANCH) {
-                    const { API_BRANCH } = await import(
-                      "@/lib/services/Branch/branch_service"
-                    );
-                    const response = await API_BRANCH.getActiveBranches();
-                    data = response.data;
-                  }
-
-                  const mappedOptions = data.map((item: any) => ({
-                    value: item._id,
-                    label: `${item.name} (${item.code})`,
-                  }));
-
-                  setOptions(mappedOptions);
-                } catch (error) {
-                  console.error(`Error loading ${field.type} options:`, error);
-                } finally {
-                  setLoading(false);
-                }
-              };
-
-              loadOptions();
-            }, [field.type]);
-
-            // If autofill is enabled and user has value, hide the field (backend will handle it)
-            if (field.autofill && userHasValue) {
-              return (
-                <div className="w-full p-3 bg-blue-50 border border-blue-200 rounded-md">
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-blue-500 text-white text-xs">
-                      Auto-filled
-                    </Badge>
-                    <span className="text-sm text-gray-700">
-                      {field.label} will be automatically filled from your
-                      profile
-                    </span>
-                  </div>
-                </div>
-              );
-            }
-
-            // If autofill is enabled but user doesn't have value, show field as required
-            const isRequired =
-              field.autofill && !userHasValue ? true : field.required;
-            const helperText =
-              field.autofill && !userHasValue
-                ? `Please select your ${field.label?.toLowerCase()} (not set in your profile)`
-                : null;
-
-            return (
-              <div className="w-full">
-                <label className="text-sm font-medium mb-2 block">
-                  {field.label}
-                  {isRequired && <span className="text-red-500 ml-1">*</span>}
-                </label>
-                {helperText && (
-                  <p className="text-sm text-amber-600 mb-2">{helperText}</p>
-                )}
-                <Select
-                  onValueChange={formField.onChange}
-                  value={formField.value || ""}
-                  disabled={loading}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue
-                      placeholder={
-                        loading
-                          ? "Loading..."
-                          : field.placeholder || `Select ${field.label}...`
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {options.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                      {!loading && options.length === 0 && (
-                        <div className="px-2 py-1.5 text-sm text-gray-500">
-                          No {field.label?.toLowerCase()}s available
-                        </div>
-                      )}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                {error && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {error.message as string}
-                  </p>
-                )}
-              </div>
-            );
-          }}
+          error={error}
+          user={user}
         />
       );
     case FieldsType.FILE:
@@ -739,14 +601,265 @@ export const renderFormFieldSubmission = (
           )}
         />
       );
+
+    case FieldsType.TABLE:
+      return (
+        <Controller
+          name={field.name}
+          control={control}
+          render={({ field: formField }) => {
+            if (!field.tableConfig) {
+              return (
+                <div className="p-4 border border-red-300 bg-red-50 rounded text-red-700">
+                  <p className="font-semibold">Table Not Configured</p>
+                  <p className="text-sm">
+                    Please configure the table in the form builder.
+                  </p>
+                </div>
+              );
+            }
+
+            return (
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  {field.label}
+                  {field.required && <span className="text-red-500 ml-1">*</span>}
+                </label>
+                <EditableTableField
+                  config={field.tableConfig}
+                  value={formField.value}
+                  onChange={formField.onChange}
+                  disabled={false}
+                />
+                {error && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {error.message as string}
+                  </p>
+                )}
+              </div>
+            );
+          }}
+        />
+      );
+
     default:
       return null;
   }
 };
 
+// Separate component for organizational fields to properly use hooks
+interface OrganizationalFieldControllerProps {
+  field: Field;
+  control: Control<FieldValues>;
+  error?: FieldError;
+  user: ReturnType<typeof useAuth>["user"];
+}
+
+const OrganizationalFieldController: React.FC<OrganizationalFieldControllerProps> = ({
+  field,
+  control,
+  error,
+  user,
+}) => {
+  const [options, setOptions] = React.useState<
+    Array<{ value: string; label: string }>
+  >([]);
+  const [loading, setLoading] = React.useState(true);
+  const [userHasValue, setUserHasValue] = React.useState(false);
+
+  const fieldType = field.type;
+
+  // Load current user for autofill check
+  React.useEffect(() => {
+    if (user) {
+      const submittingUser = user.user;
+      // Check if user has this organizational field
+      if (fieldType === FieldsType.DEPARTMENT && submittingUser.departmentId) {
+        setUserHasValue(true);
+      } else if (fieldType === FieldsType.POSITION && submittingUser.positionId) {
+        setUserHasValue(true);
+      } else if (fieldType === FieldsType.BRANCH && submittingUser.branchId) {
+        setUserHasValue(true);
+      }
+    }
+  }, [user, fieldType]);
+
+  React.useEffect(() => {
+    const loadOptions = async () => {
+      try {
+        setLoading(true);
+        let data: OrganizationalItem[] = [];
+
+        if (fieldType === FieldsType.DEPARTMENT) {
+          const { API_DEPARTMENT } = await import(
+            "@/lib/services/Department/department_service"
+          );
+          const response = await API_DEPARTMENT.getActiveDepartments();
+          data = response.data;
+        } else if (fieldType === FieldsType.POSITION) {
+          const { API_POSITION } = await import(
+            "@/lib/services/Position/position_service"
+          );
+          const response = await API_POSITION.getActivePositions();
+          data = response.data;
+        } else if (fieldType === FieldsType.BRANCH) {
+          const { API_BRANCH } = await import(
+            "@/lib/services/Branch/branch_service"
+          );
+          const response = await API_BRANCH.getActiveBranches();
+          data = response.data;
+        }
+
+        const mappedOptions = data.map((item) => ({
+          value: item._id,
+          label: `${item.name} (${item.code})`,
+        }));
+
+        setOptions(mappedOptions);
+      } catch (err) {
+        console.error(`Error loading ${fieldType} options:`, err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadOptions();
+  }, [fieldType]);
+
+  // If autofill is enabled and user has value, hide the field (backend will handle it)
+  if (field.autofill && userHasValue) {
+    return (
+      <div className="w-full p-3 bg-blue-50 border border-blue-200 rounded-md">
+        <div className="flex items-center gap-2">
+          <Badge className="bg-blue-500 text-white text-xs">Auto-filled</Badge>
+          <span className="text-sm text-gray-700">
+            {field.label} will be automatically filled from your profile
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // If autofill is enabled but user doesn't have value, show field as required
+  const isRequired = field.autofill && !userHasValue ? true : field.required;
+  const helperText =
+    field.autofill && !userHasValue
+      ? `Please select your ${field.label?.toLowerCase()} (not set in your profile)`
+      : null;
+
+  return (
+    <Controller
+      name={field.name}
+      control={control}
+      render={({ field: formField }) => (
+        <div className="w-full">
+          <label className="text-sm font-medium mb-2 block">
+            {field.label}
+            {isRequired && <span className="text-red-500 ml-1">*</span>}
+          </label>
+          {helperText && (
+            <p className="text-sm text-amber-600 mb-2">{helperText}</p>
+          )}
+          <Select
+            onValueChange={formField.onChange}
+            value={formField.value || ""}
+            disabled={loading}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue
+                placeholder={
+                  loading
+                    ? "Loading..."
+                    : field.placeholder || `Select ${field.label}...`
+                }
+              />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {options.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+                {!loading && options.length === 0 && (
+                  <div className="px-2 py-1.5 text-sm text-gray-500">
+                    No {field.label?.toLowerCase()}s available
+                  </div>
+                )}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          {error && (
+            <p className="text-red-500 text-sm mt-1">
+              {error.message as string}
+            </p>
+          )}
+        </div>
+      )}
+    />
+  );
+};
+
+// Legacy function wrapper for backwards compatibility
+export const renderFormFieldSubmission = (
+  field: Field,
+  control: Control<FieldValues>,
+  error?: FieldError
+) => {
+  return <FormFieldSubmission field={field} control={control} error={error} />;
+};
+
+// Type for submitted field values
+export type SubmittedFieldValue =
+  | string
+  | number
+  | boolean
+  | string[]
+  | { name: string; code: string }
+  | File
+  | File[]
+  | Record<string, unknown>[]
+  | EditableTableConfig
+  | null
+  | undefined;
+
+// Type guard for organizational field values (department, position, branch)
+function isOrgFieldValue(val: unknown): val is { name: string; code: string } {
+  return (
+    typeof val === "object" &&
+    val !== null &&
+    "name" in val &&
+    "code" in val &&
+    typeof (val as { name: string }).name === "string" &&
+    typeof (val as { code: string }).code === "string"
+  );
+}
+
+// Type guard for EditableTableConfig
+function isEditableTableConfig(val: unknown): val is EditableTableConfig {
+  return (
+    typeof val === "object" &&
+    val !== null &&
+    "columns" in val &&
+    "rows" in val &&
+    Array.isArray((val as EditableTableConfig).columns) &&
+    Array.isArray((val as EditableTableConfig).rows)
+  );
+}
+
+// Helper to convert value to string for display
+function valueToString(val: SubmittedFieldValue): string {
+  if (val === null || val === undefined) return "";
+  if (typeof val === "string") return val;
+  if (typeof val === "number" || typeof val === "boolean") return String(val);
+  if (Array.isArray(val)) return val.map(v => String(v)).join(", ");
+  if (isOrgFieldValue(val)) return `${val.name} (${val.code})`;
+  return String(val);
+}
+
 // Renders the submitted value of a field based on its type
 // Used in form submission review or detail views
-export const renderSubmittedFieldValue = (field: Field, value: any) => {
+export const renderSubmittedFieldValue = (field: Field, value: SubmittedFieldValue) => {
   if (isInputField(field.type)) {
     if (value === undefined || value === null || value === "") {
       return (
@@ -765,15 +878,15 @@ export const renderSubmittedFieldValue = (field: Field, value: any) => {
     case FieldsType.TEXT:
       return (
         <div className="py-2  ">
-          <span className="text-secondary">{value}</span>
+          <span className="text-secondary">{valueToString(value)}</span>
         </div>
       );
 
     case FieldsType.EMAIL:
       return (
         <div className="py-2 flex items-center gap-2">
-          <a href={`mailto:${value}`} className=" hover:underline">
-            {value}
+          <a href={`mailto:${valueToString(value)}`} className=" hover:underline">
+            {valueToString(value)}
           </a>
         </div>
       );
@@ -781,7 +894,7 @@ export const renderSubmittedFieldValue = (field: Field, value: any) => {
     case FieldsType.NUMBER:
       return (
         <div className="py-2 ">
-          <span className="font-mono ">{value}</span>
+          <span className="font-mono ">{valueToString(value)}</span>
         </div>
       );
 
@@ -789,14 +902,14 @@ export const renderSubmittedFieldValue = (field: Field, value: any) => {
       return (
         <div className="py-2  flex items-center gap-2">
           <Calendar className="w-4 h-4 text-pumpkin" />
-          <span className="">{formatDatesWithYear(value)}</span>
+          <span className="">{formatDatesWithYear(typeof value === "string" ? value : String(value ?? ""))}</span>
         </div>
       );
 
     case FieldsType.TEXT_AREA:
       return (
         <div className="py-3">
-          <p className="whitespace-pre-wrap leading-relaxed">{value}</p>
+          <p className="whitespace-pre-wrap leading-relaxed">{valueToString(value)}</p>
         </div>
       );
 
@@ -818,7 +931,7 @@ export const renderSubmittedFieldValue = (field: Field, value: any) => {
             />
           </svg>
           <span className="text-secondary">
-            {selectedOption?.label || value}
+            {selectedOption?.label || valueToString(value)}
           </span>
         </div>
       );
@@ -830,7 +943,7 @@ export const renderSubmittedFieldValue = (field: Field, value: any) => {
       return (
         <div className="inline-flex items-center gap-2 py-2  ">
           <CircleCheckBigIcon className="w-4 h-4 text-pumpkin" />
-          <span className="">{selectedRadioOption?.label || value}</span>
+          <span className="">{selectedRadioOption?.label || valueToString(value)}</span>
         </div>
       );
 
@@ -839,15 +952,16 @@ export const renderSubmittedFieldValue = (field: Field, value: any) => {
       if (Array.isArray(value)) {
         return (
           <div className="flex flex-wrap gap-2">
-            {value.map((val) => {
+            {value.map((val, idx) => {
+              const valStr = typeof val === "string" ? val : String(val);
               const option = field.options?.find((opt) => opt.value === val);
               return (
                 <div
-                  key={val}
+                  key={valStr || idx}
                   className="inline-flex items-center gap-2 py-1.5 "
                 >
                   <SquareCheckBigIcon className="w-4 h-4 text-pumpkin" />
-                  <span className="">{option?.label || val}</span>
+                  <span className="">{option?.label || valStr}</span>
                 </div>
               );
             })}
@@ -889,7 +1003,7 @@ export const renderSubmittedFieldValue = (field: Field, value: any) => {
     case FieldsType.POSITION:
     case FieldsType.BRANCH:
       // Display organizational field value with icon
-      if (value && typeof value === "object") {
+      if (value && isOrgFieldValue(value)) {
         // If populated with full object
         return (
           <div className="py-2">
@@ -903,7 +1017,7 @@ export const renderSubmittedFieldValue = (field: Field, value: any) => {
         return (
           <div className="py-2">
             <Badge variant="outline" className="text-sm">
-              {value}
+              {valueToString(value)}
             </Badge>
           </div>
         );
@@ -913,14 +1027,29 @@ export const renderSubmittedFieldValue = (field: Field, value: any) => {
     case FieldsType.FILE:
       // Handle array of file URLs or file objects
       if (Array.isArray(value)) {
+        const BACKEND_HOST = process.env.NEXT_PUBLIC_BACKEND_HOST;
         return (
           <div className="flex flex-wrap gap-2">
             {value.map((file, index) => {
-              const fileName =
-                typeof file === "string" ? file.split("/").pop() : file.name;
-              const fileUrl =
-                typeof file === "string" ? file : URL.createObjectURL(file);
-              const BACKEND_HOST = process.env.NEXT_PUBLIC_BACKEND_HOST;
+              let fileName: string;
+              let fileUrl: string;
+
+              if (typeof file === "string") {
+                fileName = file.split("/").pop() || "file";
+                fileUrl = file;
+              } else if (file instanceof File) {
+                fileName = file.name;
+                fileUrl = URL.createObjectURL(file);
+              } else if (typeof file === "object" && file !== null) {
+                // Handle Record<string, unknown> type
+                const fileObj = file as Record<string, unknown>;
+                fileName = String(fileObj.name || "file");
+                fileUrl = String(fileObj.url || "");
+              } else {
+                fileName = "file";
+                fileUrl = "";
+              }
+
               return (
                 <div
                   key={index}
@@ -942,12 +1071,25 @@ export const renderSubmittedFieldValue = (field: Field, value: any) => {
         );
       }
       // Handle single file
-      if (value) {
-        const fileName =
-          typeof value === "string" ? value.split("/").pop() : value.name;
-        const fileUrl =
-          typeof value === "string" ? value : URL.createObjectURL(value);
-
+      if (typeof value === "string") {
+        const fileName = value.split("/").pop() || "file";
+        return (
+          <div className="inline-flex items-center gap-2 py-2 px-3 bg-gray-50 border border-gray-200 rounded-md">
+            <FileIcon className="w-4 h-4 text-pumpkin" />
+            <a
+              href={value}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm hover:underline"
+            >
+              {fileName}
+            </a>
+          </div>
+        );
+      }
+      if (value instanceof File) {
+        const fileName = value.name;
+        const fileUrl = URL.createObjectURL(value);
         return (
           <div className="inline-flex items-center gap-2 py-2 px-3 bg-gray-50 border border-gray-200 rounded-md">
             <FileIcon className="w-4 h-4 text-pumpkin" />
@@ -964,10 +1106,29 @@ export const renderSubmittedFieldValue = (field: Field, value: any) => {
       }
       return null;
 
+    case FieldsType.TABLE:
+      // Display submitted table data in a read-only view
+      if (!value || !field.tableConfig || !isEditableTableConfig(value)) {
+        return (
+          <div className="py-2 text-gray-400 italic">No data submitted</div>
+        );
+      }
+
+      return (
+        <div className="py-2">
+          <EditableTableField
+            config={value}
+            value={value}
+            onChange={() => {}}
+            disabled={true}
+          />
+        </div>
+      );
+
     default:
       return (
         <div className="py-2  bg-gray-50 rounded-md border border-gray-200">
-          <span className="text-gray-900">{value}</span>
+          <span className="text-gray-900">{valueToString(value)}</span>
         </div>
       );
   }

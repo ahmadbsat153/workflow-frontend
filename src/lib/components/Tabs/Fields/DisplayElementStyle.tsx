@@ -21,6 +21,7 @@ import { UseFormReturn } from "react-hook-form";
 
 type DisplayElementStyleProps = {
   field: Field;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: UseFormReturn<any>;
   loading: boolean;
 };
@@ -38,10 +39,9 @@ const DisplayElementStyle = ({
 
   const showBorder = field.type === FieldsType.SEPARATOR;
 
-  const showTypography = [
-    FieldsType.TITLE,
-    FieldsType.PARAGRAPH,
-  ].includes(field.type);
+  const showTypography = [FieldsType.TITLE, FieldsType.PARAGRAPH].includes(
+    field.type
+  );
 
   return (
     <div className="space-y-4">
@@ -298,9 +298,7 @@ const DisplayElementStyle = ({
                 disabled={loading}
               />
             </FormControl>
-            <FormDescription>
-              CSS margin (e.g., 20px 0, 1rem 0)
-            </FormDescription>
+            <FormDescription>CSS margin (e.g., 20px 0, 1rem 0)</FormDescription>
             <FormMessage />
           </FormItem>
         )}

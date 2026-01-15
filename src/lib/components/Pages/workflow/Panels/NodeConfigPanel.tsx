@@ -1,14 +1,5 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { X, Trash2 } from "lucide-react";
-import { Button } from "@/lib/ui/button";
-import { ScrollArea } from "@/lib/ui/scroll-area";
-import { Separator } from "@/lib/ui/separator";
-import { DynamicConfigForm } from "../Forms/DynamicConfigForm";
-import { BranchConfigForm } from "../Forms/BranchConfigForm";
-import * as Icons from "lucide-react";
-import { LucideIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,17 +11,26 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/lib/ui/alert-dialog";
-import { WorkflowNode } from "@/lib/types/workflow/workflow";
+
+import * as Icons from "lucide-react";
+import { X, Trash2 } from "lucide-react";
+import { Button } from "@/lib/ui/button";
+import { Separator } from "@/lib/ui/separator";
+import { ScrollArea } from "@/lib/ui/scroll-area";
+import React, { useState, useEffect } from "react";
 import { FieldTemplate } from "@/lib/types/form/form";
 import { API_FORM } from "@/lib/services/Form/form_service";
+import { BranchConfigForm } from "../Forms/BranchConfigForm";
+import { WorkflowNode, BranchData } from "@/lib/types/workflow/workflow";
+import { DynamicConfigForm, ConfigRecord } from "../Forms/DynamicConfigForm";
 
-interface NodeConfigPanelProps {
+type NodeConfigPanelProps = {
   node: WorkflowNode | null;
   onClose: () => void;
-  onUpdateConfig: (nodeId: string, config: Record<string, any>) => void;
+  onUpdateConfig: (nodeId: string, config: ConfigRecord) => void;
   onChangeAction: (nodeId: string) => void;
   onDeleteNode: (nodeId: string) => void;
-  onUpdateBranches?: (nodeId: string, branches: any[]) => void;
+  onUpdateBranches?: (nodeId: string, branches: BranchData[]) => void;
   formId?: string;
 }
 
@@ -68,11 +68,11 @@ export const NodeConfigPanel = ({
 
   if (!node) return null;
 
-  const handleConfigSubmit = (config: Record<string, any>) => {
+  const handleConfigSubmit = (config: ConfigRecord) => {
     onUpdateConfig(node.id, config);
   };
 
-  const handleBranchesChange = (branches: any[]) => {
+  const handleBranchesChange = (branches: BranchData[]) => {
     if (onUpdateBranches) {
       onUpdateBranches(node.id, branches);
     }
@@ -191,7 +191,7 @@ export const NodeConfigPanel = ({
                 key={node.id}
                 nodeId={node.id}
                 fields={node.data.action.configSchema.fields}
-                initialConfig={node.data.config}
+                initialConfig={node.data.config as ConfigRecord}
                 onSubmit={handleConfigSubmit}
                 availableTemplates={availableTemplates}
               />

@@ -106,7 +106,7 @@ const SubmissionsUserTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [query, form_slug]);
+  }, [searchParams, query, form_slug]);
 
   useEffect(() => {
     getSubmissionsByUser();
@@ -156,16 +156,22 @@ const SubmissionsUserTable = () => {
 
   const cellRenderers: Partial<Record<string, CellRenderer<FormSubmission>>> = {
     createdAt: (value) => {
-      return <span>{formatDatesWithYear(value)}</span>;
+      return <span>{formatDatesWithYear(value as string)}</span>;
     },
 
     "form.name": (value, row) => {
       return <div>{row.form?.name}</div>;
     },
-    submittedBy: (value) => <div>{value.email}</div>,
+    submittedBy: (_, row) => {
+      // We ignore 'value' because it's 'unknown'
+      // We use 'row' because we KNOW it is 'FormSubmission'
+      return <div>{row.submittedBy?.email}</div>;
+    },
     workflowStatus: (value, row) => {
       if (!row.workflowStatus) {
-        return <span className="text-muted-foreground text-sm">No workflow</span>;
+        return (
+          <span className="text-muted-foreground text-sm">No workflow</span>
+        );
       }
       return <WorkflowStatusBadge status={row.workflowStatus} />;
     },

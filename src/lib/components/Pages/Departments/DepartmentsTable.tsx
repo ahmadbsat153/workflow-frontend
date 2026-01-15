@@ -78,7 +78,7 @@ const DepartmentsTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [query]);
+  }, [query, searchParams]);
 
   useEffect(() => {
     getDepartments();
@@ -124,7 +124,7 @@ const DepartmentsTable = () => {
         }
         className="font-medium cursor-pointer hover:text-blue-600"
       >
-        {value}
+        {value as string}
       </span>
     ),
     parent: (value, row) => (
@@ -132,8 +132,8 @@ const DepartmentsTable = () => {
         {row.parent?.name || "-"}
       </span>
     ),
-    createdAt: (value) => <span>{formatDatesWithYear(value)}</span>,
-    updatedAt: (value) => <span>{formatDatesWithYear(value)}</span>,
+    createdAt: (value) => <span>{formatDatesWithYear(value as string)}</span>,
+    updatedAt: (value) => <span>{formatDatesWithYear(value as string)}</span>,
     isActive: (value) => (
       <Badge variant={value ? "active" : "destructive"}>
         {value ? "Active" : "Inactive"}

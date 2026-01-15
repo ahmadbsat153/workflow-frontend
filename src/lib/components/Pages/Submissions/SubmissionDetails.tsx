@@ -5,7 +5,7 @@ import { Button } from "@/lib/ui/button";
 import { useEffect, useState } from "react";
 import DotsLoader from "../../Loader/DotsLoader";
 import { ErrorResponse } from "@/lib/types/common";
-import SubmissionDisplay from "./SubmissionDisplay";
+import SubmissionDisplay, { SubmissionData } from "./SubmissionDisplay";
 import { handleServerError } from "@/lib/api/_axios";
 import { useParams, useRouter } from "next/navigation";
 import { FormSubmission } from "@/lib/types/form/form_submission";
@@ -35,10 +35,14 @@ const SubmissionDetails = () => {
 
   useEffect(() => {
     getSubmission();
-  }, []);
+  });
 
   if (loading) {
-    return <DotsLoader />;
+    return (
+      <div className="h-full w-full flex justify-center items-center ">
+        <DotsLoader />
+      </div>
+    );
   }
 
   if (!submission) {
@@ -49,7 +53,7 @@ const SubmissionDetails = () => {
             Submission Not Found
           </h1>
           <p className="text-gray-600 mb-4">
-            The submission you're looking for doesn't exist
+            {` The submission you're looking for doesn't exist`}
           </p>
           <Button onClick={() => router.back()}>Go Back</Button>
         </div>
@@ -57,16 +61,16 @@ const SubmissionDetails = () => {
     );
   }
   return (
-      <SubmissionDisplay
-        fields={submission.form.fields}
-        submissionData={submission.submissionData}
-        formName={submission.form.name}
-        formDescription={submission.form.description}
-        submittedBy={submission.submittedBy}
-        createdAt={submission.createdAt}
-        workflowStatus={submission.workflowStatus}
-        currentStage={submission.currentStage}
-      />
+    <SubmissionDisplay
+      fields={submission.form.fields}
+      submissionData={submission.submissionData as SubmissionData}
+      formName={submission.form.name}
+      formDescription={submission.form.description}
+      submittedBy={submission.submittedBy}
+      createdAt={submission.createdAt}
+      workflowStatus={submission.workflowStatus}
+      currentStage={submission.currentStage}
+    />
   );
 };
 

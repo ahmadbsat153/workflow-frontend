@@ -35,7 +35,13 @@ import { API_POSITION } from "@/lib/services/Position/position_service";
 import { API_DEPARTMENT } from "@/lib/services/Department/department_service";
 import { DepartmentOption } from "@/lib/types/department/department";
 import { URLs } from "@/lib/constants/urls";
+import FixedHeaderFooterLayout from "../../Layout/FixedHeaderFooterLayout";
 
+type PositionFormProps = {
+  isEdit?: boolean;
+  title: string;
+  description: string;
+};
 const positionSchema = z.object({
   name: z
     .string()
@@ -55,9 +61,13 @@ const positionSchema = z.object({
   isActive: z.boolean(),
 });
 
-type PositionFormValues = z.infer<typeof positionSchema>;
+export type PositionFormValues = z.infer<typeof positionSchema>;
 
-const PositionForm = ({ isEdit = false }: { isEdit?: boolean }) => {
+const PositionForm = ({
+  isEdit = false,
+  title,
+  description,
+}: PositionFormProps) => {
   const router = useRouter();
   const params = useParams();
   const [loading, setLoading] = useState(false);
@@ -152,147 +162,11 @@ const PositionForm = ({ isEdit = false }: { isEdit?: boolean }) => {
   }
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 max-w-2xl"
-      >
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Position Name</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="e.g., HR Manager"
-                  {...field}
-                  disabled={loading}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="code"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Position Code</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="e.g., MANAGER, DIRECTOR, CEO"
-                  {...field}
-                  disabled={loading}
-                  onChange={(e) => {
-                    field.onChange(e.target.value.toUpperCase());
-                  }}
-                />
-              </FormControl>
-              <FormDescription>
-                Uppercase letters, numbers, and underscores only
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="departmentId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Department</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                value={field.value ? field.value : undefined}
-                disabled={loading}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select department" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {departments.map((dept) => (
-                    <SelectItem key={dept._id} value={dept._id}>
-                      {dept.name} ({dept.code})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description (Optional)</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Brief description of the position"
-                  {...field}
-                  disabled={loading}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="level"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Hierarchy Level (Optional)</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="e.g., 10 for Director, 5 for Manager"
-                  {...field}
-                  disabled={loading}
-                  value={field.value || ""}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    field.onChange(value === "" ? 0 : Number(value));
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="isActive"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel>Active Status</FormLabel>
-                <FormDescription>
-                  Inactive positions are hidden from selection
-                </FormDescription>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                  disabled={loading}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-
-        <div className="flex gap-2 justify-end">
+    <FixedHeaderFooterLayout
+      title={title}
+      description={description}
+      footer={
+        <div className="flex gap-2 justify-end w-full">
           <Button
             type="button"
             variant="outline"
@@ -301,7 +175,7 @@ const PositionForm = ({ isEdit = false }: { isEdit?: boolean }) => {
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" form="position-form" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -314,8 +188,155 @@ const PositionForm = ({ isEdit = false }: { isEdit?: boolean }) => {
             )}
           </Button>
         </div>
-      </form>
-    </Form>
+      }
+      maxWidth="3xl"
+      maxHeight="90vh"
+    >
+      <div className="space-y-6 max-w-4xl">
+        <Form {...form}>
+          <form
+            id="position-form"
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-6 max-w-2xl"
+          >
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Position Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g., HR Manager"
+                      {...field}
+                      disabled={loading}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="code"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Position Code</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g., MANAGER, DIRECTOR, CEO"
+                      {...field}
+                      disabled={loading}
+                      onChange={(e) => {
+                        field.onChange(e.target.value.toUpperCase());
+                      }}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Uppercase letters, numbers, and underscores only
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="departmentId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Department</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value ? field.value : undefined}
+                    disabled={loading}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select department" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {departments.map((dept) => (
+                        <SelectItem key={dept._id} value={dept._id}>
+                          {dept.name} ({dept.code})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description (Optional)</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Brief description of the position"
+                      {...field}
+                      disabled={loading}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="level"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Hierarchy Level (Optional)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="e.g., 10 for Director, 5 for Manager"
+                      {...field}
+                      disabled={loading}
+                      value={field.value || ""}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        field.onChange(value === "" ? 0 : Number(value));
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="isActive"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel>Active Status</FormLabel>
+                    <FormDescription>
+                      Inactive positions are hidden from selection
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={loading}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </form>
+        </Form>
+      </div>
+    </FixedHeaderFooterLayout>
   );
 };
 

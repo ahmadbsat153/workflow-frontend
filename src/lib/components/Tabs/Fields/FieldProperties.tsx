@@ -15,6 +15,7 @@ import { UseFormReturn } from "react-hook-form";
 
 type Props = {
   field: Field;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: UseFormReturn<any>;
   loading: boolean | undefined;
 };
@@ -105,8 +106,8 @@ const FieldProperties = ({ form, field, loading }: Props) => {
                   Autofill from User Profile
                 </FormLabel>
                 <FormDescription>
-                  Automatically fill this field with the user's from their
-                  profile
+                  {`Automatically fill this field with the user's from their
+                  profile`}
                 </FormDescription>
               </div>
               <FormControl>

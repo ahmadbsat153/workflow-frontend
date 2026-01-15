@@ -9,13 +9,14 @@ import {
   FormMessage,
 } from "@/lib/ui/form";
 import { Input } from "@/lib/ui/input";
-import { UseFormReturn } from "react-hook-form";
-import { Field, FieldsType } from "@/lib/types/form/fields";
+import { Field } from "@/lib/types/form/fields";
 import { FileTypeMultiSelect } from "./FileTypeMultiSelect";
+import { UseFormReturn } from "react-hook-form";
 import { getValidationFieldsForType } from "@/utils/Form/ValidationFeildsConfig";
 
 type Props = {
   field: Field;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: UseFormReturn<any>;
   loading: boolean;
 };

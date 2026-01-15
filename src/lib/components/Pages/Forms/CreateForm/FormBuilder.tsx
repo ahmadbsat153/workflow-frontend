@@ -10,6 +10,9 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  pointerWithin,
+  rectIntersection,
+  CollisionDetection,
 } from "@dnd-kit/core";
 
 import FormInformation, {
@@ -98,6 +101,22 @@ const FormBuilder = () => {
     })
   );
 
+  // Custom collision detection - prioritize drop zone when dragging from sidebar
+  const customCollisionDetection: CollisionDetection = (args) => {
+    // When dragging a new field from sidebar
+    if (activeField) {
+      // First check if pointer is within any droppable
+      const pointerCollisions = pointerWithin(args);
+      if (pointerCollisions.length > 0) {
+        return pointerCollisions;
+      }
+      // Fallback to rectangle intersection
+      return rectIntersection(args);
+    }
+    // When reordering existing fields, use closest center
+    return closestCenter(args);
+  };
+
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
     const fieldType = active.data.current?.type as FieldsType;
@@ -130,9 +149,6 @@ const FormBuilder = () => {
           if (prevWidth < 100) {
             const remainingSpace = 100 - prevWidth;
             let calculatedWidth: FieldWidth = 100;
-
-            // TODO: fix 67 and 34 bug
-            // TODO:  Fix based on the Width from field type
             if (remainingSpace >= 66) calculatedWidth = 66;
             else if (remainingSpace >= 50) calculatedWidth = 50;
             else if (remainingSpace >= 33) calculatedWidth = 33;
@@ -158,8 +174,6 @@ const FormBuilder = () => {
           const remainingSpace = 100 - lastWidth;
           let calculatedWidth: FieldWidth = 100;
 
-          // TODO: fix 67 and 34 bug
-          // TODO:  Fix based on the Width from field type
           if (remainingSpace >= 66) calculatedWidth = 66;
           else if (remainingSpace >= 50) calculatedWidth = 50;
           else if (remainingSpace >= 33) calculatedWidth = 33;
@@ -200,8 +214,6 @@ const FormBuilder = () => {
             const prevField = droppedFields[insertIndex - 1];
             const prevWidth = (prevField.style?.width as FieldWidth) ?? 100;
 
-            // TODO: fix 67 and 34 bug
-            // TODO:  Fix based on the Width from field type
             if (prevWidth < 100) {
               const remainingSpace = 100 - prevWidth;
               if (remainingSpace >= 66) calculatedWidth = 66;
@@ -222,8 +234,6 @@ const FormBuilder = () => {
           const lastField = droppedFields[droppedFields.length - 1];
           const lastWidth = (lastField.style?.width as FieldWidth) ?? 100;
 
-          // TODO: fix 67 and 34 bug
-          // TODO:  Fix based on the Width from field type
           if (lastWidth < 100) {
             const remainingSpace = 100 - lastWidth;
             if (remainingSpace >= 66) calculatedWidth = 66;
@@ -332,19 +342,19 @@ const FormBuilder = () => {
     setOverId(null);
   };
 
-  const cleanFieldForSubmission = (field: Field): any => {
+  const cleanFieldForSubmission = (field: Field): Partial<Field> => {
     const isDisplay = isDisplayElement(field.type);
 
     // Remove undefined and empty string values
-    const removeEmpty = (obj: any) => {
+    const removeEmpty = <T extends Record<string, unknown>>(obj: T): Partial<T> => {
       return Object.fromEntries(
-        Object.entries(obj).filter(([_, v]) => v !== undefined && v !== "")
-      );
+        Object.entries(obj).filter(([, v]) => v !== undefined && v !== "")
+      ) as Partial<T>;
     };
 
     if (isDisplay) {
       // For display elements, only keep these properties
-      const cleanField: any = {
+      const cleanField: Partial<Field> = {
         name: field.name,
         type: field.type,
         order: field.order,
@@ -371,12 +381,14 @@ const FormBuilder = () => {
       return cleanField;
     } else {
       // For input fields, keep all input-related properties
-      const cleanField: any = {
+      const cleanField: Partial<Field> = {
+        _id: field._id,
         name: field.name,
         label: field.label,
         type: field.type,
         required: field.required ?? false,
         order: field.order,
+        style: field.style,
       };
 
       // Only add _id if it exists (for updates)
@@ -408,6 +420,12 @@ const FormBuilder = () => {
       if (field.autofill) {
         cleanField.autofill = field.autofill;
       }
+
+      // Add tableConfig for TABLE field type
+      if (field.tableConfig) {
+        cleanField.tableConfig = field.tableConfig;
+      }
+
       // Add style if it exists
       if (field.style) {
         const cleanStyle = removeEmpty(field.style);
@@ -453,7 +471,6 @@ const FormBuilder = () => {
       toast.success("Form Created Successfully", { id });
       router.push(getUrl(URLs.admin.forms.index));
     } catch (error) {
-      //TODO: Dislplay errors properly, either from backend or frontend
       handleServerError(error as ErrorResponse, (msg) => {
         toast.error(`${msg}`, { id });
       });
@@ -478,6 +495,7 @@ const FormBuilder = () => {
 
     setFormInfoErrors({});
 
+    console.log(droppedFields);
     // Clean fields before submission
     const cleanedFields = droppedFields.map(cleanFieldForSubmission);
 
@@ -488,6 +506,7 @@ const FormBuilder = () => {
       fields: cleanedFields,
     };
 
+    console.log(cleanedFields);
     setLoading(true);
     const id = "form-update";
 
@@ -515,14 +534,14 @@ const FormBuilder = () => {
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCenter}
+      collisionDetection={customCollisionDetection}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <div className="">
-        <div className="py-5">
+      <div className="flex flex-col overflow-hidden  bg-gray-50">
+        <div className="py-5 px-4 flex-shrink-0">
           <Button
             variant={"secondary"}
             onClick={() => router.back()}
@@ -531,19 +550,21 @@ const FormBuilder = () => {
             <ChevronLeftIcon /> Go Back
           </Button>
         </div>
-        <div className="flex h-full bg-gray-50 flex-1  ">
-          <div className="flex-1/6">
+        <div className="flex flex-1 overflow-hidden max-h-[80vh]">
+          <div className="w-64 flex-shrink-0 p-4 flex flex-col overflow-hidden">
             <FieldsSidebar onDoubleClick={handleDoubleClickField} />
           </div>
-          <div className="h-full px-5 flex-4/6">
-            <DnDContainer
-              droppedFields={droppedFields}
-              setDroppedFields={setDroppedFields}
-              overId={overId}
-              activeId={activeId}
-            />
+          <div className="flex-1 px-5 flex flex-col overflow-hidden">
+            <div className="flex-1 overflow-y-auto scrollbar">
+              <DnDContainer
+                droppedFields={droppedFields}
+                setDroppedFields={setDroppedFields}
+                overId={overId}
+                activeId={activeId}
+              />
+            </div>
 
-            <div className="flex justify-end mt-4">
+            <div className="flex justify-end py-4 flex-shrink-0">
               <AlertModal
                 title="Remove all fields"
                 description="Are you sure you want to remove all fields? This action cannot be undone."
@@ -555,7 +576,7 @@ const FormBuilder = () => {
               </AlertModal>
             </div>
           </div>
-          <div className="flex-1/6">
+          <div className="w-80 flex-shrink-0 overflow-y-auto scrollbar p-4">
             <FormInformation
               formInfo={formInfo}
               setFormInfo={setFormInfo}

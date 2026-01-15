@@ -15,21 +15,19 @@ import DotsLoader from "../../Loader/DotsLoader";
 import { ErrorResponse } from "@/lib/types/common";
 import { BookCheckIcon, Plus } from "lucide-react";
 import { getUrl, URLs } from "@/lib/constants/urls";
-import { useAuth } from "@/lib/context/AuthContext";
 import { handleServerError } from "@/lib/api/_axios";
 import { Form, FormList } from "@/lib/types/form/form";
 import { INITIAL_META } from "@/lib/constants/initials";
 import { useCallback, useEffect, useState } from "react";
-import { API_FORM } from "@/lib/services/Form/form_service";
-import { PermissionGuard } from "../../Auth/PermissionGuard";
 import { PERMISSIONS } from "@/lib/constants/permissions";
+import { API_FORM } from "@/lib/services/Form/form_service";
 import { usePermissions } from "@/lib/hooks/usePermissions";
+import { PermissionGuard } from "../../Auth/PermissionGuard";
 
 const FormCardList = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const { hasPermission, hasAllPermissions, hasAnyPermission } =
-    usePermissions();
+  const { hasPermission } = usePermissions();
   const searchParams = {
     page: parseAsInteger,
     limit: parseAsInteger,
@@ -117,19 +115,11 @@ const FormCardList = () => {
             description={form.description}
             iconBackgroundColor={"bg-blue-500"}
             onClick={() => {
-              const admin_url = getUrl(
-                build_path(URLs.admin.forms.detail, { slug: form.slug })
-              );
-
-              const user_url = getUrl(
+              const url = getUrl(
                 build_path(URLs.app.submissions.submit, {
                   form_slug: form.slug,
                 })
               );
-
-              const url = hasPermission(PERMISSIONS.FORMS.CREATE)
-                ? admin_url
-                : user_url;
               router.push(url);
             }}
             disabled={!form.isActive}

@@ -1,22 +1,19 @@
-
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { ScrollArea } from "@/lib/ui/scroll-area";
 import { Input } from "@/lib/ui/input";
 import { Button } from "@/lib/ui/button";
-import { Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react";
-import { API_ACTION } from "@/lib/services/Actions/action_service";
-import { Action } from "@/lib/types/actions/action";
 import { ActionCard } from "./ActionCard";
-import { cn } from "@/lib/utils";
-
-interface ActionLibrarySidebarProps {
+import { ScrollArea } from "@/lib/ui/scroll-area";
+import React, { useEffect, useState } from "react";
+import { Action } from "@/lib/types/actions/action";
+import { API_ACTION } from "@/lib/services/Actions/action_service";
+import { Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react";
+type ActionLibrarySidebarProps = {
   onDragStart?: (action: Action) => void;
   onActionClick?: (action: Action) => void;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
-}
+};
 
 export const ActionLibrarySidebar = ({
   onDragStart,
@@ -53,13 +50,19 @@ export const ActionLibrarySidebar = ({
     if (searchQuery) {
       filtered = filtered.filter(
         (action) =>
-          action.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          action.actionDescription.toLowerCase().includes(searchQuery.toLowerCase())
+          action.displayName
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          action.actionDescription
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase())
       );
     }
 
     if (selectedCategory) {
-      filtered = filtered.filter((action) => action.category === selectedCategory);
+      filtered = filtered.filter(
+        (action) => action.category === selectedCategory
+      );
     }
 
     setFilteredActions(filtered);
@@ -151,39 +154,38 @@ export const ActionLibrarySidebar = ({
             <p>No actions found</p>
           </div>
         ) : selectedCategory ? (
-          
           <div className="space-y-2">
             {filteredActions.map((action) => (
-              <div
-                key={action._id}
-                onClick={() => onActionClick?.(action)}
-              >
+              <div key={action._id} onClick={() => onActionClick?.(action)}>
                 <ActionCard action={action} onDragStart={onDragStart} />
               </div>
             ))}
           </div>
         ) : (
-          
           <div className="space-y-6">
-            {Object.entries(groupedActions).map(([category, categoryActions]) => (
-              categoryActions.length > 0 && (
-                <div key={category}>
-                  <h4 className="text-sm font-semibold mb-3 capitalize text-muted-foreground">
-                    {category}
-                  </h4>
-                  <div className="space-y-2">
-                    {categoryActions.map((action) => (
-                      <div
-                        key={action._id}
-                        onClick={() => onActionClick?.(action)}
-                      >
-                        <ActionCard action={action} onDragStart={onDragStart} />
-                      </div>
-                    ))}
+            {Object.entries(groupedActions).map(
+              ([category, categoryActions]) =>
+                categoryActions.length > 0 && (
+                  <div key={category}>
+                    <h4 className="text-sm font-semibold mb-3 capitalize text-muted-foreground">
+                      {category}
+                    </h4>
+                    <div className="space-y-2">
+                      {categoryActions.map((action) => (
+                        <div
+                          key={action._id}
+                          onClick={() => onActionClick?.(action)}
+                        >
+                          <ActionCard
+                            action={action}
+                            onDragStart={onDragStart}
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )
-            ))}
+                )
+            )}
           </div>
         )}
       </ScrollArea>

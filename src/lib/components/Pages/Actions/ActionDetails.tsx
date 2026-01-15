@@ -1,13 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { Loader2, Edit, ArrowLeft } from "lucide-react";
-import { toast } from "sonner";
-import * as Icons from "lucide-react";
-
-import { Button } from "@/lib/ui/button";
-import { Badge } from "@/lib/ui/badge";
 import {
   Card,
   CardContent,
@@ -15,17 +7,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/lib/ui/card";
-import { Separator } from "@/lib/ui/separator";
 
-import { API_ACTION } from "@/lib/services/Actions/action_service";
+import { toast } from "sonner";
+import * as Icons from "lucide-react";
+import { Badge } from "@/lib/ui/badge";
+import { Button } from "@/lib/ui/button";
+import { useEffect, useState } from "react";
+import { build_path } from "@/utils/common";
+import { Edit, ArrowLeft } from "lucide-react";
+import { Separator } from "@/lib/ui/separator";
+import DotsLoader from "../../Loader/DotsLoader";
 import { Action } from "@/lib/types/actions/action";
 import { getUrl, URLs } from "@/lib/constants/urls";
-import { build_path } from "@/utils/common";
-import DotsLoader from "../../Loader/DotsLoader";
-
-type ActionDetailsProps = {
-  action_id: string;
-};
+import { useParams, useRouter } from "next/navigation";
+import { API_ACTION } from "@/lib/services/Actions/action_service";
 
 export const ActionDetails = () => {
   const params = useParams();
@@ -245,15 +240,16 @@ export const ActionDetails = () => {
 
                   {field.placeholder && (
                     <p className="text-xs text-muted-foreground">
-                      Placeholder: "{field.placeholder}"
+                      Placeholder: {`"${field.placeholder}"`}
                     </p>
                   )}
 
-                  {field.defaultValue && (
-                    <p className="text-xs text-muted-foreground">
-                      Default: {String(field.defaultValue)}
-                    </p>
-                  )}
+                  {field.defaultValue !== undefined &&
+                    field.defaultValue !== null && (
+                      <p className="text-xs text-muted-foreground">
+                        Default: {`${field.defaultValue}`}
+                      </p>
+                    )}
 
                   {field.options && field.options.length > 0 && (
                     <div className="space-y-2">

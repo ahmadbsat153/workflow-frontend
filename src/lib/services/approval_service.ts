@@ -1,5 +1,4 @@
-import { Meta } from "@/lib/types/common";
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { build_path } from "@/utils/common";
 import { handleErrors, _axios } from "../api/_axios";
 import { APPROVAL_ENDPOINTS } from "../constants/endpoints";
@@ -8,7 +7,6 @@ import type {
   ApprovalDecisionRequest,
   ApprovalDecisionResponse,
   DecideRequest,
-  MyApprovalResponse,
   MyApprovalTable,
 } from "../types/approval";
 

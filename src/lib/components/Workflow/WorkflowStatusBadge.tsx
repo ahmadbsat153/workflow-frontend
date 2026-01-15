@@ -39,14 +39,14 @@ const statusConfig: Record<
     icon: <Clock className="h-3 w-3" />,
   },
   completed: {
-    label: "Completed",
+    label: "Approved",
     color: "text-green-700",
     bgColor: "bg-green-50",
     borderColor: "border-green-200",
     icon: <CheckCircle className="h-3 w-3" />,
   },
   failed: {
-    label: "Failed",
+    label: "Rejected",
     color: "text-red-700",
     bgColor: "bg-red-50",
     borderColor: "border-red-200",

@@ -73,7 +73,7 @@ const BranchesTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [query]);
+  }, [query, searchParams]);
 
   useEffect(() => {
     getBranches();
@@ -119,7 +119,7 @@ const BranchesTable = () => {
         }
         className="font-medium cursor-pointer hover:text-blue-600"
       >
-        {value}
+        {value as string}
       </span>
     ),
     department: (value, row) => (
@@ -141,8 +141,8 @@ const BranchesTable = () => {
         {row.contactInfo?.email || "-"}
       </span>
     ),
-    createdAt: (value) => <span>{formatDatesWithYear(value)}</span>,
-    updatedAt: (value) => <span>{formatDatesWithYear(value)}</span>,
+    createdAt: (value) => <span>{formatDatesWithYear(value as string)}</span>,
+    updatedAt: (value) => <span>{formatDatesWithYear(value as string)}</span>,
     isActive: (value) => (
       <Badge variant={value ? "active" : "destructive"}>
         {value ? "Active" : "Inactive"}

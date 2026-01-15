@@ -43,7 +43,6 @@ function Input({
   labelPlacement = "outside",
   label = "",
   errorMessage = "",
-  onError,
   onPostFixIconClick,
   postFixIcon = null,
   onPreFixIconClick,

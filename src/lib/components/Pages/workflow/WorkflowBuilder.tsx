@@ -2,8 +2,6 @@
 
 import React, { useState, useCallback, useMemo, useEffect } from "react";
 import ReactFlow, {
-  Node,
-  Edge,
   addEdge,
   Background,
   Controls,
@@ -27,8 +25,6 @@ import { toast } from "sonner";
 import {
   Trash2,
   Save,
-  Undo,
-  Redo,
   Maximize,
   GitBranch,
   CheckCircle,
@@ -38,26 +34,30 @@ import {
 
 import { Badge } from "@/lib/ui/badge";
 import {
+  BranchData,
   SaveWorkflowRequest,
   WorkflowJSON,
   WorkflowNode,
   WorkflowNodeData,
+  WorkflowStep,
 } from "@/lib/types/workflow/workflow";
 import {
   autoArrangeNodes,
   findNonOverlappingPosition,
   getDefaultNodePosition,
   snapToGrid,
+  nodesOverlap,
   NODE_WIDTH,
   NODE_HEIGHT,
 } from "@/utils/Workflow/nodePositioning";
 import { API_WORKFLOW } from "@/lib/services/Workflow/workflow_service";
 import { ActionSelectionModal } from "./Panels/ActionSelectModal";
 import { SaveWorkflowDialog } from "./Dialog/SaveWorkflowDialog";
-import { useHistory } from "@/lib/hooks/Workflow/useHistory";
 import { validateWorkflow } from "@/utils/Workflow/validation";
 import { useParams } from "next/navigation";
 import DotsLoader from "../../Loader/DotsLoader";
+import { handleServerError } from "@/lib/api/_axios";
+import { ErrorResponse } from "@/lib/types/common";
 
 const WorkflowBuilderInner = () => {
   const params = useParams();
@@ -68,7 +68,7 @@ const WorkflowBuilderInner = () => {
   const [workflowName, setWorkflowName] = useState("Untitled Workflow");
   const [workflowDescription, setWorkflowDescription] = useState("");
   const [nodes, setNodes, onNodesChange] = useNodesState<WorkflowNodeData>([]);
-  const { getNodes, getEdges, screenToFlowPosition, fitView, getViewport } =
+  const { getNodes, screenToFlowPosition, fitView, getViewport } =
     useReactFlow();
 
   // UI State
@@ -79,15 +79,6 @@ const WorkflowBuilderInner = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [pendingNodeId, setPendingNodeId] = useState<string | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-
-  // History for undo/redo
-  const history = useHistory<{
-    nodes: Node<WorkflowNodeData>[];
-    edges: Edge[];
-  }>({
-    nodes: [],
-    edges: [],
-  });
 
   // Load workflow by form ID on mount
   useEffect(() => {
@@ -122,8 +113,9 @@ const WorkflowBuilderInner = () => {
         }
       } catch (error) {
         setLoading(false);
-        // console.error("Error loading workflow:", error);
-        // toast.error("No workflow found for this form");
+        handleServerError(error as ErrorResponse, (err_msg) => {
+          toast.error(err_msg);
+        });
       }
     };
 
@@ -131,33 +123,6 @@ const WorkflowBuilderInner = () => {
       loadWorkflowByForm();
     }
   }, [form_id]);
-
-  // Sync nodes/edges with history
-  useEffect(() => {
-    if (nodes.length > 0 || edges.length > 0) {
-      history.set({ nodes, edges });
-    }
-  }, [nodes, edges]);
-
-  // Undo
-  const handleUndo = useCallback(() => {
-    if (history.canUndo) {
-      history.undo();
-      setNodes(history.state.nodes);
-      setEdges(history.state.edges);
-      toast.success("Undone");
-    }
-  }, [history, setNodes, setEdges]);
-
-  // Redo
-  const handleRedo = useCallback(() => {
-    if (history.canRedo) {
-      history.redo();
-      setNodes(history.state.nodes);
-      setEdges(history.state.edges);
-      toast.success("Redone");
-    }
-  }, [history, setNodes, setEdges]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -175,16 +140,6 @@ const WorkflowBuilderInner = () => {
           deleteSelectedNodes();
         }
 
-        // Undo/Redo
-        if ((event.ctrlKey || event.metaKey) && event.key === "z") {
-          event.preventDefault();
-          if (event.shiftKey) {
-            handleRedo();
-          } else {
-            handleUndo();
-          }
-        }
-
         // Save
         if ((event.ctrlKey || event.metaKey) && event.key === "s") {
           event.preventDefault();
@@ -195,18 +150,25 @@ const WorkflowBuilderInner = () => {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [handleUndo, handleRedo]);
+  });
 
   // Listen for custom events from node toolbar
   useEffect(() => {
-    const handleDuplicateNode = (event: any) => {
-      const nodeId = event.detail.nodeId;
+    interface NodeActionEvent extends CustomEvent {
+      detail: {
+        nodeId: string;
+      };
+    }
+    const handleDuplicateNode = (event: Event) => {
+      const customEvent = event as NodeActionEvent;
+      const nodeId = customEvent.detail.nodeId;
       duplicateNode(nodeId);
     };
 
-    const handleDeleteNode = (event: any) => {
-      const nodeId = event.detail.nodeId;
-      handleDeleteNode(nodeId);
+    const handleDeleteNode = (event: Event) => {
+      const customEvent = event as NodeActionEvent;
+      const nodeId = customEvent.detail.nodeId;
+      deleteNode(nodeId);
     };
 
     window.addEventListener("duplicateNode", handleDuplicateNode);
@@ -251,24 +213,31 @@ const WorkflowBuilderInner = () => {
       if (!actionData) return;
 
       const action: Action = JSON.parse(actionData);
+      // Get the position where user dropped
       let position = screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
       });
 
-      // Only adjust position if there's an overlap
-      const hasOverlap = nodes.some(
-        (node) =>
-          Math.abs(position.x - node.position.x) < NODE_WIDTH &&
-          Math.abs(position.y - node.position.y) < NODE_HEIGHT
-      );
+      // Offset to center node on cursor
+      position = {
+        x: position.x - NODE_WIDTH / 2,
+        y: position.y - NODE_HEIGHT / 2,
+      };
 
-      if (hasOverlap) {
-        position = findNonOverlappingPosition(position, nodes, "diagonal");
-      }
-
+      // Apply snap to grid if enabled
       if (snapToGridEnabled) {
         position = snapToGrid(position);
+      }
+
+      // Check for overlap after snapping
+      const hasOverlap = nodes.some((node) =>
+        nodesOverlap(position, node.position, 20)
+      );
+
+      // Only adjust if there's still an overlap after snapping
+      if (hasOverlap) {
+        position = findNonOverlappingPosition(position, nodes, "bottom");
       }
 
       const nodeId = `action-${Date.now()}`;
@@ -502,7 +471,7 @@ const WorkflowBuilderInner = () => {
   );
 
   const handleUpdateConfig = useCallback(
-    (nodeId: string, config: Record<string, any>) => {
+    (nodeId: string, config: Record<string, unknown>) => {
       setNodes((nds) =>
         nds.map((node) =>
           node.id === nodeId
@@ -520,7 +489,7 @@ const WorkflowBuilderInner = () => {
     setIsActionModalOpen(true);
   }, []);
 
-  const handleDeleteNode = useCallback(
+  const deleteNode = useCallback(
     (nodeId: string) => {
       setNodes((nds) => nds.filter((node) => node.id !== nodeId));
       setEdges((eds) =>
@@ -537,7 +506,7 @@ const WorkflowBuilderInner = () => {
   );
 
   const handleUpdateBranches = useCallback(
-    (nodeId: string, branches: any[]) => {
+    (nodeId: string, branches: BranchData[]) => {
       setNodes((nds) =>
         nds.map((node) =>
           node.id === nodeId
@@ -610,7 +579,7 @@ const WorkflowBuilderInner = () => {
   };
 
   const generateWorkflowJSON = (): WorkflowJSON | null => {
-    const steps: any[] = [];
+    const steps: WorkflowStep[] = [];
     let startStepTempId = "";
 
     const nodesWithIncoming = new Set(edges.map((e) => e.target));
@@ -637,11 +606,11 @@ const WorkflowBuilderInner = () => {
           tempId: node.data.tempId,
           stepName: node.data.stepName,
           type: "action",
-          actionId: node.data.actionId,
+          actionId: node.data.actionId ?? null,
           conditions: [],
           conditionLogic: "AND",
           config: node.data.config,
-          nextStepTempId,
+          nextStepTempId: nextStepTempId ?? null,
         });
       } else if (node.type === "branch") {
         const branches = node.data.branches?.map((branch, idx) => {
@@ -733,25 +702,6 @@ const WorkflowBuilderInner = () => {
                 </Badge>
               )}
             </div>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleUndo}
-              disabled={!history.canUndo}
-            >
-              <Undo className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleRedo}
-              disabled={!history.canRedo}
-            >
-              <Redo className="h-4 w-4" />
-            </Button>
-
-            <div className="h-6 w-px bg-border" />
 
             <Button variant="default" size="sm" onClick={addActionNode}>
               Add Action
@@ -860,7 +810,7 @@ const WorkflowBuilderInner = () => {
             onClose={handleCloseConfigPanel}
             onUpdateConfig={handleUpdateConfig}
             onChangeAction={handleChangeAction}
-            onDeleteNode={handleDeleteNode}
+            onDeleteNode={deleteNode}
             onUpdateBranches={handleUpdateBranches}
             formId={form_id}
           />

@@ -7,7 +7,9 @@ import {
 import { DEPARTMENT_ENDPOINTS } from "@/lib/constants/endpoints";
 import { build_path } from "@/utils/common";
 import { SuccessResponse } from "@/lib/types/common";
+import { DepartmentFormValues } from "@/lib/components/Pages/Departments/DepartmentForm";
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace API_DEPARTMENT {
   export async function getAllDepartments(query?: string) {
     try {
@@ -51,7 +53,7 @@ export namespace API_DEPARTMENT {
     }
   }
 
-  export async function createDepartment(data: any) {
+  export async function createDepartment(data: DepartmentFormValues) {
     try {
       const response = await _axios.post(DEPARTMENT_ENDPOINTS.CREATE, data);
       return response.data as SuccessResponse;
@@ -60,7 +62,7 @@ export namespace API_DEPARTMENT {
     }
   }
 
-  export async function updateDepartment(id: string, data: any) {
+  export async function updateDepartment(id: string, data: DepartmentFormValues) {
     try {
       const response = await _axios.patch(
         build_path(DEPARTMENT_ENDPOINTS.UPDATE, { id }),

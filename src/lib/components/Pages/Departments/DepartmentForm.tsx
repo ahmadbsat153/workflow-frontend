@@ -34,6 +34,13 @@ import { ErrorResponse } from "@/lib/types/common";
 import { API_DEPARTMENT } from "@/lib/services/Department/department_service";
 import { DepartmentOption } from "@/lib/types/department/department";
 import { URLs } from "@/lib/constants/urls";
+import FixedHeaderFooterLayout from "../../Layout/FixedHeaderFooterLayout";
+
+type DepartmentFormProps = {
+  isEdit?: boolean;
+  title: string;
+  description: string;
+};
 
 const departmentSchema = z.object({
   name: z
@@ -53,9 +60,13 @@ const departmentSchema = z.object({
   isActive: z.boolean(),
 });
 
-type DepartmentFormValues = z.infer<typeof departmentSchema>;
+export type DepartmentFormValues = z.infer<typeof departmentSchema>;
 
-const DepartmentForm = ({ isEdit = false }: { isEdit?: boolean }) => {
+const DepartmentForm = ({
+  isEdit = false,
+  title,
+  description,
+}: DepartmentFormProps) => {
   const router = useRouter();
   const params = useParams();
   const [loading, setLoading] = useState(false);
@@ -161,129 +172,11 @@ const DepartmentForm = ({ isEdit = false }: { isEdit?: boolean }) => {
   }
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 max-w-2xl"
-      >
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Department Name</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="e.g., Human Resources"
-                  {...field}
-                  disabled={loading}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="code"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Department Code</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="e.g., HR, IT, SALES"
-                  {...field}
-                  disabled={loading}
-                  onChange={(e) => {
-                    field.onChange(e.target.value.toUpperCase());
-                  }}
-                />
-              </FormControl>
-              <FormDescription>
-                Uppercase letters, numbers, and underscores only
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description (Optional)</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Brief description of the department"
-                  {...field}
-                  disabled={loading}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="parentId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Parent Department (Optional)</FormLabel>
-              <Select
-                onValueChange={(value) => {
-                  field.onChange(value === "none" ? null : value);
-                }}
-                value={field.value || "none"}
-                disabled={loading}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select parent department (if any)" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  {departments.map((dept) => (
-                    <SelectItem key={dept._id} value={dept._id}>
-                      {dept.name} ({dept.code})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                For creating a department hierarchy
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="isActive"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel>Active Status</FormLabel>
-                <FormDescription>
-                  Inactive departments are hidden from selection
-                </FormDescription>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                  disabled={loading}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-
-        <div className="flex gap-2 justify-end">
+    <FixedHeaderFooterLayout
+      title={title}
+      description={description}
+      footer={
+        <div className="flex gap-2 w-full justify-end">
           <Button
             type="button"
             variant="outline"
@@ -292,7 +185,7 @@ const DepartmentForm = ({ isEdit = false }: { isEdit?: boolean }) => {
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" form="department-form" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -305,8 +198,135 @@ const DepartmentForm = ({ isEdit = false }: { isEdit?: boolean }) => {
             )}
           </Button>
         </div>
-      </form>
-    </Form>
+      }
+      maxWidth="3xl"
+      maxHeight="90vh"
+    >
+      <Form {...form}>
+        <form
+          id="department-form"
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6 max-w-2xl"
+        >
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Department Name</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="e.g., Human Resources"
+                    {...field}
+                    disabled={loading}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="code"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Department Code</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="e.g., HR, IT, SALES"
+                    {...field}
+                    disabled={loading}
+                    onChange={(e) => {
+                      field.onChange(e.target.value.toUpperCase());
+                    }}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Uppercase letters, numbers, and underscores only
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description (Optional)</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Brief description of the department"
+                    {...field}
+                    disabled={loading}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="parentId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Parent Department (Optional)</FormLabel>
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(value === "none" ? null : value);
+                  }}
+                  value={field.value || "none"}
+                  disabled={loading}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select parent department (if any)" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    {departments.map((dept) => (
+                      <SelectItem key={dept._id} value={dept._id}>
+                        {dept.name} ({dept.code})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  For creating a department hierarchy
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="isActive"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel>Active Status</FormLabel>
+                  <FormDescription>
+                    Inactive departments are hidden from selection
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    disabled={loading}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </form>
+      </Form>
+    </FixedHeaderFooterLayout>
   );
 };
 

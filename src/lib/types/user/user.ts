@@ -1,9 +1,7 @@
 import { Meta } from "../common";
-import { Department } from "../department/department";
-import { Position } from "../position/position";
 import { Branch } from "../branch/branch";
-import { Role } from "../role/role";
-
+import { Position } from "../position/position";
+import { Department } from "../department/department";
 // Lightweight role reference returned by API
 export type RoleReference = {
   id: string;

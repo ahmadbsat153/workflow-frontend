@@ -5,6 +5,7 @@ import "../lib/assets/css/loader.css";
 import "../lib/assets/css/scroll.css";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { AuthProvider } from "@/lib/context/AuthContext";
+import { NotificationProvider } from "@/lib/context/NotificationContext";
 import { Toaster } from "sonner";
 
 const geistSans = Geist({
@@ -34,7 +35,9 @@ export default function RootLayout({
       >
         <Toaster />
         <AuthProvider>
-          <NuqsAdapter>{children}</NuqsAdapter>
+          <NotificationProvider>
+            <NuqsAdapter>{children}</NuqsAdapter>
+          </NotificationProvider>
         </AuthProvider>
       </body>
     </html>

@@ -55,7 +55,7 @@ export type CreateRolePayload = {
   is_active?: boolean;
 }
 
-export interface UpdateRolePayload extends Partial<CreateRolePayload> {}
+export type UpdateRolePayload = Partial<CreateRolePayload>;
 
 export type PermissionOverridePayload = {
   permissions: string[];

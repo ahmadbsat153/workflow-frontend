@@ -38,8 +38,19 @@ import {
   branchSchema,
 } from "@/utils/Validation/branchValidationScehma";
 import { URLs } from "@/lib/constants/urls";
+import FixedHeaderFooterLayout from "../../Layout/FixedHeaderFooterLayout";
 
-const BranchForm = ({ isEdit = false }: { isEdit?: boolean }) => {
+type BranchFormProps = {
+  isEdit?: boolean;
+  title: string;
+  description: string;
+};
+
+const BranchForm = ({
+  isEdit = false,
+  title,
+  description,
+}: BranchFormProps) => {
   const router = useRouter();
   const params = useParams();
   const [loading, setLoading] = useState(false);
@@ -164,256 +175,11 @@ const BranchForm = ({ isEdit = false }: { isEdit?: boolean }) => {
   }
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 max-w-2xl"
-      >
-        {/* Basic Information */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Basic Information</h3>
-
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Branch Name</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="e.g., Main Office"
-                    {...field}
-                    disabled={loading}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Branch Code</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="e.g., MAIN, NSW, QLD"
-                    {...field}
-                    disabled={loading}
-                    onChange={(e) => {
-                      field.onChange(e.target.value.toUpperCase());
-                    }}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Uppercase letters, numbers, and underscores only
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Brief description of the branch"
-                    {...field}
-                    disabled={loading}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="departmentId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Department (Optional)</FormLabel>
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value === "none" ? null : value);
-                  }}
-                  value={field.value || "none"}
-                  disabled={loading}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select department (if any)" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="none">None</SelectItem>
-                    {departments.map((dept) => (
-                      <SelectItem key={dept._id} value={dept._id}>
-                        {dept.name} ({dept.code})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormDescription>
-                  Associate this branch with a department
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Location Information */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Location Information</h3>
-
-          <FormField
-            control={form.control}
-            name="location.address"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Street Address</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="e.g., 123 Main Street"
-                    {...field}
-                    disabled={loading}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="location.city"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>City</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="e.g., New York"
-                      {...field}
-                      disabled={loading}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="location.state"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>State/Province</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="e.g., NY"
-                      {...field}
-                      disabled={loading}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <FormField
-            control={form.control}
-            name="location.country"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Country</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="e.g., USA"
-                    {...field}
-                    disabled={loading}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Contact Information */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Contact Information</h3>
-
-          <FormField
-            control={form.control}
-            name="contactInfo.phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Phone Number</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="e.g., +1 (555) 123-4567"
-                    {...field}
-                    disabled={loading}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="contactInfo.email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="e.g., branch@company.com"
-                    {...field}
-                    disabled={loading}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Active Status */}
-        <FormField
-          control={form.control}
-          name="isActive"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel>Active Status</FormLabel>
-                <FormDescription>
-                  Inactive branches are hidden from selection
-                </FormDescription>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                  disabled={loading}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-
-        <div className="flex gap-2 justify-end">
+    <FixedHeaderFooterLayout
+      title={title}
+      description={description}
+      footer={
+        <div className="flex justify-end gap-3 w-full">
           <Button
             type="button"
             variant="outline"
@@ -422,7 +188,7 @@ const BranchForm = ({ isEdit = false }: { isEdit?: boolean }) => {
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" form="branch-form" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -435,8 +201,264 @@ const BranchForm = ({ isEdit = false }: { isEdit?: boolean }) => {
             )}
           </Button>
         </div>
-      </form>
-    </Form>
+      }
+      maxWidth="3xl"
+      maxHeight="90vh"
+    >
+      <div className="space-y-6 max-w-4xl">
+        <Form {...form}>
+          <form
+            id="branch-form"
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-6 max-w-2xl"
+          >
+            {/* Basic Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Basic Information</h3>
+
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Branch Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g., Main Office"
+                        {...field}
+                        disabled={loading}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="code"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Branch Code</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g., MAIN, NSW, QLD"
+                        {...field}
+                        disabled={loading}
+                        onChange={(e) => {
+                          field.onChange(e.target.value.toUpperCase());
+                        }}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Uppercase letters, numbers, and underscores only
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Brief description of the branch"
+                        {...field}
+                        disabled={loading}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="departmentId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Department (Optional)</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value === "none" ? null : value);
+                      }}
+                      value={field.value || "none"}
+                      disabled={loading}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select department (if any)" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
+                        {departments.map((dept) => (
+                          <SelectItem key={dept._id} value={dept._id}>
+                            {dept.name} ({dept.code})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Associate this branch with a department
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Location Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Location Information</h3>
+
+              <FormField
+                control={form.control}
+                name="location.address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Street Address</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g., 123 Main Street"
+                        {...field}
+                        disabled={loading}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="location.city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>City</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., New York"
+                          {...field}
+                          disabled={loading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="location.state"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>State/Province</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., NY"
+                          {...field}
+                          disabled={loading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="location.country"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Country</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g., USA"
+                        {...field}
+                        disabled={loading}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Contact Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Contact Information</h3>
+
+              <FormField
+                control={form.control}
+                name="contactInfo.phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g., +1 (555) 123-4567"
+                        {...field}
+                        disabled={loading}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="contactInfo.email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="e.g., branch@company.com"
+                        {...field}
+                        disabled={loading}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Active Status */}
+            <FormField
+              control={form.control}
+              name="isActive"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel>Active Status</FormLabel>
+                    <FormDescription>
+                      Inactive branches are hidden from selection
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={loading}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </form>
+        </Form>
+      </div>
+    </FixedHeaderFooterLayout>
   );
 };
 

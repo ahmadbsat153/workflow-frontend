@@ -1,17 +1,19 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { Button } from "@/lib/ui/button";
-import { Input } from "@/lib/ui/input";
-import { FadeIn, FadeInStagger } from "@/lib/components/Motion/FadeIn";
-import { useRouter } from "next/navigation";
-import { FileLock2Icon, Loader2, MailIcon } from "lucide-react";
-import { MoveLeftIcon } from "lucide-react";
-import { API_AUTH } from "@/lib/services/auth_service";
-import { URLs } from "@/lib/constants/urls";
 import { toast } from "sonner";
-import { handleServerError } from "@/lib/api/_axios";
+import { Input } from "@/lib/ui/input";
+import { Button } from "@/lib/ui/button";
+import { useRouter } from "next/navigation";
+import { URLs } from "@/lib/constants/urls";
 import { ErrorResponse } from "@/lib/types/common";
+import { handleServerError } from "@/lib/api/_axios";
+import { FormEvent, useEffect, useState } from "react";
+import { API_AUTH } from "@/lib/services/auth_service";
+import { authImages } from "@/lib/constants/authImages";
+import { FileLock2Icon, Loader2, MailIcon } from "lucide-react";
+import { FadeIn, FadeInStagger } from "@/lib/components/Motion/FadeIn";
+import { API_SETTINGS } from "@/lib/services/Settings/settings_service";
+import Image from "next/image";
 
 const ForgotPasswordPage = () => {
   const router = useRouter();
@@ -20,6 +22,7 @@ const ForgotPasswordPage = () => {
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
 
+  const image_url = authImages.forgotPassword;
   const handleMagicLinkSending = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -35,7 +38,6 @@ const ForgotPasswordPage = () => {
       setError("");
       await API_AUTH.sendMagicLink(email);
       setEmailSent(true);
-
     } catch (e) {
       handleServerError(e as ErrorResponse, (err_msg) => {
         setError(err_msg as string);
@@ -47,25 +49,50 @@ const ForgotPasswordPage = () => {
   };
 
   const GoBack = () => router.push(URLs.auth.login);
+  // Initialize with default image if image_url is not a valid path
+  const initialImage =
+    image_url.startsWith("/") || image_url.startsWith("http")
+      ? image_url
+      : "/images/404.png";
+  const [imageUrl, setImageUrl] = useState(initialImage);
+
+  useEffect(() => {
+    // Only fetch if image_url is a key (not a valid path)
+    const isImageKey =
+      !image_url.startsWith("/") && !image_url.startsWith("http");
+
+    if (isImageKey) {
+      const fetchImages = async () => {
+        try {
+          const backendHost =
+            process.env.NEXT_PUBLIC_BACKEND_HOST || "http://localhost:8080";
+          const response = await API_SETTINGS.getPublicAuthImages();
+          const fetchedUrl =
+            backendHost + response.data[image_url]?.value || "/images/404.png";
+          setImageUrl(fetchedUrl);
+          console.log("Image URL:", fetchedUrl);
+        } catch (err) {
+          console.error("Failed to load auth images:", err);
+          // Fail silently - use default images if API fails
+          setImageUrl("/images/404.png");
+        }
+      };
+
+      fetchImages();
+    }
+  }, [image_url]);
 
   return (
     <div className="h-screen w-full flex items-center justify-center">
       <div className="h-full flex items-center justify-center w-full rounded-lg shadow-sm relative">
         {/* The Image */}
-        <div className="w-1/2 h-full bg-muted hidden lg:block">
-          <img
-            src="/images/login.png"
-            alt=""
-            // className="absolute inset-0 h-full w-full object-cover"
+        <div className="w-1/2 h-full bg-muted relative hidden lg:block">
+          <Image
+            src={imageUrl || "/images/login.png"}
+            alt="Login background"
+            fill
+            className="absolute inset-0 h-full w-full object-cover"
           />
-        </div>
-        <div className="absolute bg-white top-[1px] p-1 left-[49vw] rounded-bl-xl text-primary hover:bg-primary/80 hover:text-white!">
-          <Button
-            variant="ghost"
-            className="rounded-full bg-transparent hover:bg-transparent"
-          >
-            <MoveLeftIcon size="5" onClick={GoBack} />
-          </Button>
         </div>
         {/* The Form */}
         <div className="w-1/2 h-full flex items-center">
@@ -76,8 +103,8 @@ const ForgotPasswordPage = () => {
                   Forgot Password
                 </h1>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Enter your email address and we'll send you a link to reset
-                  your password
+                  {` Enter your email address and we'll send you a link to reset
+                  your password`}
                 </p>
               </div>
             </FadeIn>
@@ -88,18 +115,14 @@ const ForgotPasswordPage = () => {
                   <MailIcon className="h-12 w-12 text-green-600 mx-auto mb-4" />
                   <h3 className="font-semibold text-lg mb-2">Email Sent!</h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    We've sent a password reset link to{" "}
+                    {`  We've sent a password reset link to`}{" "}
                     <span className="font-semibold">{email}</span>
                   </p>
                   <p className="text-xs text-muted-foreground mb-4">
-                    The link will expire in 60 minutes. Please check your spam
-                    folder if you don't see it.
+                    {`The link will expire in 60 minutes. Please check your spam
+                    folder if you don't see it.`}
                   </p>
-                  <Button
-                    variant="outline"
-                    onClick={GoBack}
-                    className="w-full"
-                  >
+                  <Button variant="outline" onClick={GoBack} className="w-full">
                     Back to Login
                   </Button>
                 </div>

@@ -106,7 +106,6 @@ export const validateWorkflow = (
       }
     }
 
-    const outgoingEdges = edges.filter((e) => e.source === node.id);
     const incomingEdges = edges.filter((e) => e.target === node.id);
 
     // No need to display warning for end nodes

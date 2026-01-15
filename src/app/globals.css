@@ -63,7 +63,7 @@
   --secondary: oklch(24.687% 0.00457 17.13);
   --secondary-foreground: oklch(100% 0.00011 271.152);
   --tertiary: #898A8E;
-  --pumpkin: #fe7f2d;
+  --pumpkin: oklch(0.685 0.165 45);
   --active: oklch(0.5274 0.1419 149.59);
   --active-foreground: oklch(0.5274 0.1419 149.59);
   --archived-foreground: oklch(97.3% 0.071 103.193);

@@ -8,14 +8,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/lib/ui/sheet";
-
-import { z } from "zod";
-import { useState } from "react";
-import { Form } from "@/lib/ui/form";
-import { Button } from "@/lib/ui/button";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Field, FieldsType } from "@/lib/types/form/fields";
 import {
   EyeIcon,
   ListIcon,
@@ -24,18 +16,28 @@ import {
   PaletteIcon,
   TypeIcon,
 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/lib/ui/tabs";
-import FieldProperties from "@/lib/components/Tabs/Fields/FieldProperties";
-import { buildFieldSettingsSchema } from "@/utils/Validation/fieldValidationSchema";
-import FieldValidation from "@/lib/components/Tabs/Fields/FieldValidation";
-import FieldOptions from "@/lib/components/Tabs/Fields/FieldOptions";
-import FieldDisplay from "@/lib/components/Tabs/Fields/FieldDisplay";
+
 import {
   isDisplayElement,
   getFieldTypeLabel,
 } from "@/lib/constants/formFields";
-import DisplayElementContent from "@/lib/components/Tabs/Fields/DisplayElementContent";
+
+import { z } from "zod";
+import { useState } from "react";
+import { Form } from "@/lib/ui/form";
+import { Button } from "@/lib/ui/button";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Field, FieldsType } from "@/lib/types/form/fields";
+import TableConfig from "@/lib/components/Tabs/Fields/TableConfig";
+import FieldOptions from "@/lib/components/Tabs/Fields/FieldOptions";
+import FieldDisplay from "@/lib/components/Tabs/Fields/FieldDisplay";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/lib/ui/tabs";
+import FieldProperties from "@/lib/components/Tabs/Fields/FieldProperties";
+import FieldValidation from "@/lib/components/Tabs/Fields/FieldValidation";
 import DisplayElementStyle from "@/lib/components/Tabs/Fields/DisplayElementStyle";
+import { buildFieldSettingsSchema } from "@/utils/Validation/fieldValidationSchema";
+import DisplayElementContent from "@/lib/components/Tabs/Fields/DisplayElementContent";
 
 type FieldSettingsSheetProps = {
   field: Field;
@@ -110,6 +112,7 @@ const FieldSettingsSheet = ({
             sensitiveInfo: field.display?.sensitiveInfo ?? false,
           },
           options: field.options || [],
+          tableConfig: field.tableConfig,
         } as FormValues),
   });
 
@@ -122,8 +125,8 @@ const FieldSettingsSheet = ({
       // For display elements
       const displayValues = values as {
         name: string;
-        content?: any;
-        style?: any;
+        content?: object;
+        style?: object;
       };
 
       updatedField = {
@@ -153,6 +156,7 @@ const FieldSettingsSheet = ({
         options: inputValues.options || field.options,
         display: inputValues.display,
         autofill: inputValues.autofill,
+        tableConfig: inputValues.tableConfig,
       };
     }
 
@@ -183,7 +187,7 @@ const FieldSettingsSheet = ({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent className="w-full sm:max-w-md flex flex-col p-0">
+      <SheetContent className="w-full sm:max-w-xl flex flex-col p-0">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -233,9 +237,36 @@ const FieldSettingsSheet = ({
                     </div>
                   </TabsContent>
                 </Tabs>
+              ) : field.type === FieldsType.TABLE ? (
+                <Tabs
+                  defaultValue={
+                    field.type === FieldsType.TABLE ? "table" : "setting"
+                  }
+                  className=""
+                >
+                  <TabsContent value="table">
+                    <div className="py-4">
+                      <TableConfig
+                        field={field}
+                        form={form}
+                        loading={loading}
+                      />
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="setting">
+                    <div className="py-4">
+                      <FieldProperties
+                        field={field}
+                        form={form}
+                        loading={loading}
+                      />
+                    </div>
+                  </TabsContent>
+                </Tabs>
               ) : (
                 // Input Field Tabs
-                <Tabs defaultValue="setting" className="mt-5">
+                <Tabs defaultValue={"setting"} className="mt-5">
                   <TabsList className="sticky top-0 z-10">
                     <TabsTrigger value="setting" className="cursor-pointer">
                       <Settings2 className="!size-4" />
@@ -268,6 +299,16 @@ const FieldSettingsSheet = ({
                       Display
                     </TabsTrigger>
                   </TabsList>
+
+                  <TabsContent value="table">
+                    <div className="py-4">
+                      <TableConfig
+                        field={field}
+                        form={form}
+                        loading={loading}
+                      />
+                    </div>
+                  </TabsContent>
 
                   <TabsContent value="setting">
                     <div className="py-4">

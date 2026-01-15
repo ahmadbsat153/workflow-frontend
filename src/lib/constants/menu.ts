@@ -1,3 +1,4 @@
+import { IconType } from "react-icons/lib";
 import { URLs } from "./urls";
 import {
   BookCheckIcon,
@@ -9,7 +10,6 @@ import {
   UsersRound,
   ZapIcon,
   WorkflowIcon,
-  Network,
   ShieldCheck,
   ClipboardCheck,
 } from "lucide-react";
@@ -18,7 +18,7 @@ export type MenuItem = {
   key: string;
   name: string;
   link: string;
-  icon: any;
+  icon: IconType;
   permission?: string; // Permission key required to view this menu item
 };
 
@@ -34,7 +34,7 @@ export const NAVIGATION: MenuSection[] = [
       {
         key: "dashboard",
         name: "Dashboard",
-        link: URLs.admin.dashboard,
+        link: URLs.app.dashboard,
         icon: ChartPie,
         // No permission required - everyone can see dashboard
       },

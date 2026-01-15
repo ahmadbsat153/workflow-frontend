@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
-import { Handle, Position, NodeProps } from "reactflow";
 import * as Icons from "lucide-react";
-import { LucideIcon } from "lucide-react";
 import { Badge } from "@/lib/ui/badge";
+import React from "react";
+import { LucideIcon } from "lucide-react";
+import { Handle, Position, NodeProps } from "reactflow";
 import { WorkflowNodeData } from "@/lib/types/workflow/workflow";
-import { NodeToolbar } from "./NodeToolbar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/lib/ui/tooltip";
 
 const getIconComponent = (iconName?: string): LucideIcon => {
@@ -64,27 +63,14 @@ const getCategoryColor = (category?: string) => {
   };
   return colors[category || "data"];
 };
-export const ActionNode = ({
-  data,
-  selected,
-  id,
-}: NodeProps<WorkflowNodeData>) => {
-  const [isHovered, setIsHovered] = useState(false);
-
+export const ActionNode = ({ data, selected }: NodeProps<WorkflowNodeData>) => {
   const IconComponent = getIconComponent(data.action?.icon);
   const colors = getCategoryColor(data.action?.category);
 
   const isConfigured = data.actionId && Object.keys(data.config).length > 0;
-  const requiredFieldsCount =
-    data.action?.configSchema.fields.filter((f) => f.required).length || 0;
-  const configuredFieldsCount = Object.keys(data.config).length;
 
   return (
-    <div
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className="relative"
-    >
+    <div className="relative">
       {/* Show toolbar on hover */}
       {/* //TODO: Re-enable toolbar when node actions are implemented */}
       {/* {isHovered && (

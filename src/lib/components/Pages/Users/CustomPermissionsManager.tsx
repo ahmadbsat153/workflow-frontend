@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { handleServerError } from "@/lib/api/_axios";
 import { ErrorResponse } from "@/lib/types/common";
 import { useRouter } from "next/navigation";
+import { User } from "@/lib/types/user/user";
 
 type CustomPermissionsManagerProps = {
   userId: string;
@@ -30,7 +31,7 @@ const CustomPermissionsManager = ({ userId }: CustomPermissionsManagerProps) => 
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User>();
   const [permissionGroups, setPermissionGroups] = useState<PermissionGroup | null>(null);
   const [rolePermissions, setRolePermissions] = useState<string[]>([]);
 
@@ -41,21 +42,22 @@ const CustomPermissionsManager = ({ userId }: CustomPermissionsManagerProps) => 
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const [userData, permissionsData] = await Promise.all([
+      const [userData, permissionsData, userPermissionsData] = await Promise.all([
         API_USER.getUserById(userId),
         API_ROLE.getAvailablePermissions(true),
+        API_PERMISSION.getUserPermissions(userId),
       ]);
 
       setUser(userData);
       setPermissionGroups(permissionsData);
 
-      // Get role permissions
-      const userRolePermissions = userData.role?.permissions || [];
+      // Get role permissions from the user permissions API
+      const userRolePermissions = userPermissionsData.rolePermissions || [];
       setRolePermissions(userRolePermissions);
 
       // Calculate effective permissions (role + granted - denied)
-      const customGranted = userData.customPermissions?.granted || [];
-      const customDenied = userData.customPermissions?.denied || [];
+      const customGranted = userPermissionsData.grantedPermissions || [];
+      const customDenied = userPermissionsData.deniedPermissions || [];
 
       const effective = new Set<string>();
 
@@ -146,10 +148,10 @@ const CustomPermissionsManager = ({ userId }: CustomPermissionsManagerProps) => 
 
       await Promise.all([
         toGrant.length > 0
-          ? API_PERMISSION.grantUserPermissions(userId, { permissionIds: toGrant })
+          ? API_PERMISSION.grantUserPermissions(userId, { permissions: toGrant })
           : Promise.resolve(),
         toDeny.length > 0
-          ? API_PERMISSION.denyUserPermissions(userId, { permissionIds: toDeny })
+          ? API_PERMISSION.denyUserPermissions(userId, { permissions: toDeny })
           : Promise.resolve(),
       ]);
 
@@ -263,7 +265,6 @@ const CustomPermissionsManager = ({ userId }: CustomPermissionsManagerProps) => 
                 const crudGroups = groupPermissionsByCRUD(permissions);
                 const allModulePermissions = permissions.map((p) => p.key);
                 const allChecked = allModulePermissions.every((key) => checkedPermissions.has(key));
-                const someChecked = allModulePermissions.some((key) => checkedPermissions.has(key));
 
                 return (
                   <tr key={moduleName} className="border-t hover:bg-muted/30">

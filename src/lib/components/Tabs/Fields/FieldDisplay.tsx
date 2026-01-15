@@ -12,13 +12,13 @@ import { Switch } from "@/lib/ui/switch";
 import { UseFormReturn } from "react-hook-form";
 
 type Props = {
-  field: Field;
+  field?: Field;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: UseFormReturn<any>;
   loading: boolean | undefined;
 };
 
-const FieldDisplay = ({ form, field, loading }: Props) => {
-
+const FieldDisplay = ({ form, loading }: Props) => {
   return (
     <div className="flex-1 space-y-4">
       <h3 className="text-lg font-semibold">Display Settings</h3>

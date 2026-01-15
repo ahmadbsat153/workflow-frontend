@@ -1,4 +1,5 @@
 import { FieldsType, Field } from "@/lib/types/form/fields";
+import type { EditableTableConfig } from "@/lib/types/form/editableTable";
 import {
   CalendarIcon,
   CheckSquareIcon,
@@ -20,6 +21,7 @@ import {
   BuildingIcon,
   BriefcaseIcon,
   MapPinIcon,
+  TableIcon,
 } from "lucide-react";
 
 // Helper functions to categorize field types
@@ -50,6 +52,7 @@ export const isInputField = (type: FieldsType): boolean => {
     FieldsType.DEPARTMENT,
     FieldsType.POSITION,
     FieldsType.BRANCH,
+    FieldsType.TABLE,
   ].includes(type);
 };
 
@@ -171,6 +174,46 @@ export const fieldConfigs: Record<FieldsType, Partial<Field>> = {
     defaultValue: "",
     options: undefined,
     validation: {},
+  },
+  [FieldsType.TABLE]: {
+    label: "Editable Table",
+    required: false,
+    defaultValue: undefined,
+    tableConfig: {
+      columns: [
+        {
+          columnId: "col_1",
+          header: "Column 1",
+          width: "50%",
+          dataType: "text" as const,
+          editable: true,
+        },
+        {
+          columnId: "col_2",
+          header: "Column 2",
+          width: "50%",
+          dataType: "text" as const,
+          editable: true,
+        },
+      ],
+      rows: [
+        {
+          rowId: "row_1",
+          cells: [
+            { value: "", editable: true, dataType: "text" as const },
+            { value: "", editable: true, dataType: "text" as const },
+          ],
+        },
+      ],
+      settings: {
+        showBorders: true,
+        allowAddRows: false,
+        allowDeleteRows: false,
+      },
+      tableStyle: {
+        width: "100%",
+      },
+    } as EditableTableConfig,
   },
 
   // Display Elements
@@ -297,6 +340,7 @@ export const createFieldFromType = (
     defaultValue: config.defaultValue,
     options: config.options,
     validation: config.validation || {},
+    tableConfig: config.tableConfig,
   } as Field;
 };
 
@@ -330,6 +374,8 @@ export const getFieldTypeIcon = (type: FieldsType) => {
       return BriefcaseIcon;
     case FieldsType.BRANCH:
       return MapPinIcon;
+    case FieldsType.TABLE:
+      return TableIcon;
     // Display Elements
     case FieldsType.SEPARATOR:
       return MinusIcon;
@@ -370,6 +416,7 @@ export const getFieldTypeLabel = (type: FieldsType): string => {
     [FieldsType.DEPARTMENT]: "Department",
     [FieldsType.POSITION]: "Position",
     [FieldsType.BRANCH]: "Branch",
+    [FieldsType.TABLE]: "Table",
 
     // Display Elements
     [FieldsType.SEPARATOR]: "Separator",

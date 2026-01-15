@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/context/AuthContext";
 import NotFound from "./lib/components/Pages/NotFound";
 
 import React from "react";
+import { authImages } from "./lib/constants/authImages";
 
 type AuthGuardProviderProps = {
   children: React.ReactNode;
@@ -33,6 +34,7 @@ const AuthGuardProvider = ({
         error="Not Authenticated!"
         description="Please login or register to be able to access this page."
         title="Login"
+        image_url={authImages.logout}
         url={getUrl(URLs.auth.login)}
       />
     );
@@ -45,6 +47,7 @@ const AuthGuardProvider = ({
         error="Not Authorized!"
         description="You do not have access to view this page."
         title="Login"
+        image_url={authImages.logout} // TODO: Change to a more appropriate image
         url={getUrl(URLs.auth.login)}
       />
     );

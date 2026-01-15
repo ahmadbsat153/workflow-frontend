@@ -4,36 +4,27 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/lib/ui/button";
 import { Textarea } from "@/lib/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/lib/ui/dialog";
+
 import { Label } from "@/lib/ui/label";
 import { Badge } from "@/lib/ui/badge";
 import { CheckCircle2, XCircle, Loader2, AlertCircle } from "lucide-react";
 import { MyApproval } from "@/lib/types/approval";
 import { formatDatesWithYear } from "@/utils/common";
-import { API_APPROVAL } from "@/lib/services/approval_service";
 import { handleServerError } from "@/lib/api/_axios";
 import { ErrorResponse } from "@/lib/types/common";
+import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/lib/ui/alert-dialog";
 
-interface ApprovalActionDialogProps {
+type ApprovalActionDialogProps = {
   approval: MyApproval | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
   action: "approve" | "reject" | null;
-}
+};
 
 export function ApprovalActionDialog({
   approval,
   open,
   onOpenChange,
-  onSuccess,
   action,
 }: ApprovalActionDialogProps) {
   const [comments, setComments] = useState("");
@@ -83,19 +74,19 @@ export function ApprovalActionDialog({
     : "Please provide a reason for rejecting this submission.";
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+    <AlertDialog open={open} onOpenChange={handleClose}>
+      <AlertDialogContent className="sm:max-w-[600px]">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2">
             {isApprove ? (
               <CheckCircle2 className="h-5 w-5 text-green-600" />
             ) : (
               <XCircle className="h-5 w-5 text-red-600" />
             )}
             {title}
-          </DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
+          </AlertDialogTitle>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
+        </AlertDialogHeader>
 
         <div className="space-y-4 py-4">
           {/* Submission Info */}
@@ -178,7 +169,7 @@ export function ApprovalActionDialog({
           </div>
         </div>
 
-        <DialogFooter>
+        <AlertDialogFooter>
           <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
             Cancel
           </Button>
@@ -206,8 +197,8 @@ export function ApprovalActionDialog({
               </>
             )}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

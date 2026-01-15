@@ -101,7 +101,7 @@ const PositionsTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [query]);
+  }, [searchParams, query]);
 
   useEffect(() => {
     getPositions();
@@ -154,17 +154,19 @@ const PositionsTable = () => {
         }
         className="font-medium cursor-pointer hover:text-blue-600"
       >
-        {value}
+        {value as string}
       </span>
     ),
     department: (value, row) => (
       <span className="text-sm">{row.departmentId?.name || "-"}</span>
     ),
     level: (value) => (
-      <span className="text-sm text-muted-foreground">{value || "-"}</span>
+      <span className="text-sm text-muted-foreground">
+        {(value as string) || "-"}
+      </span>
     ),
-    createdAt: (value) => <span>{formatDatesWithYear(value)}</span>,
-    updatedAt: (value) => <span>{formatDatesWithYear(value)}</span>,
+    createdAt: (value) => <span>{formatDatesWithYear(value as string)}</span>,
+    updatedAt: (value) => <span>{formatDatesWithYear(value as string)}</span>,
     isActive: (value) => (
       <Badge variant={value ? "active" : "destructive"}>
         {value ? "Active" : "Inactive"}

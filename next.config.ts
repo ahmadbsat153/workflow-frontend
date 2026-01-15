@@ -1,8 +1,24 @@
-import {withSentryConfig} from "@sentry/nextjs";
+import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  serverExternalPackages: ["require-in-the-middle"],
+  images: {
+    remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "8080",
+        pathname: "/uploads/**",
+      },
+      // Add production domain when ready
+      // {
+      //   protocol: "https",
+      //   hostname: "your-production-domain.com", //TODO: replace with actual domain after deployment
+      //   pathname: "/uploads/**",
+      // },
+    ],
+  },
 };
 
 export default withSentryConfig(nextConfig, {
@@ -35,5 +51,5 @@ export default withSentryConfig(nextConfig, {
   // See the following for more information:
   // https://docs.sentry.io/product/crons/
   // https://vercel.com/docs/cron-jobs
-  automaticVercelMonitors: true
+  automaticVercelMonitors: true,
 });

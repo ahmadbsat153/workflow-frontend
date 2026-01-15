@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 "use client";
 
 import {
@@ -90,7 +90,7 @@ const WorkflowHistoryTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [query]);
+  }, [searchParams, query]);
 
   useEffect(() => {
     getHistory();
@@ -131,26 +131,33 @@ const WorkflowHistoryTable = () => {
 
   const cellRenderers: Partial<Record<string, CellRenderer<WorkflowHistory>>> =
     {
-      form: (value: Form) => {
-        return <span>{value.name}</span>;
+      form: (value) => {
+        const form = value as Form; // Manually narrow unknown to Form
+        return <span>{form.name}</span>;
       },
 
-      submittedBy: (value: SubmittedBy) => {
-        return <span>{value.name}</span>;
+      submittedBy: (value) => {
+        const user = value as SubmittedBy;
+        return <span>{user.name}</span>;
       },
+
       createdAt: (value) => {
-        return <span>{formatDatesWithYear(value)}</span>;
+        // Cast value to string (or whatever formatDatesWithYear expects)
+        return <span>{formatDatesWithYear(value as string)}</span>;
       },
 
       updatedAt: (value) => {
-        return <span>{formatDatesWithYear(value)}</span>;
+        return <span>{formatDatesWithYear(value as string)}</span>;
       },
 
       workflowCompletedAt: (value) => {
-        return <span>{value ? formatDatesWithYear(value) : ""}</span>;
+        return <span>{value ? formatDatesWithYear(value as string) : ""}</span>;
       },
-      is_active: (value: WorkflowStatus, row: WorkflowHistory) => {
-        // Map the enum WorkflowStatus to the string union type for badge component
+
+      is_active: (value, row) => {
+        // Narrowing value to WorkflowStatus
+        const status = value as WorkflowStatus;
+
         const statusMap: Record<WorkflowStatus, ApprovalWorkflowStatus> = {
           [WorkflowStatus.PENDING]: "pending",
           [WorkflowStatus.PROCESSING]: "processing",
@@ -158,7 +165,7 @@ const WorkflowHistoryTable = () => {
           [WorkflowStatus.FAILED]: "failed",
         };
 
-        const mappedStatus = statusMap[row.workflowStatus];
+        const mappedStatus = statusMap[status];
         return <WorkflowStatusBadge status={mappedStatus} />;
       },
     };

@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
+ 
 "use client";
 
 import {
@@ -9,22 +9,22 @@ import {
   useQueryStates,
 } from "nuqs";
 
+import Link from "next/link";
 import { toast } from "sonner";
+import { Button } from "@/lib/ui/button";
 import { useRouter } from "next/navigation";
-import { PencilIcon, UserRoundPlusIcon } from "lucide-react";
 import { DataTable } from "../../Table/DataTable";
 import { ErrorResponse } from "@/lib/types/common";
-import { build_path, formatDatesWithYear } from "@/utils/common";
+import { getUrl, URLs } from "@/lib/constants/urls";
 import { handleServerError } from "@/lib/api/_axios";
 import { INITIAL_META } from "@/lib/constants/initials";
+import { PencilIcon, UserRoundPlusIcon } from "lucide-react";
+import { build_path, formatDatesWithYear } from "@/utils/common";
 import { Action, ActionTable } from "@/lib/types/actions/action";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { API_ACTION } from "@/lib/services/Actions/action_service";
 import { ACTION_COLUMNS, ACTION_VISIBLE_COL } from "@/lib/constants/tables";
 import { CellRenderer, AdditionalButton } from "@/lib/types/table/table_data";
-import { Button } from "@/lib/ui/button";
-import Link from "next/link";
-import { getUrl, URLs } from "@/lib/constants/urls";
 
 const ActionsTable = () => {
   const searchParams = {
@@ -81,7 +81,7 @@ const ActionsTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [query]);
+  }, [query, searchParams]);
 
   useEffect(() => {
     getActions();
@@ -122,11 +122,11 @@ const ActionsTable = () => {
 
   const cellRenderers: Partial<Record<string, CellRenderer<Action>>> = {
     createdAt: (value) => {
-      return <span>{formatDatesWithYear(value)}</span>;
+      return <span>{formatDatesWithYear(value as string)}</span>;
     },
 
     updatedAt: (value) => {
-      return <span>{formatDatesWithYear(value)}</span>;
+      return <span>{formatDatesWithYear(value as string)}</span>;
     },
 
     actions: (value, row) => {

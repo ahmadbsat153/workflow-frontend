@@ -23,6 +23,7 @@ import { useParams, useRouter } from "next/navigation";
 import { getUrl, URLs } from "@/lib/constants/urls";
 import DotsLoader from "../../Loader/DotsLoader";
 import { Field } from "@/lib/types/form/fields";
+import { User } from "@/lib/types/user/user";
 
 const FormsSubmissionsTable = () => {
   const params = useParams();
@@ -114,7 +115,7 @@ const FormsSubmissionsTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [query, form_slug]);
+  }, [searchParams, query, form_slug]);
 
   useEffect(() => {
     getForms();
@@ -155,15 +156,19 @@ const FormsSubmissionsTable = () => {
 
   const cellRenderers: Partial<Record<string, CellRenderer<FormSubmission>>> = {
     createdAt: (value) => {
-      return <span>{formatDatesWithYear(value)}</span>;
+      return <span>{formatDatesWithYear(value as string)}</span>;
     },
 
-    submittedBy: (value) => <div>{value.email}</div>,
+    submittedBy: (_, row) => {
+      // We ignore 'value' because it's 'unknown'
+      // We use 'row' because we KNOW it is 'FormSubmission'
+      return <div>{row.submittedBy?.email}</div>;
+    },
 
     // Dynamically handle all field columns
     ...fields.reduce((acc, field) => {
       acc[field.name] = (value, row) => {
-        const fieldValue = row.submissionData?.[field.name];
+        const fieldValue = row.submissionData?.[field.name] as string;
 
         if (
           fieldValue === undefined ||
@@ -176,7 +181,7 @@ const FormsSubmissionsTable = () => {
         // Handle different field types
         switch (field.type) {
           case "date":
-            return <span>{formatDatesWithYear(fieldValue)}</span>;
+            return <span>{formatDatesWithYear(fieldValue as string)}</span>;
           case "checkbox":
             if (!Array.isArray(fieldValue)) {
               // Single boolean checkbox (like "I agree")
@@ -224,6 +229,14 @@ const FormsSubmissionsTable = () => {
               </a>
             );
           default:
+            // Handle objects and arrays by converting to string
+            if (typeof fieldValue === "object") {
+              return (
+                <span className="text-gray-600">
+                  {JSON.stringify(fieldValue)}
+                </span>
+              );
+            }
             return <span>{fieldValue}</span>;
         }
       };
@@ -238,7 +251,11 @@ const FormsSubmissionsTable = () => {
   };
 
   if (loading) {
-    return <DotsLoader />;
+    return (
+      <div className="h-full w-full flex justify-center items-center ">
+        <DotsLoader />
+      </div>
+    );
   }
 
   return (

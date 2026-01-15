@@ -22,7 +22,9 @@ import {
   ChevronsUpDown,
   Settings2,
 } from "lucide-react";
+import Link from "next/link";
 import PanelSidebarLogout from "./PanelSiderbarLogout";
+import { URLs } from "@/lib/constants/urls";
 
 const PanelSidebarAccount = () => {
   const { user } = useAuth();
@@ -64,17 +66,23 @@ const PanelSidebarAccount = () => {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
+              <DropdownMenuItem asChild>
+                <Link href={URLs.app.profile}>
+                  <BadgeCheck />
+                  My Profile
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
+              <DropdownMenuItem asChild>
+                <Link href={URLs.app.notifications.preferences}>
+                  <Bell />
+                  Notifications
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings2 />
-                Settings
+              <DropdownMenuItem asChild>
+                <Link href={URLs.admin.settings.index}>
+                  <Settings2 />
+                  Settings
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

@@ -12,27 +12,43 @@ import {
   SelectValue,
 } from "@/lib/ui/select";
 import { Switch } from "@/lib/ui/switch";
+type InputValue = string | number | boolean | undefined;
+type InputValues = Record<string, InputValue>;
+
 type Props = {
-  inputValues: {
-    [key: string]: any;
-  };
-  setInputValues: Function;
+  inputValues: InputValues;
+  setInputValues: (values: InputValues) => void;
   fields: UserFormField[];
-  addFunction: Function;
-  onClose: Function;
+  addFunction: (e: React.FormEvent<HTMLFormElement>) => void;
+  onClose: () => void;
   loading: boolean;
-  inputValuesProps: {
-    [key: string]: any;
-  };
+  inputValuesProps: InputValues;
 };
 
-type FieldRestrictionObject = {
-  [key: string]: any;
-};
+type FieldRestrictionObject = Record<string, string | number | boolean>;
 
 type SelectOptions = {
   label: string;
-  value: any;
+  value: string;
+};
+
+// Helper functions to safely convert input values
+const toInputValue = (val: InputValue): string | number | undefined => {
+  if (val === undefined || val === null) return undefined;
+  if (typeof val === "boolean") return undefined;
+  return val;
+};
+
+const toStringValue = (val: InputValue): string | undefined => {
+  if (val === undefined || val === null) return undefined;
+  if (typeof val === "string") return val;
+  if (typeof val === "number") return String(val);
+  return undefined;
+};
+
+const toBooleanValue = (val: InputValue): boolean | undefined => {
+  if (typeof val === "boolean") return val;
+  return undefined;
 };
 
 type UserFormField = {
@@ -66,13 +82,17 @@ const AddForm = ({
     setInputValues({ ...inputValues, [field._id]: e.target.value });
   };
   const renderField = (field: UserFormField) => {
+    const inputVal = toInputValue(inputValues[field._id]);
+    const stringVal = toStringValue(inputValues[field._id]);
+    const boolVal = toBooleanValue(inputValues[field._id]);
+
     switch (field.type) {
       case FieldsType.TEXT:
         return (
           <Input
             variant="outline"
-            defaultValue={inputValues[field._id]}
-            value={inputValues[field._id]}
+            defaultValue={inputVal}
+            value={inputVal}
             label={field.label}
             type={"text"}
             className={field?.style}
@@ -84,8 +104,8 @@ const AddForm = ({
         return (
           <Input
             type="number"
-            defaultValue={inputValues[field._id]}
-            value={inputValues[field._id]}
+            defaultValue={inputVal}
+            value={inputVal}
             className={field?.style}
             onChange={(e) => handleChange(e, field)}
             name={field.name}
@@ -94,9 +114,9 @@ const AddForm = ({
       case FieldsType.TEXT_AREA:
         return (
           <textarea
-            rows={field.restrictions?.length || 4}
-            defaultValue={inputValues[field._id]}
-            value={inputValues[field._id]}
+            rows={typeof field.restrictions?.length === "number" ? field.restrictions.length : 4}
+            defaultValue={stringVal}
+            value={stringVal}
             className={field?.style}
             onChange={(e) =>
               setInputValues({ ...inputValues, [field._id]: e.target.value })
@@ -109,11 +129,11 @@ const AddForm = ({
           <div className={field?.style}>
             <Label className="mb-2">{field.label}</Label>
             <Select
-              defaultValue={inputValues[field._id]}
-              value={inputValues[field._id]}
+              defaultValue={stringVal}
+              value={stringVal}
               autoComplete={
                 field?.restrictions?.hasOwnProperty("autocomplete")
-                  ? field?.restrictions?.autocomplete
+                  ? String(field?.restrictions?.autocomplete)
                   : "off"
               }
               name={field.name}
@@ -122,7 +142,7 @@ const AddForm = ({
                 setInputValues({ ...inputValues, [field._id]: value })
               }
             >
-              <SelectTrigger value={inputValues[field._id]} className="w-full">
+              <SelectTrigger value={stringVal} className="w-full">
                 <SelectValue placeholder={field.label} />
               </SelectTrigger>
               <SelectContent className={field?.style}>
@@ -150,7 +170,7 @@ const AddForm = ({
                 </div>
               </div>
               <Switch
-                checked={inputValues[field._id]}
+                checked={boolVal}
                 onCheckedChange={(value) =>
                   setInputValues({ ...inputValues, [field._id]: value })
                 }
@@ -169,9 +189,9 @@ const AddForm = ({
             <Label>{field.label}</Label>
             <Input
               className={field?.style}
-              checked={inputValues[field._id]}
-              defaultValue={inputValues[field._id]}
-              defaultChecked={inputValues[field._id]}
+              checked={boolVal}
+              defaultValue={inputVal}
+              defaultChecked={boolVal}
               onChange={(e) =>
                 setInputValues({ ...inputValues, [field._id]: e.target.value })
               }
@@ -187,8 +207,8 @@ const AddForm = ({
               setInputValues({ ...inputValues, [field._id]: e.target.value })
             }
             className={field?.style}
-            defaultValue={inputValues[field._id]}
-            value={inputValues[field._id]}
+            defaultValue={inputVal}
+            value={inputVal}
             type="date"
             name={field.name}
           />
@@ -200,8 +220,8 @@ const AddForm = ({
             label={field.label}
             type={"email"}
             className={field?.style}
-            defaultValue={inputValues[field._id]}
-            value={inputValues[field._id]}
+            defaultValue={inputVal}
+            value={inputVal}
             onChange={(e) => handleChange(e, field)}
             name={field.name}
           />
@@ -213,8 +233,8 @@ const AddForm = ({
             label={field.label}
             type={"text"}
             className={field?.style}
-            defaultValue={inputValues[field._id]}
-            value={inputValues[field._id]}
+            defaultValue={inputVal}
+            value={inputVal}
             onChange={(e) => handleChange(e, field)}
             name={field.name}
           />

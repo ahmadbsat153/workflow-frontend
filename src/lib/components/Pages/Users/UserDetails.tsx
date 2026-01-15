@@ -1,15 +1,7 @@
 "use client";
 
-import {
-  createSerializer,
-  parseAsInteger,
-  parseAsString,
-  useQueryStates,
-} from "nuqs";
-
-import { useParams } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 import { toast } from "sonner";
 import { MoveLeftIcon, ShieldCheck } from "lucide-react";
@@ -23,10 +15,25 @@ import UserOverview from "./UserOverview";
 import UserAnalytics from "./UserAnalytics";
 import { Button } from "@/lib/ui/button";
 import { URLs } from "@/lib/constants/urls";
+import FixedHeaderFooterLayout from "../../Layout/FixedHeaderFooterLayout";
+import { User } from "@/lib/types/user/user";
 
-const UserDetails = () => {
-  const params = useParams();
-  const user_slug = params.slug as string;
+interface UserAnalyticsData {
+  forms?: number;
+  submissions?: number;
+  total?: number;
+  barChartAnalytics?: Array<{ month: string; forms: number; workflows: number }>;
+  recentActivities?: Array<{
+    _id: string;
+    type: string;
+    createdAt: string;
+    updatedAt: string;
+    is_active: boolean;
+  }>;
+}
+
+const UserDetails = ({ userId }: { userId: string }) => {
+  const user_slug = userId;
 
   const router = useRouter();
   const handleGoBack = () => {
@@ -34,13 +41,18 @@ const UserDetails = () => {
   };
 
   const handleManagePermissions = () => {
-    router.push(URLs.admin.users.detail.replace(":slug", user_slug) + "/permissions");
+    router.push(
+      URLs.admin.users.detail.replace(":slug", user_slug) + "/permissions"
+    );
   };
 
   const [loading, setLoading] = useState(true);
-  const [userDetails, setUserDetails] = useState<{details: any, analytics: any}>({
-    details: [],
-    analytics: [],
+  const [userDetails, setUserDetails] = useState<{
+    details: User | null;
+    analytics: UserAnalyticsData | null;
+  }>({
+    details: null,
+    analytics: null,
   });
 
   // TODO: Change rendering based on user permissions/role
@@ -48,29 +60,38 @@ const UserDetails = () => {
     {
       value: "0",
       label: "Overview",
-      content: <UserOverview data={userDetails.details}/>,
     },
     {
       value: "1",
       label: "Analytics",
-      content: <UserAnalytics data={userDetails.analytics} />,
-    },
-    {
-      value: "2",
-      label: "Settings",
-      content: <div>Settings</div>,
     },
   ];
-  const [activeTab, setActiveTab] = useState<string>(tabsList[0].value);
+  const [activeTab, setActiveTab] = useState<string>("0");
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "0":
+        return <UserOverview data={userDetails.details} />;
+      case "1":
+        return <UserAnalytics data={userDetails.analytics} />;
+      default:
+        return null;
+    }
+  };
   const getUserDetails = useCallback(async () => {
+    if (!user_slug) {
+      console.error("User ID is undefined");
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
 
       const res_analytics = await API_USER.getUserAnalytics(user_slug);
       const res_details = await API_USER.getUserById(user_slug);
-      console.log("details", res_analytics, res_details);
       setUserDetails({
-        analytics: res_analytics,
+        analytics: res_analytics as unknown as UserAnalyticsData,
         details: res_details,
       });
     } catch (error) {
@@ -84,40 +105,53 @@ const UserDetails = () => {
 
   useEffect(() => {
     getUserDetails();
-  }, []);
+  }, [getUserDetails]);
 
   return (
-    <div>
+    <div className="h-full flex items-start">
       {loading ? (
         <DotsLoader />
       ) : (
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <Button onClick={handleGoBack} className="bg-gray-50 text-default hover:bg-primary/20">
-              <MoveLeftIcon className="size-4" />
-              Back
-            </Button>
-            <Button onClick={handleManagePermissions} variant="outline">
-              <ShieldCheck className="mr-2 h-4 w-4" />
-              Manage Permissions
-            </Button>
-          </div>
-
-        <Tabs defaultValue={activeTab}>
-          <TabsList>
-            {tabsList.map((tab) => (
-              <TabsTrigger
-                key={tab.value}
-                value={tab.value}
-                onClick={() => setActiveTab(tab.value)}
+        <FixedHeaderFooterLayout
+          title={""}
+          description={""}
+          footer={<></>}
+          maxWidth="4xl"
+          maxHeight="90vh"
+        >
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <Button
+                onClick={handleGoBack}
+                className="bg-gray-50 text-default hover:bg-primary/20"
               >
-                {tab.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-          <TabsContent value={activeTab}>{tabsList[parseInt(activeTab) as number]?.content}</TabsContent>
-        </Tabs>
-        </div>
+                <MoveLeftIcon className="size-4" />
+                Back
+              </Button>
+              <Button onClick={handleManagePermissions} variant="outline">
+                <ShieldCheck className="mr-2 h-4 w-4" />
+                Manage Permissions
+              </Button>
+            </div>
+
+            <Tabs defaultValue={activeTab}>
+              <TabsList>
+                {tabsList.map((tab) => (
+                  <TabsTrigger
+                    key={tab.value}
+                    value={tab.value}
+                    onClick={() => setActiveTab(tab.value)}
+                  >
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              <TabsContent value={activeTab}>
+                {renderTabContent()}
+              </TabsContent>
+            </Tabs>
+          </div>
+        </FixedHeaderFooterLayout>
       )}
     </div>
   );

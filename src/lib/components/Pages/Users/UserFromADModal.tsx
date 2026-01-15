@@ -82,6 +82,7 @@ const UserFromADModal = ({
     query.search,
     query.sortField,
     query.sortOrder,
+    getUsers,
   ]);
 
   const handlePageChange = useCallback((page: number) => {

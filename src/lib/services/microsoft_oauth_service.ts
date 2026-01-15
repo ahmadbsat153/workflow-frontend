@@ -1,4 +1,5 @@
 import { _axios } from "../api/_axios";
+import { User } from "../types/user/user";
 
 export type MicrosoftOAuthConfig = {
   clientId: string;
@@ -10,7 +11,7 @@ export type MicrosoftOAuthConfig = {
 export type MicrosoftAuthSuccessMessage = {
   type: "MICROSOFT_AUTH_SUCCESS";
   token: string;
-  user: any;
+  user: User;
   permissions: string[];
 };
 
