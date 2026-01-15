@@ -257,7 +257,7 @@ export default function NotificationPreferencesPage({
             ) : preferences ? (
               <>
                 <div className="space-y-0 divide-y">
-                  {notificationTypes.map((type, index) => (
+                  {notificationTypes.map((type) => (
                     <PreferenceRow
                       key={type.key}
                       type={type.key}

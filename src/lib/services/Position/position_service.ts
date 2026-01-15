@@ -7,7 +7,10 @@ import {
 import { POSITION_ENDPOINTS } from "@/lib/constants/endpoints";
 import { build_path } from "@/utils/common";
 import { SuccessResponse } from "@/lib/types/common";
+import { User } from "@/lib/types/user/user";
+import { PositionFormValues } from "@/lib/components/Pages/Positions/PositionForm";
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace API_POSITION {
   export async function getAllPositions(query?: string) {
     try {
@@ -47,13 +50,13 @@ export namespace API_POSITION {
       const response = await _axios.get(
         build_path(POSITION_ENDPOINTS.GET_USERS, { id })
       );
-      return response.data as { data: any[] };
+      return response.data as { data: Partial<User>[] };
     } catch (error: unknown) {
       throw handleErrors(error);
     }
   }
 
-  export async function createPosition(data: any) {
+  export async function createPosition(data: Omit<PositionFormValues, '_id'>) {
     try {
       const response = await _axios.post(POSITION_ENDPOINTS.CREATE, data);
       return response.data as SuccessResponse;
@@ -62,7 +65,7 @@ export namespace API_POSITION {
     }
   }
 
-  export async function updatePosition(id: string, data: any) {
+  export async function updatePosition(id: string, data: PositionFormValues) {
     try {
       const response = await _axios.put<SuccessResponse>(
         build_path(POSITION_ENDPOINTS.UPDATE, { id }),

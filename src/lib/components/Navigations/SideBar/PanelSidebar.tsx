@@ -19,10 +19,9 @@ import {
 import { cn } from "@/lib/utils";
 import { isLinkActive } from "@/utils/common";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@/lib/context/AuthContext";
-import { usePermissions } from "@/lib/hooks/usePermissions";
-import PanelSidebarAccount from "./PanelSidebarAccount";
 import { NAVIGATION } from "@/lib/constants/menu";
+import PanelSidebarAccount from "./PanelSidebarAccount";
+import { usePermissions } from "@/lib/hooks/usePermissions";
 import { NotificationBell } from "@/lib/components/Navigations/Notifications/NotificationBell";
 
 const HIDDEN_SIDEBAR_ROUTES = ["/admin/forms/create", "/admin/forms/edit"];

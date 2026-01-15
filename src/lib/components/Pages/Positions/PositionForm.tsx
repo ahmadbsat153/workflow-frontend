@@ -61,7 +61,7 @@ const positionSchema = z.object({
   isActive: z.boolean(),
 });
 
-type PositionFormValues = z.infer<typeof positionSchema>;
+export type PositionFormValues = z.infer<typeof positionSchema>;
 
 const PositionForm = ({
   isEdit = false,

@@ -1,6 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { toast } from "sonner";
+import Image from "next/image";
+import { Suspense } from "react";
+import { Input } from "@/lib/ui/input";
+import { Button } from "@/lib/ui/button";
 import { redirect } from "@/utils/common";
 import { ErrorResponse } from "@/lib/types/common";
 import { URLs, getUrl } from "@/lib/constants/urls";
@@ -8,41 +13,55 @@ import { useAuth } from "@/lib/context/AuthContext";
 import { handleServerError } from "@/lib/api/_axios";
 import { FormEvent, useState, useEffect } from "react";
 import { API_AUTH } from "@/lib/services/auth_service";
+import { authImages } from "@/lib/constants/authImages";
 import DotsLoader from "@/lib/components/Loader/DotsLoader";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import { FadeIn, FadeInStagger } from "@/lib/components/Motion/FadeIn";
-import { Button } from "@/lib/ui/button";
-import { Input } from "@/lib/ui/input";
-import { Label } from "@/lib/ui/label";
-import { toast } from "sonner";
+import { API_SETTINGS } from "@/lib/services/Settings/settings_service";
+import { microsoftOAuthService } from "@/lib/services/microsoft_oauth_service";
 
-export default function Login() {
+function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [loadingAzure, setLoadingAzure] = useState(false);
   const [success, setSuccess] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [loginBgImage, setLoginBgImage] = useState<string | null>(null);
+  const [logo, setLogo] = useState<string | null>(null);
 
   const router = useRouter();
   const searchparams = useSearchParams();
   const callback = searchparams.get("callback");
 
-  const { user, setUser, validating, isAdmin } = useAuth();
+  const { user, setUser, validating } = useAuth();
 
   useEffect(() => {
     if (user?.user) {
-      //TODO: Make it dynamic based on permissions
-      router.push(
-        getUrl(
-          user.user.is_super_admin || isAdmin
-            ? URLs.admin.dashboard
-            : URLs.app.forms.index
-        )
-      );
+      router.push(getUrl(URLs.app.forms.index));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  useEffect(() => {
+    // Fetch public auth images (no auth required)
+    const fetchImages = async () => {
+      try {
+        const backendHost =
+          process.env.NEXT_PUBLIC_BACKEND_HOST || "http://localhost:8080";
+        const response = await API_SETTINGS.getPublicAuthImages();
+        setLoginBgImage(
+          backendHost + response.data[authImages.login]?.value || null
+        );
+        setLogo(backendHost + response.data[authImages.logo]?.value || null);
+      } catch (err) {
+        console.error("Failed to load auth images:", err);
+        // Fail silently - use default images if API fails
+      }
+    };
+
+    fetchImages();
+  }, []);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
@@ -53,9 +72,9 @@ export default function Login() {
     setCredentials(temp);
   };
 
-  //TODO: Check how we're going to handle azure login
   const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     setLoading(true);
 
     try {
@@ -67,21 +86,46 @@ export default function Login() {
 
         localStorage.setItem("AFW_token", JSON.stringify(response.token));
 
-        //TODO: Make it dynamic based on permissions
-        router.push(
-          getUrl(
-            response.user.is_super_admin || isAdmin
-              ? URLs.admin.dashboard
-              : URLs.app.forms.index
-          )
-        );
+        router.push(getUrl(URLs.app.dashboard));
       }
     } catch (e) {
       handleServerError(e as ErrorResponse, (err_msg) => {
-        toast.error(err_msg as string);
+        toast.error(err_msg);
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleMicrosoftLogin = async () => {
+    setLoadingAzure(true);
+
+    try {
+      const result = await microsoftOAuthService.openLoginPopup();
+
+      // Store token and user data
+      localStorage.setItem("AFW_token", JSON.stringify(result.token));
+
+      const authData = {
+        user: result.user,
+        token: result.token,
+        permissions: result.permissions,
+        status: 200,
+      };
+
+      setUser(authData);
+      setSuccess(true);
+
+      toast.success("Successfully logged in with Microsoft!");
+
+      // Redirect to appropriate page
+      router.push(getUrl(URLs.app.dashboard));
+    } catch (error: unknown) {
+      const err = error as ErrorResponse;
+      console.error("Microsoft login error:", error);
+      toast.error(err.message || "Failed to login with Microsoft");
+    } finally {
+      setLoadingAzure(false);
     }
   };
 
@@ -97,15 +141,27 @@ export default function Login() {
     <div className="h-screen w-full flex items-center justify center">
       <div className="h-full flex items-center justify-center w-full rounded-lg shadow-sm">
         <div className="w-1/2 h-full bg-muted relative hidden lg:block">
-          <img
-            src="/images/login.png"
-            alt=""
+          <Image
+            src={loginBgImage || "/images/login.png"}
+            alt="Login background"
+            fill
             className="absolute inset-0 h-full w-full object-cover"
           />
         </div>
         <div className="w-1/2 h-full flex items-center">
           <FadeInStagger className="w-full sm:max-w-md xl:mx-auto ">
             <FadeIn>
+              {logo && (
+                <div className="flex justify-center mb-6">
+                  <Image
+                    src={logo}
+                    alt="Logo"
+                    width={64}
+                    height={64}
+                    className="h-16 w-auto object-contain"
+                  />
+                </div>
+              )}
               <h1 className="font-bold leading-tight text-2xl text-center">
                 Log In
               </h1>
@@ -164,9 +220,9 @@ export default function Login() {
                             ? redirect(URLs.auth.forgotPassword, callback)
                             : getUrl(URLs.auth.forgotPassword)
                         }
-                        className="font-medium ml-1 text-blue-600 transition-all duration-200 hover:text-blue-700 hover:underline focus:text-blue-700 text-sm"
+                        className="font-medium ml-1 text-pumpkin transition-all duration-200 hover:text-text-pumpkin hover:underline  text-sm"
                       >
-                        Forgot password
+                        Forgot password!
                       </Link>
                     </div>
 
@@ -181,20 +237,26 @@ export default function Login() {
                       >
                         {success ? "Success" : "Log In"}
                       </Button>
-                      <div className="my-[3vh] w-full flex justify-center items-center h-[1px] bg-gray-400 relative">
-                        <span className="text-gray-400 text-sm bg-white px-4">
-                          OR CONTINUE WITH
-                        </span>
+
+                      {/* Microsoft Login */}
+                      <div>
+                        <div className="my-[3vh] w-full flex justify-center items-center h-[1px] bg-gray-400 relative">
+                          <span className="text-gray-400 text-sm bg-white px-4">
+                            OR CONTINUE WITH
+                          </span>
+                        </div>
+                        <Button
+                          size="sm"
+                          type="button"
+                          onClick={handleMicrosoftLogin}
+                          isLoading={loadingAzure}
+                          isDisabled={loading || loadingAzure}
+                          className="w-full text-base"
+                          variant="outline"
+                        >
+                          {loadingAzure ? "Connecting..." : "Microsoft"}
+                        </Button>
                       </div>
-                      <Button
-                        size="sm"
-                        isLoading={loadingAzure}
-                        isDisabled={loading || loadingAzure}
-                        className="w-full text-base"
-                      >
-                        Microsoft
-                      </Button>
-                      {/* <span className="text-destructive text-lg">{error}</span> */}
                     </div>
                   </div>
                 </div>
@@ -204,5 +266,19 @@ export default function Login() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Login() {
+  return (
+    <Suspense
+      fallback={
+        <div className="h-screen w-full flex items-center justify-center">
+          <DotsLoader />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

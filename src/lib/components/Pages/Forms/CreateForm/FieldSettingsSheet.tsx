@@ -8,6 +8,19 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/lib/ui/sheet";
+import {
+  EyeIcon,
+  ListIcon,
+  Settings2,
+  SquareCheckBigIcon,
+  PaletteIcon,
+  TypeIcon,
+} from "lucide-react";
+
+import {
+  isDisplayElement,
+  getFieldTypeLabel,
+} from "@/lib/constants/formFields";
 
 import { z } from "zod";
 import { useState } from "react";
@@ -16,28 +29,15 @@ import { Button } from "@/lib/ui/button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Field, FieldsType } from "@/lib/types/form/fields";
-import {
-  EyeIcon,
-  ListIcon,
-  Settings2,
-  SquareCheckBigIcon,
-  PaletteIcon,
-  TypeIcon,
-  TableIcon,
-} from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/lib/ui/tabs";
-import FieldProperties from "@/lib/components/Tabs/Fields/FieldProperties";
-import { buildFieldSettingsSchema } from "@/utils/Validation/fieldValidationSchema";
-import FieldValidation from "@/lib/components/Tabs/Fields/FieldValidation";
+import TableConfig from "@/lib/components/Tabs/Fields/TableConfig";
 import FieldOptions from "@/lib/components/Tabs/Fields/FieldOptions";
 import FieldDisplay from "@/lib/components/Tabs/Fields/FieldDisplay";
-import {
-  isDisplayElement,
-  getFieldTypeLabel,
-} from "@/lib/constants/formFields";
-import DisplayElementContent from "@/lib/components/Tabs/Fields/DisplayElementContent";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/lib/ui/tabs";
+import FieldProperties from "@/lib/components/Tabs/Fields/FieldProperties";
+import FieldValidation from "@/lib/components/Tabs/Fields/FieldValidation";
 import DisplayElementStyle from "@/lib/components/Tabs/Fields/DisplayElementStyle";
-import TableConfig from "@/lib/components/Tabs/Fields/TableConfig";
+import { buildFieldSettingsSchema } from "@/utils/Validation/fieldValidationSchema";
+import DisplayElementContent from "@/lib/components/Tabs/Fields/DisplayElementContent";
 
 type FieldSettingsSheetProps = {
   field: Field;
@@ -125,8 +125,8 @@ const FieldSettingsSheet = ({
       // For display elements
       const displayValues = values as {
         name: string;
-        content?: any;
-        style?: any;
+        content?: object;
+        style?: object;
       };
 
       updatedField = {

@@ -15,21 +15,19 @@ import DotsLoader from "../../Loader/DotsLoader";
 import { ErrorResponse } from "@/lib/types/common";
 import { BookCheckIcon, Plus } from "lucide-react";
 import { getUrl, URLs } from "@/lib/constants/urls";
-import { useAuth } from "@/lib/context/AuthContext";
 import { handleServerError } from "@/lib/api/_axios";
 import { Form, FormList } from "@/lib/types/form/form";
 import { INITIAL_META } from "@/lib/constants/initials";
 import { useCallback, useEffect, useState } from "react";
-import { API_FORM } from "@/lib/services/Form/form_service";
-import { PermissionGuard } from "../../Auth/PermissionGuard";
 import { PERMISSIONS } from "@/lib/constants/permissions";
+import { API_FORM } from "@/lib/services/Form/form_service";
 import { usePermissions } from "@/lib/hooks/usePermissions";
+import { PermissionGuard } from "../../Auth/PermissionGuard";
 
 const FormCardList = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const { hasPermission, hasAllPermissions, hasAnyPermission } =
-    usePermissions();
+  const { hasPermission } = usePermissions();
   const searchParams = {
     page: parseAsInteger,
     limit: parseAsInteger,

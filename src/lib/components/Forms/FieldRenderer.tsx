@@ -15,12 +15,25 @@ import {
 } from "@/lib/ui/select";
 import { Label } from "@/lib/ui/label";
 import EditableTableField from "./EditableTableField";
+import { EditableTableConfig } from "@/lib/types/form/editableTable";
+
+// Field value is intentionally broad as this component handles all field types
+// Each case in the switch handles the specific type appropriately
+type FieldValue = string | number | boolean | string[] | FileList | EditableTableConfig | null | undefined;
 
 type FieldRendererProps = {
   field: Field;
-  value: any;
-  onChange: (value: any) => void;
+  value: FieldValue;
+  onChange: (value: FieldValue) => void;
   disabled?: boolean;
+};
+
+// Helper to safely convert value to string for input fields
+const toStringValue = (val: FieldValue): string => {
+  if (val === null || val === undefined) return "";
+  if (typeof val === "string") return val;
+  if (typeof val === "number") return String(val);
+  return "";
 };
 
 /**
@@ -33,12 +46,14 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({
   onChange,
   disabled = false,
 }) => {
+  const stringValue = toStringValue(value);
+
   switch (field.type) {
     case FieldsType.TEXT:
       return (
         <Input
           type="text"
-          value={value || ""}
+          value={stringValue}
           onChange={(e) => onChange(e.target.value)}
           placeholder={field.placeholder}
           required={field.required}
@@ -52,7 +67,7 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({
       return (
         <Input
           type="email"
-          value={value || ""}
+          value={stringValue}
           onChange={(e) => onChange(e.target.value)}
           placeholder={field.placeholder}
           required={field.required}
@@ -64,7 +79,7 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({
       return (
         <Input
           type="number"
-          value={value || ""}
+          value={stringValue}
           onChange={(e) => onChange(e.target.value)}
           placeholder={field.placeholder}
           required={field.required}
@@ -78,7 +93,7 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({
       return (
         <Input
           type="date"
-          value={value || ""}
+          value={stringValue}
           onChange={(e) => onChange(e.target.value)}
           required={field.required}
           disabled={disabled}
@@ -88,7 +103,7 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({
     case FieldsType.TEXT_AREA:
       return (
         <Textarea
-          value={value || ""}
+          value={stringValue}
           onChange={(e) => onChange(e.target.value)}
           placeholder={field.placeholder}
           required={field.required}
@@ -102,7 +117,7 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({
     case FieldsType.SELECT:
       return (
         <Select
-          value={value || ""}
+          value={stringValue}
           onValueChange={onChange}
           disabled={disabled}
           required={field.required}
@@ -195,7 +210,7 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({
           required={field.required}
           disabled={disabled}
           accept={field.validation?.allowedFileTypes?.join(",")}
-          multiple={field.validation?.maxFiles && field.validation.maxFiles > 1}
+          multiple={field.validation?.maxFiles ? field.validation.maxFiles > 1 : undefined}
         />
       );
 
@@ -211,29 +226,31 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({
       return (
         <EditableTableField
           config={field.tableConfig}
-          value={value}
-          onChange={onChange}
+          value={value as EditableTableConfig | undefined}
+          onChange={onChange as (config: EditableTableConfig) => void}
           disabled={disabled}
         />
       );
 
     // Display elements - read-only
-    case FieldsType.TITLE:
+    case FieldsType.TITLE: {
       const level = field.content?.level || 2;
-      const HeadingTag = `h${level}` as keyof JSX.IntrinsicElements;
-      return (
-        <HeadingTag
-          style={{
-            fontSize: field.style?.fontSize,
-            fontWeight: field.style?.fontWeight,
-            color: field.style?.color,
-            textAlign: field.style?.alignment,
-            margin: field.style?.margin,
-          }}
-        >
-          {field.content?.text}
-        </HeadingTag>
-      );
+      const headingStyle: React.CSSProperties = {
+        fontSize: field.style?.fontSize,
+        fontWeight: field.style?.fontWeight,
+        color: field.style?.color,
+        textAlign: field.style?.alignment,
+        margin: field.style?.margin,
+      };
+      const text = field.content?.text;
+
+      if (level === 1) return <h1 style={headingStyle}>{text}</h1>;
+      if (level === 3) return <h3 style={headingStyle}>{text}</h3>;
+      if (level === 4) return <h4 style={headingStyle}>{text}</h4>;
+      if (level === 5) return <h5 style={headingStyle}>{text}</h5>;
+      if (level === 6) return <h6 style={headingStyle}>{text}</h6>;
+      return <h2 style={headingStyle}>{text}</h2>;
+    }
 
     case FieldsType.PARAGRAPH:
       return (
@@ -307,7 +324,7 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({
     case FieldsType.BRANCH:
       return (
         <Select
-          value={value || ""}
+          value={stringValue}
           onValueChange={onChange}
           disabled={disabled}
           required={field.required}

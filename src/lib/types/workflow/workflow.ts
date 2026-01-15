@@ -1,8 +1,7 @@
-import { Node as ReactFlowNode, Edge } from "reactflow";
-import { Action, ActionConfigField } from "@/lib/types/actions/action";
-import { Form } from "../form/form";
-import { User } from "../user/user";
 import { Meta } from "../common";
+import { Form } from "../form/form";
+import { Edge, Node as ReactFlowNode } from "reactflow";
+import { Action } from "@/lib/types/actions/action";
 import { SubmittedBy } from "../form/form_submission";
 
 export type WorkflowNodeData = {
@@ -10,8 +9,8 @@ export type WorkflowNodeData = {
   tempId: string;
   stepName: string;
   actionId?: string;
-  action?: Action; // Store full action data
-  config: Record<string, any>;
+  action?: Action;
+  config: Record<string, unknown>;
   branches?: BranchData[];
 };
 
@@ -26,7 +25,7 @@ export type BranchData = {
 export type ConditionData = {
   field: string;
   operator: string;
-  value: any;
+  value: unknown;
 };
 
 export type WorkflowNode = ReactFlowNode<WorkflowNodeData>;
@@ -38,7 +37,7 @@ export type WorkflowStep = {
   actionId: string | null;
   conditions: ConditionData[];
   conditionLogic: "AND" | "OR";
-  config: Record<string, any>;
+  config: Record<string, unknown>;
   nextStepTempId: string | null;
 };
 
@@ -52,9 +51,9 @@ export interface SaveWorkflowRequest {
   workflowId?: string;
   name: string;
   description?: string;
-  nodes: any[];
-  edges: any[];
-  workflowJSON: any;
+  nodes: WorkflowNode[];
+  edges: Edge[];
+  workflowJSON: WorkflowJSON;
 }
 
 export interface WorkflowResponse {
@@ -62,9 +61,9 @@ export interface WorkflowResponse {
   name: string;
   description?: string;
   formId: string;
-  nodes: any[];
-  edges: any[];
-  workflowJSON: any;
+  nodes: WorkflowNode[];
+  edges: Edge[];
+  workflowJSON: WorkflowJSON;
   createdAt: string;
   updatedAt: string;
 }
@@ -90,7 +89,7 @@ export type WorkflowHistory = {
   workflowStatus: WorkflowStatus;
   workflowError: string | null;
   workflowCompletedAt: string;
-  submissionDataPreview: Record<string, any>;
+  submissionDataPreview: Record<string, unknown>;
   executionDuration: number;
   createdAt: string;
   updatedAt: string;

@@ -170,7 +170,7 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
         lastname: res.lastname || "",
         email: res.email || "",
         is_super_admin: res.is_super_admin || false,
-        roleId: res.role?._id || null,
+        roleId: res.role?.id || null,
         departmentId: res.departmentId?._id || null,
         positionId: res.positionId?._id || null,
         branchId: res.branchId?._id || null,
@@ -210,7 +210,7 @@ const UserSheet = ({ children, user, callback }: UserSheetProps) => {
 
   useEffect(() => {
     getUser();
-  }, [open]);
+  }, [open, getUser]);
 
   return (
     <Sheet

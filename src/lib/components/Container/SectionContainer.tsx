@@ -1,5 +1,6 @@
 import React from "react";
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 type Props = React.PropsWithChildren<{}> & { className?: string };
 const SectionContainer = ({ children, className }: Props) => {
   return (

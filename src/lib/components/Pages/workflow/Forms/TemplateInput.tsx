@@ -144,7 +144,7 @@ export const TemplateInput = ({
   }, [showTemplates]);
 
   const commonProps = {
-    ref: inputRef as any,
+    ref: inputRef as React.RefObject<HTMLInputElement> & React.RefObject<HTMLTextAreaElement>,
     value: stringValue,
     onChange: handleInputChange,
     onKeyDown: handleKeyDown,

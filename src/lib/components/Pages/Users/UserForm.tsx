@@ -1,13 +1,5 @@
 "use client";
 
-import { z } from "zod";
-import { toast } from "sonner";
-import { useForm } from "react-hook-form";
-import { useEffect, useState, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Button } from "@/lib/ui/button";
-import { Input } from "@/lib/ui/input";
-import { Switch } from "@/lib/ui/switch";
 import {
   Form,
   FormControl,
@@ -31,23 +23,33 @@ import {
   CardHeader,
   CardTitle,
 } from "@/lib/ui/card";
+
+import { z } from "zod";
+import { toast } from "sonner";
+import { Input } from "@/lib/ui/input";
+import { Loader2 } from "lucide-react";
+import { Button } from "@/lib/ui/button";
+import { Switch } from "@/lib/ui/switch";
+import { useForm } from "react-hook-form";
+import { URLs } from "@/lib/constants/urls";
+import type { Role } from "@/lib/types/role/role";
+import { ErrorResponse, SuccessResponse } from "@/lib/types/common";
+import type { ADUser } from "@/lib/types/user/user";
+import { handleServerError } from "@/lib/api/_axios";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { API_AUTH } from "@/lib/services/auth_service";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import { API_USER } from "@/lib/services/User/user_service";
 import { API_ROLE } from "@/lib/services/Role/role_service";
-import { API_DEPARTMENT } from "@/lib/services/Department/department_service";
-import { API_POSITION } from "@/lib/services/Position/position_service";
-import { API_BRANCH } from "@/lib/services/Branch/branch_service";
-import { API_AUTH } from "@/lib/services/auth_service";
-import type { Role } from "@/lib/types/role/role";
-import type { DepartmentOption } from "@/lib/types/department/department";
-import type { PositionOption } from "@/lib/types/position/position";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { BranchOption } from "@/lib/types/branch/branch";
-import { Loader2, MoveLeftIcon } from "lucide-react";
-import { handleServerError } from "@/lib/api/_axios";
-import { ErrorResponse } from "@/lib/types/common";
-import type { ADUser } from "@/lib/types/user/user";
-import { URLs } from "@/lib/constants/urls";
+import { API_BRANCH } from "@/lib/services/Branch/branch_service";
+import type { PositionOption } from "@/lib/types/position/position";
+import { API_POSITION } from "@/lib/services/Position/position_service";
+import type { DepartmentOption } from "@/lib/types/department/department";
 import FixedHeaderFooterLayout from "../../Layout/FixedHeaderFooterLayout";
+import { API_DEPARTMENT } from "@/lib/services/Department/department_service";
+import DotsLoader from "../../Loader/DotsLoader";
 
 type UserFormProps = {
   userId?: string;
@@ -210,7 +212,10 @@ const UserForm = ({ userId, title, description }: UserFormProps) => {
           // First fetch dropdown data to get positions
           await fetchDropdownData();
         } catch (error) {
-          toast.error("Failed to load AD user data");
+          const err_result = error as ErrorResponse;
+          handleServerError(err_result, (err_msg) => {
+            toast.error(err_msg || "Failed to load AD user data");
+          });
         }
       } else if (userId) {
         await fetchDropdownData();
@@ -314,7 +319,9 @@ const UserForm = ({ userId, title, description }: UserFormProps) => {
             typeof createResponse === "object" &&
             "data" in createResponse
           ) {
-            const responseData = createResponse as any;
+            const responseData = createResponse as SuccessResponse & {
+              data: { _id: string };
+            };
             if (responseData.data && responseData.data._id) {
               // Use the ID directly from the response
               submitData.positionId = responseData.data._id;
@@ -792,4 +799,24 @@ const UserForm = ({ userId, title, description }: UserFormProps) => {
   );
 };
 
-export default UserForm;
+export default function CreateUserPage({
+  userId,
+  title,
+  description,
+}: UserFormProps) {
+  return (
+    <Suspense
+      fallback={
+        <div className="h-screen w-full flex items-center justify-center">
+          <DotsLoader />
+        </div>
+      }
+    >
+      <UserForm
+        userId={userId}
+        title={title}
+        description={description}
+      />
+    </Suspense>
+  );
+}

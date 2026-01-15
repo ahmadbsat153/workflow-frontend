@@ -1,28 +1,29 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import {
   BellIcon,
   CheckIcon,
   TrashIcon,
-  XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { formatDistanceToNow } from "date-fns";
-import { useNotifications } from "@/lib/context/NotificationContext";
-import { Popover, PopoverContent, PopoverTrigger } from "@/lib/ui/popover";
-import { Badge } from "@/lib/ui/badge";
-import { ScrollArea } from "@/lib/ui/scroll-area";
-import { Button } from "@/lib/ui/button";
-import { Separator } from "@/lib/ui/separator";
-import { URLs } from "@/lib/constants/urls";
-import type { Notification, NotificationType } from "@/lib/types/notification";
+
 import {
   DocumentTextIcon,
   ClockIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
+
+import { Badge } from "@/lib/ui/badge";
+import { Button } from "@/lib/ui/button";
+import { useRouter } from "next/navigation";
+import { URLs } from "@/lib/constants/urls";
+import { formatDistanceToNow } from "date-fns";
+import { Separator } from "@/lib/ui/separator";
+import { ScrollArea } from "@/lib/ui/scroll-area";
+import { useState, useEffect, useRef } from "react";
+import { useNotifications } from "@/lib/context/NotificationContext";
+import { Popover, PopoverContent, PopoverTrigger } from "@/lib/ui/popover";
+import type { Notification, NotificationType } from "@/lib/types/notification";
 
 /**
  * Get appropriate icon for each notification type

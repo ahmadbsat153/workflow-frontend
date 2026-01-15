@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { build_path } from "@/utils/common";
 import { handleErrors, _axios } from "../api/_axios";
 import { NOTIFICATION_ENDPOINTS } from "../constants/endpoints";

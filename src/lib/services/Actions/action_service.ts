@@ -3,7 +3,9 @@ import { Action, ActionList, ActionTable } from "@/lib/types/actions/action";
 import { ACTION_ENDPOINTS } from "@/lib/constants/endpoints";
 import { build_path } from "@/utils/common";
 import { SuccessResponse } from "@/lib/types/common";
+import { ActionFormValues } from "@/utils/Validation/actionValidationSchema";
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace API_ACTION {
   export async function getAllActions(query?: string) {
     try {
@@ -46,7 +48,7 @@ export namespace API_ACTION {
     }
   }
 
-  export async function createAction(data: any) {
+  export async function createAction(data: ActionFormValues) {
     try {
       const response = await _axios.post(ACTION_ENDPOINTS.CREATE, data);
       return response.data as SuccessResponse;
@@ -55,7 +57,7 @@ export namespace API_ACTION {
     }
   }
 
-  export async function updateAction(id: string, data: any) {
+  export async function updateAction(id: string, data: ActionFormValues) {
     try {
       const response = await _axios.put(
         build_path(ACTION_ENDPOINTS.UPDATE, { id }),

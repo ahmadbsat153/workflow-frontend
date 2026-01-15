@@ -1,19 +1,23 @@
 "use client";
 
-import { useDashboardAnalytics } from "@/lib/hooks/useDashboardAnalytics";
-import { MetricCard } from "@/lib/components/Dashboard/MetricCard";
-import { SubmissionStatusChart } from "@/lib/components/Dashboard/SubmissionStatusChart";
-import { TimelineChart } from "@/lib/components/Dashboard/TimelineChart";
-import { TopFormsChart } from "@/lib/components/Dashboard/TopFormsChart";
-import { FormSubmissionsChart } from "@/lib/components/Dashboard/FormSubmissionsChart";
-import { ApprovalStatusChart } from "@/lib/components/Dashboard/ApprovalStatusChart";
-import { FileText, ClipboardList, CheckCircle, Clock, RefreshCw } from "lucide-react";
+import { Button } from "@/lib/ui/button";
+import { AlertCircle } from "lucide-react";
 import { Skeleton } from "@/lib/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/lib/ui/card";
-import { Button } from "@/lib/ui/button";
+import { MetricCard } from "@/lib/components/Dashboard/MetricCard";
 import { Alert, AlertDescription, AlertTitle } from "@/lib/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { TimelineChart } from "@/lib/components/Dashboard/TimelineChart";
+import { TopFormsChart } from "@/lib/components/Dashboard/TopFormsChart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/lib/ui/tabs";
+import { useDashboardAnalytics } from "@/lib/hooks/useDashboardAnalytics";
+import { ApprovalStatusChart } from "@/lib/components/Dashboard/ApprovalStatusChart";
+import { FileText, ClipboardList, CheckCircle, Clock, RefreshCw } from "lucide-react";
+import { FormSubmissionsChart } from "@/lib/components/Dashboard/FormSubmissionsChart";
+import { SubmissionStatusChart } from "@/lib/components/Dashboard/SubmissionStatusChart";
+import { DashboardResponse } from "@/lib/types/dashboard";
+
+type UserSubmissionsData = DashboardResponse["data"]["userSubmissions"];
+type FormCreatorData = NonNullable<DashboardResponse["data"]["formCreator"]>;
 
 function DashboardSkeleton() {
   return (
@@ -80,7 +84,7 @@ function ErrorState({ error, onRetry }: { error: string; onRetry: () => void }) 
   );
 }
 
-function UserSubmissionsContent({ data }: { data: any }) {
+function UserSubmissionsContent({ data }: { data: UserSubmissionsData }) {
   return (
     <div className="space-y-6">
       {/* Metric Cards */}
@@ -100,7 +104,7 @@ function UserSubmissionsContent({ data }: { data: any }) {
         <MetricCard
           title="Completed"
           value={
-            data.byWorkflowStatus.find((s: any) => s.status === "completed")?.count ||
+            data.byWorkflowStatus.find((s) => s.status === "completed")?.count ||
             0
           }
           icon={CheckCircle}
@@ -108,7 +112,7 @@ function UserSubmissionsContent({ data }: { data: any }) {
         <MetricCard
           title="Pending"
           value={
-            data.byWorkflowStatus.find((s: any) => s.status === "pending")?.count || 0
+            data.byWorkflowStatus.find((s) => s.status === "pending")?.count || 0
           }
           icon={ClipboardList}
         />
@@ -138,7 +142,7 @@ function UserSubmissionsContent({ data }: { data: any }) {
   );
 }
 
-function FormCreatorContent({ data }: { data: any }) {
+function FormCreatorContent({ data }: { data: FormCreatorData }) {
   return (
     <div className="space-y-6">
       {/* Form Creator Metric Cards */}
@@ -174,7 +178,7 @@ function FormCreatorContent({ data }: { data: any }) {
           />
           {data.mostActiveForms.length > 0 && (
             <TopFormsChart
-              data={data.mostActiveForms.map((f: any) => ({
+              data={data.mostActiveForms.map((f) => ({
                 formId: f.formId,
                 formName: f.formName,
                 formSlug: f.formSlug,
@@ -194,7 +198,7 @@ function FormCreatorContent({ data }: { data: any }) {
               No submissions received yet
             </h3>
             <p className="text-sm text-muted-foreground text-center max-w-md">
-              Your forms haven't received any submissions yet. Share your forms to
+              Your forms haven&apos;t received any submissions yet. Share your forms to
               start collecting responses.
             </p>
           </CardContent>
@@ -238,7 +242,7 @@ export default function DashboardPage() {
           </TabsList>
 
           <TabsContent value="forms" className="mt-6">
-            <FormCreatorContent data={data.formCreator} />
+            <FormCreatorContent data={data.formCreator!} />
           </TabsContent>
 
           <TabsContent value="submissions" className="mt-6">

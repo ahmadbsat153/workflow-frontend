@@ -7,14 +7,7 @@ import {
   TableRow,
   TableCell,
 } from "@/lib/types/form/editableTable";
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/lib/ui/form";
+
 import { Input } from "@/lib/ui/input";
 import { Button } from "@/lib/ui/button";
 import { UseFormReturn } from "react-hook-form";
@@ -42,6 +35,7 @@ import EditableTableField from "@/lib/components/Forms/EditableTableField";
 
 type Props = {
   field: Field;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: UseFormReturn<any>;
   loading: boolean;
 };
@@ -79,7 +73,12 @@ const TABLE_TEMPLATES = {
           rowId: "row_annual",
           cells: [
             { value: "Annual", editable: false, dataType: "text" as const },
-            { value: "", editable: true, dataType: "number" as const, validation: { min: 0 } },
+            {
+              value: "",
+              editable: true,
+              dataType: "number" as const,
+              validation: { min: 0 },
+            },
             { value: "", editable: true, dataType: "text" as const },
           ],
         },
@@ -87,7 +86,12 @@ const TABLE_TEMPLATES = {
           rowId: "row_sick",
           cells: [
             { value: "Sick Leave", editable: false, dataType: "text" as const },
-            { value: "", editable: true, dataType: "number" as const, validation: { min: 0 } },
+            {
+              value: "",
+              editable: true,
+              dataType: "number" as const,
+              validation: { min: 0 },
+            },
             { value: "", editable: true, dataType: "text" as const },
           ],
         },
@@ -143,9 +147,24 @@ const TABLE_TEMPLATES = {
         {
           rowId: "row_1",
           cells: [
-            { value: "", editable: true, dataType: "date" as const, validation: { required: true } },
-            { value: "", editable: true, dataType: "text" as const, validation: { required: true } },
-            { value: "", editable: true, dataType: "number" as const, validation: { required: true, min: 0 } },
+            {
+              value: "",
+              editable: true,
+              dataType: "date" as const,
+              validation: { required: true },
+            },
+            {
+              value: "",
+              editable: true,
+              dataType: "text" as const,
+              validation: { required: true },
+            },
+            {
+              value: "",
+              editable: true,
+              dataType: "number" as const,
+              validation: { required: true, min: 0 },
+            },
             {
               value: "",
               editable: true,
@@ -197,7 +216,12 @@ const TABLE_TEMPLATES = {
         {
           rowId: "row_1",
           cells: [
-            { value: "", editable: true, dataType: "text" as const, validation: { required: true } },
+            {
+              value: "",
+              editable: true,
+              dataType: "text" as const,
+              validation: { required: true },
+            },
             { value: false, editable: true, dataType: "checkbox" as const },
           ],
         },
@@ -275,7 +299,8 @@ const TableConfig = ({ form, field, loading }: Props) => {
   }, [tableConfig, form]);
 
   const handleTemplateSelect = (templateKey: string) => {
-    const template = TABLE_TEMPLATES[templateKey as keyof typeof TABLE_TEMPLATES];
+    const template =
+      TABLE_TEMPLATES[templateKey as keyof typeof TABLE_TEMPLATES];
     if (template) {
       setTableConfig(template.config);
       setActiveTab("columns");
@@ -328,12 +353,13 @@ const TableConfig = ({ form, field, loading }: Props) => {
 
     // If dataType changed, update all cells in this column
     if (updates.dataType) {
+      const newDataType = updates.dataType;
       const updatedRows = tableConfig.rows.map((row) => {
         const updatedCells = [...row.cells];
         updatedCells[index] = {
           ...updatedCells[index],
-          dataType: updates.dataType as any,
-          value: updates.dataType === "checkbox" ? false : "",
+          dataType: newDataType,
+          value: newDataType === "checkbox" ? false : "",
         };
         return { ...row, cells: updatedCells };
       });
@@ -407,7 +433,9 @@ const TableConfig = ({ form, field, loading }: Props) => {
   };
 
   // Settings Management
-  const updateSettings = (updates: Partial<EditableTableConfig["settings"]>) => {
+  const updateSettings = (
+    updates: Partial<EditableTableConfig["settings"]>
+  ) => {
     setTableConfig({
       ...tableConfig,
       settings: { ...tableConfig.settings, ...updates },
@@ -501,13 +529,14 @@ const TableConfig = ({ form, field, loading }: Props) => {
               const isExpanded = expandedColumn === index;
 
               return (
-                <div key={column.columnId} className="border rounded-lg overflow-hidden">
+                <div
+                  key={column.columnId}
+                  className="border rounded-lg overflow-hidden"
+                >
                   {/* Column Header */}
                   <div
                     className="flex items-center justify-between p-3 bg-muted/50 cursor-pointer hover:bg-muted"
-                    onClick={() =>
-                      setExpandedColumn(isExpanded ? null : index)
-                    }
+                    onClick={() => setExpandedColumn(isExpanded ? null : index)}
                   >
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">
@@ -515,7 +544,8 @@ const TableConfig = ({ form, field, loading }: Props) => {
                       </p>
                       {!isExpanded && (
                         <p className="text-xs text-muted-foreground">
-                          {column.dataType} • {column.editable ? "Editable" : "Read-only"}
+                          {column.dataType} •{" "}
+                          {column.editable ? "Editable" : "Read-only"}
                         </p>
                       )}
                     </div>
@@ -545,7 +575,9 @@ const TableConfig = ({ form, field, loading }: Props) => {
                   {isExpanded && (
                     <div className="p-3 space-y-3 border-t">
                       <div>
-                        <label className="text-xs font-medium">Column Header</label>
+                        <label className="text-xs font-medium">
+                          Column Header
+                        </label>
                         <Input
                           value={column.header}
                           onChange={(e) =>
@@ -594,7 +626,9 @@ const TableConfig = ({ form, field, loading }: Props) => {
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <label className="text-xs font-medium">Editable by default</label>
+                        <label className="text-xs font-medium">
+                          Editable by default
+                        </label>
                         <Switch
                           checked={column.editable}
                           onCheckedChange={(checked) =>
@@ -636,7 +670,10 @@ const TableConfig = ({ form, field, loading }: Props) => {
               const isExpanded = expandedRow === rowIndex;
 
               return (
-                <div key={row.rowId} className="border rounded-lg overflow-hidden">
+                <div
+                  key={row.rowId}
+                  className="border rounded-lg overflow-hidden"
+                >
                   {/* Row Header */}
                   <div
                     className="flex items-center justify-between p-3 bg-muted/50 cursor-pointer hover:bg-muted"
@@ -682,7 +719,9 @@ const TableConfig = ({ form, field, loading }: Props) => {
                   {isExpanded && (
                     <div className="p-3 space-y-3 border-t">
                       <div className="flex items-center justify-between">
-                        <label className="text-xs font-medium">Header Row</label>
+                        <label className="text-xs font-medium">
+                          Header Row
+                        </label>
                         <Switch
                           checked={row.isHeader || false}
                           onCheckedChange={(checked) =>
@@ -692,7 +731,9 @@ const TableConfig = ({ form, field, loading }: Props) => {
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <label className="text-xs font-medium">Footer Row</label>
+                        <label className="text-xs font-medium">
+                          Footer Row
+                        </label>
                         <Switch
                           checked={row.isFooter || false}
                           onCheckedChange={(checked) =>
@@ -702,7 +743,9 @@ const TableConfig = ({ form, field, loading }: Props) => {
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <label className="text-xs font-medium">Read-only Row</label>
+                        <label className="text-xs font-medium">
+                          Read-only Row
+                        </label>
                         <Switch
                           checked={row.readonly || false}
                           onCheckedChange={(checked) =>
@@ -722,7 +765,8 @@ const TableConfig = ({ form, field, loading }: Props) => {
                               className="p-2 bg-muted/30 rounded space-y-2"
                             >
                               <div className="text-xs font-medium">
-                                {tableConfig.columns[cellIndex]?.header || `Cell ${cellIndex + 1}`}
+                                {tableConfig.columns[cellIndex]?.header ||
+                                  `Cell ${cellIndex + 1}`}
                               </div>
 
                               <div>
@@ -730,7 +774,11 @@ const TableConfig = ({ form, field, loading }: Props) => {
                                   Default Value
                                 </label>
                                 <Input
-                                  value={cell.value}
+                                  value={
+                                    typeof cell.value === "boolean"
+                                      ? String(cell.value)
+                                      : cell.value ?? ""
+                                  }
                                   onChange={(e) =>
                                     updateCell(rowIndex, cellIndex, {
                                       value: e.target.value,
@@ -815,7 +863,9 @@ const TableConfig = ({ form, field, loading }: Props) => {
                 type="number"
                 value={tableConfig.settings?.minRows || ""}
                 onChange={(e) =>
-                  updateSettings({ minRows: parseInt(e.target.value) || undefined })
+                  updateSettings({
+                    minRows: parseInt(e.target.value) || undefined,
+                  })
                 }
                 placeholder="No minimum"
                 className="mt-1"
@@ -828,7 +878,9 @@ const TableConfig = ({ form, field, loading }: Props) => {
                 type="number"
                 value={tableConfig.settings?.maxRows || ""}
                 onChange={(e) =>
-                  updateSettings({ maxRows: parseInt(e.target.value) || undefined })
+                  updateSettings({
+                    maxRows: parseInt(e.target.value) || undefined,
+                  })
                 }
                 placeholder="No maximum"
                 className="mt-1"
@@ -856,10 +908,10 @@ const TableConfig = ({ form, field, loading }: Props) => {
 
             <div className="flex items-center justify-between">
               <div>
-                <label className="text-sm font-medium">Alternate Row Colors</label>
-                <p className="text-xs text-muted-foreground">
-                  Zebra striping
-                </p>
+                <label className="text-sm font-medium">
+                  Alternate Row Colors
+                </label>
+                <p className="text-xs text-muted-foreground">Zebra striping</p>
               </div>
               <Switch
                 checked={tableConfig.settings?.alternateRowColors || false}
@@ -900,7 +952,9 @@ const TableConfig = ({ form, field, loading }: Props) => {
               <label className="text-sm font-medium">Header Background</label>
               <Input
                 type="color"
-                value={tableConfig.tableStyle?.headerBackgroundColor || "#f0f0f0"}
+                value={
+                  tableConfig.tableStyle?.headerBackgroundColor || "#f0f0f0"
+                }
                 onChange={(e) =>
                   updateTableStyle({ headerBackgroundColor: e.target.value })
                 }

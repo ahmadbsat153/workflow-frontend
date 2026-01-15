@@ -15,6 +15,7 @@ import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { toast } from "sonner";
 import { authImages } from "@/lib/constants/authImages";
 import { API_SETTINGS } from "@/lib/services/Settings/settings_service";
+import Image from "next/image";
 
 const ResetPasswordPage = () => {
   const router = useRouter();
@@ -123,7 +124,7 @@ const ResetPasswordPage = () => {
       }
     };
     checkToken();
-  }, []);
+  });
 
   useEffect(() => {
     // Fetch the reset password image from backend
@@ -161,9 +162,10 @@ const ResetPasswordPage = () => {
       <div className="h-full flex items-center justify-center w-full rounded-lg shadow-sm relative">
         {/* The Image */}
         <div className="w-1/2 h-full bg-muted relative hidden lg:block">
-          <img
+          <Image
             src={imageUrl || "/images/login.png"}
             alt="Login background"
+            fill
             className="absolute inset-0 h-full w-full object-cover"
           />
         </div>

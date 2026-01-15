@@ -1,5 +1,5 @@
 import { WorkflowNodeData } from "@/lib/types/workflow/workflow";
-import { Node, XYPosition } from "reactflow";
+import { Node, XYPosition, Edge } from "reactflow";
 
 export interface NodeBounds {
   minX: number;
@@ -170,7 +170,7 @@ export const getDefaultNodePosition = (
  */
 export const autoArrangeNodes = (
   nodes: Node<WorkflowNodeData>[],
-  edges: any[]
+  edges: Edge[]
 ): Node<WorkflowNodeData>[] => {
   if (nodes.length === 0) return nodes;
 
@@ -243,9 +243,12 @@ export const autoArrangeNodes = (
 
     // If only one node in level, center it
     // If multiple nodes in level (branching), spread them horizontally
-    const x = nodesInLevel.length === 1
-      ? 250 // Center single nodes
-      : 250 + (indexInLevel - (nodesInLevel.length - 1) / 2) * (NODE_WIDTH + MIN_SPACING * 3);
+    const x =
+      nodesInLevel.length === 1
+        ? 250 // Center single nodes
+        : 250 +
+          (indexInLevel - (nodesInLevel.length - 1) / 2) *
+            (NODE_WIDTH + MIN_SPACING * 3);
     const y = level * (NODE_HEIGHT + MIN_SPACING * 4);
 
     return {

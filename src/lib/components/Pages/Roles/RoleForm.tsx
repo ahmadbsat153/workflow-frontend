@@ -1,16 +1,5 @@
 "use client";
 
-import { z } from "zod";
-import { toast } from "sonner";
-import { useForm } from "react-hook-form";
-import { useEffect, useState, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/lib/ui/button";
-import { Input } from "@/lib/ui/input";
-import { Textarea } from "@/lib/ui/textarea";
-import { Checkbox } from "@/lib/ui/checkbox";
-import { Switch } from "@/lib/ui/switch";
-import { Badge } from "@/lib/ui/badge";
 import {
   Form,
   FormControl,
@@ -33,13 +22,25 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/lib/ui/accordion";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { API_ROLE } from "@/lib/services/Role/role_service";
-import type { PermissionGroup, Permission } from "@/lib/types/role/role";
-import { Loader2, MoveLeftIcon, AlertTriangle } from "lucide-react";
-import { handleServerError } from "@/lib/api/_axios";
-import { ErrorResponse } from "@/lib/types/common";
+
+import { z } from "zod";
+import { toast } from "sonner";
+import { Input } from "@/lib/ui/input";
+import { Badge } from "@/lib/ui/badge";
+import { Button } from "@/lib/ui/button";
+import { Switch } from "@/lib/ui/switch";
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import { URLs } from "@/lib/constants/urls";
+import { Textarea } from "@/lib/ui/textarea";
+import { Checkbox } from "@/lib/ui/checkbox";
+import { ErrorResponse } from "@/lib/types/common";
+import { handleServerError } from "@/lib/api/_axios";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2, AlertTriangle } from "lucide-react";
+import { API_ROLE } from "@/lib/services/Role/role_service";
+import { useEffect, useState, useRef, useCallback } from "react";
+import type { PermissionGroup, Permission } from "@/lib/types/role/role";
 import FixedHeaderFooterLayout from "../../Layout/FixedHeaderFooterLayout";
 
 type RoleFormProps = {

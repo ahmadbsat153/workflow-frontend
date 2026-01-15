@@ -54,9 +54,7 @@ import {
   ChevronsRightIcon,
   Loader2,
 } from "lucide-react";
-import { Meta } from "@/lib/types/common";
-
-export type TableColumn<TData = any> = {
+export type TableColumn<TData = Record<string, unknown>> = {
   name: string;
   uid: keyof TData | string;
   sortable?: boolean;
@@ -65,17 +63,18 @@ export type TableColumn<TData = any> = {
   align?: "left" | "center" | "right";
 };
 
-export type CellRenderer<TData = any> = (
-  value: any,
+export type CellRenderer<TData = Record<string, unknown>> = (
+  value: unknown,
   row: TData,
   column: TableColumn<TData>
 ) => React.ReactNode;
 
 import { DataTableProps, AdditionalButton } from "@/lib/types/table/table_data";
 import { usePermissions } from "@/lib/hooks/usePermissions";
+import { Column } from "@tanstack/react-table";
 
-const SortableHeader: React.FC<{
-  column: any;
+interface SortableHeaderProps<TData> {
+  column: Column<TData, unknown>;
   title: string;
   align?: "left" | "center" | "right";
   serverSide?: boolean;
@@ -83,7 +82,9 @@ const SortableHeader: React.FC<{
   field?: string;
   currentSortField?: string;
   currentSortOrder?: "asc" | "desc";
-}> = ({
+}
+
+function SortableHeader<TData>({
   column,
   title,
   align = "left",
@@ -92,7 +93,7 @@ const SortableHeader: React.FC<{
   field,
   currentSortField,
   currentSortOrder,
-}) => {
+}: SortableHeaderProps<TData>) {
   const alignClass = {
     left: "justify-start",
     center: "justify-center",
@@ -159,9 +160,9 @@ const SortableHeader: React.FC<{
       )}
     </Button>
   );
-};
+}
 
-export function DataTable<TData extends Record<string, any>>({
+export function DataTable<TData>({
   data,
   columns: userColumns,
   serverSide = false,
@@ -257,7 +258,7 @@ export function DataTable<TData extends Record<string, any>>({
                 : "text-left"
             }`}
           >
-            {renderer(value, row.original, col as any)}
+            {renderer(value, row.original, col as TableColumn<TData>)}
           </div>
         );
       },
@@ -337,7 +338,7 @@ export function DataTable<TData extends Record<string, any>>({
     manualPagination: serverSide,
     manualSorting: serverSide,
     manualFiltering: serverSide,
-    pageCount: serverSide && meta ? meta.totalPages : undefined,
+    pageCount: serverSide && meta ? meta.total_pages : undefined,
   });
 
   React.useEffect(() => {
@@ -347,22 +348,18 @@ export function DataTable<TData extends Record<string, any>>({
         .rows.map((row) => row.original);
       onSelectionChange(selectedRows);
     }
-  }, [rowSelection, onSelectionChange]);
+  }, [rowSelection, onSelectionChange, table]);
 
   const totalPages =
     serverSide && meta
-      ? meta.total_pages || meta.totalPages
+      ? meta.total_pages || meta.total_pages
       : table.getPageCount();
-  const currentPage =
-    serverSide && meta
-      ? meta.page || meta.currentPage
-      : pagination.pageIndex + 1;
+  const currentPage = serverSide && meta ? meta.page : pagination.pageIndex + 1;
   const totalItems =
     serverSide && meta
-      ? meta.count || meta.totalItems
+      ? meta.count || meta.count
       : table.getFilteredRowModel().rows.length;
-  const currentPageSize =
-    serverSide && meta ? meta.limit || meta.pageSize : pagination.pageSize;
+  const currentPageSize = serverSide && meta ? meta.limit : pagination.pageSize;
 
   const handlePageChange = (page: number) => {
     if (serverSide && onPageChange) {

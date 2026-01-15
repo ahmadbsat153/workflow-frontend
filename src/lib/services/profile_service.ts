@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { handleErrors, _axios } from "../api/_axios";
 import { PROFILE_ENDPOINTS } from "../constants/endpoints";
 import { SuccessResponse } from "../types/common";

@@ -16,6 +16,21 @@ import UserAnalytics from "./UserAnalytics";
 import { Button } from "@/lib/ui/button";
 import { URLs } from "@/lib/constants/urls";
 import FixedHeaderFooterLayout from "../../Layout/FixedHeaderFooterLayout";
+import { User } from "@/lib/types/user/user";
+
+interface UserAnalyticsData {
+  forms?: number;
+  submissions?: number;
+  total?: number;
+  barChartAnalytics?: Array<{ month: string; forms: number; workflows: number }>;
+  recentActivities?: Array<{
+    _id: string;
+    type: string;
+    createdAt: string;
+    updatedAt: string;
+    is_active: boolean;
+  }>;
+}
 
 const UserDetails = ({ userId }: { userId: string }) => {
   const user_slug = userId;
@@ -33,14 +48,13 @@ const UserDetails = ({ userId }: { userId: string }) => {
 
   const [loading, setLoading] = useState(true);
   const [userDetails, setUserDetails] = useState<{
-    details: any;
-    analytics: any;
+    details: User | null;
+    analytics: UserAnalyticsData | null;
   }>({
-    details: [],
-    analytics: [],
+    details: null,
+    analytics: null,
   });
 
-  console.log(userDetails)
   // TODO: Change rendering based on user permissions/role
   const tabsList = [
     {
@@ -77,7 +91,7 @@ const UserDetails = ({ userId }: { userId: string }) => {
       const res_analytics = await API_USER.getUserAnalytics(user_slug);
       const res_details = await API_USER.getUserById(user_slug);
       setUserDetails({
-        analytics: res_analytics,
+        analytics: res_analytics as unknown as UserAnalyticsData,
         details: res_details,
       });
     } catch (error) {

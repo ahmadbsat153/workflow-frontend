@@ -1,29 +1,5 @@
 "use client";
 
-import { toast } from "sonner";
-import { useEffect, useState } from "react";
-import { Input } from "@/lib/ui/input";
-import { Switch } from "@/lib/ui/switch";
-import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
-import { Textarea } from "@/lib/ui/textarea";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Plus, Trash2 } from "lucide-react";
-import { API_ACTION } from "@/lib/services/Actions/action_service";
-import { Action, ActionConfigField } from "@/lib/types/actions/action";
-
-import {
-  actionSchema,
-  type ActionFormValues,
-} from "@/utils/Validation/actionValidationSchema";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/lib/ui/select";
-import { Button } from "@/lib/ui/button";
 import {
   Form,
   FormControl,
@@ -33,27 +9,63 @@ import {
   FormLabel,
   FormMessage,
 } from "@/lib/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/lib/ui/select";
+import {
+  actionSchema,
+  type ActionFormValues,
+} from "@/utils/Validation/actionValidationSchema";
+
+import { toast } from "sonner";
+import { Input } from "@/lib/ui/input";
+import { Switch } from "@/lib/ui/switch";
+import { Button } from "@/lib/ui/button";
+import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { URLs } from "@/lib/constants/urls";
+import { Textarea } from "@/lib/ui/textarea";
 import DotsLoader from "../../Loader/DotsLoader";
+import { Loader2, Plus, Trash2 } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ActionConfigField } from "@/lib/types/actions/action";
+import { API_ACTION } from "@/lib/services/Actions/action_service";
 import FixedHeaderFooterLayout from "../../Layout/FixedHeaderFooterLayout";
 
 type ActionFormProps = {
   action_id?: string;
   title: string;
   description?: string;
-  onCancel?: () => void;
 };
 
 export const ActionForm = ({
   action_id,
   title,
   description,
-  onCancel,
 }: ActionFormProps) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
-  const [initialData, setInitialData] = useState<Action | null>(null);
+
+  const form = useForm<ActionFormValues>({
+    resolver: zodResolver(actionSchema),
+    defaultValues: {
+      actionName: "",
+      displayName: "",
+      actionDescription: "",
+      category: "data" as const,
+      icon: "zap",
+      isActive: true,
+      configSchema: {
+        fields: [],
+      },
+    },
+  });
 
   // Determine if we're in edit mode
   const isEditMode = !!action_id;
@@ -68,7 +80,6 @@ export const ActionForm = ({
         const action = await API_ACTION.getActionById(action_id);
 
         if (action) {
-          setInitialData(action);
           // Reset form with fetched data
           form.reset({
             actionName: action.actionName,
@@ -96,7 +107,7 @@ export const ActionForm = ({
     };
 
     fetchAction();
-  }, [action_id]);
+  }, [form, router, action_id]);
 
   const onSubmit = async (data: ActionFormValues) => {
     try {
@@ -128,21 +139,6 @@ export const ActionForm = ({
 
   // Initialize configFields state
   const [configFields, setConfigFields] = useState<ActionConfigField[]>([]);
-
-  const form = useForm<ActionFormValues>({
-    resolver: zodResolver(actionSchema),
-    defaultValues: {
-      actionName: "",
-      displayName: "",
-      actionDescription: "",
-      category: "data" as const,
-      icon: "zap",
-      isActive: true,
-      configSchema: {
-        fields: [],
-      },
-    },
-  });
 
   const handleFormSubmit = async (data: ActionFormValues) => {
     // Ensure defaults for optional fields before submitting
@@ -342,7 +338,7 @@ export const ActionForm = ({
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Active</FormLabel>
                     <FormDescription>
-                      Inactive actions won't be available in workflows
+                      {"Inactive actions won't be available in workflows"}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -373,7 +369,7 @@ export const ActionForm = ({
 
             {configFields.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground border rounded-lg border-dashed">
-                No configuration fields yet. Click "Add Field" to create one.
+                {`No configuration fields yet. Click "Add Field" to create one.`}
               </div>
             ) : (
               configFields.map((_, index) => (

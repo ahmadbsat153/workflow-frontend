@@ -30,8 +30,9 @@ export default function AdminSettingsPage() {
     try {
       const response = await API_SETTINGS.getAuthImages();
       setAuthImages(response.data);
-    } catch (err: any) {
-      const errorMessage = err.message || "Failed to load images";
+    } catch (err: unknown) {
+      const errorResponse = err as ErrorResponse;
+      const errorMessage = errorResponse.message || "Failed to load images";
       setError(errorMessage);
       handleServerError(err as ErrorResponse, (err_msg) => {
         toast.error(err_msg);
@@ -59,7 +60,7 @@ export default function AdminSettingsPage() {
       }));
 
       toast.success("Image uploaded successfully!");
-    } catch (err: any) {
+    } catch (err: unknown) {
       handleServerError(err as ErrorResponse, (err_msg) => {
         toast.error(err_msg);
       });
@@ -77,7 +78,7 @@ export default function AdminSettingsPage() {
       }));
 
       toast.success("Image deleted successfully!");
-    } catch (err: any) {
+    } catch (err: unknown) {
       handleServerError(err as ErrorResponse, (err_msg) => {
         toast.error(err_msg);
       });

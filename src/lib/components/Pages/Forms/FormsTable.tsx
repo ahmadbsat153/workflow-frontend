@@ -85,7 +85,7 @@ const FormsTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [query]);
+  }, [searchParams, query]);
 
   useEffect(() => {
     getForms();
@@ -125,13 +125,13 @@ const FormsTable = () => {
   );
 
   const cellRenderers: Partial<Record<string, CellRenderer<Form>>> = {
-    name: (value) => <span className="font-medium">{value}</span>,
+    name: (value) => <span className="font-medium">{value as string}</span>,
     createdAt: (value) => {
-      return <span>{formatDatesWithYear(value)}</span>;
+      return <span>{formatDatesWithYear(value as string)}</span>;
     },
 
     updatedAt: (value) => {
-      return <span>{formatDatesWithYear(value)}</span>;
+      return <span>{formatDatesWithYear(value as string)}</span>;
     },
 
     isActive: (value) => (

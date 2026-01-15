@@ -45,7 +45,7 @@ export type ApprovalVerificationResponse = {
         email: string;
       };
       submittedAt: string;
-      submissionData: Record<string, any>;
+      submissionData: Record<string, unknown>;
     };
     approvalStage: {
       stageName: string;

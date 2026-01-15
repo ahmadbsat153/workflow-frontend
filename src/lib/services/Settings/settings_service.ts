@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { handleErrors, _axios } from "@/lib/api/_axios";
 
 export interface AuthImage {

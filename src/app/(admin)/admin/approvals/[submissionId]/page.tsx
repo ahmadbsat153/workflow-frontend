@@ -1,14 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { API_FORM_SUBMISSION } from "@/lib/services/Form/form_submissions_service";
-import { API_APPROVAL } from "@/lib/services/approval_service";
-import { handleServerError } from "@/lib/api/_axios";
-import { ErrorResponse } from "@/lib/types/common";
 import { toast } from "sonner";
+import { InfoIcon } from "lucide-react";
 import { Button } from "@/lib/ui/button";
+import { URLs } from "@/lib/constants/urls";
+import { useState, useEffect } from "react";
 import { Textarea } from "@/lib/ui/textarea";
+import { ErrorResponse } from "@/lib/types/common";
+import { useAuth } from "@/lib/context/AuthContext";
+import { formatDatesWithYear } from "@/utils/common";
+import { handleServerError } from "@/lib/api/_axios";
+import { useParams, useRouter } from "next/navigation";
+import { PERMISSIONS } from "@/lib/constants/permissions";
+import BackButton from "@/lib/components/Common/BackButton";
+import { API_APPROVAL } from "@/lib/services/approval_service";
+import { renderSubmittedFieldValue, SubmittedFieldValue } from "@/utils/fieldUtils";
+import { FormSubmission } from "@/lib/types/form/form_submission";
+import { ProtectedPage } from "@/lib/components/Auth/ProtectedPage";
+import PageContainer from "@/lib/components/Container/PageContainer";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/lib/ui/tooltip";
+import { API_FORM_SUBMISSION } from "@/lib/services/Form/form_submissions_service";
+import { WorkflowStatusBadge } from "@/lib/components/Workflow/WorkflowStatusBadge";
+
 import {
   Card,
   CardContent,
@@ -17,26 +30,7 @@ import {
   CardTitle,
 } from "@/lib/ui/card";
 import { Badge } from "@/lib/ui/badge";
-import {
-  Loader2,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
-  Clock,
-  ArrowLeft,
-} from "lucide-react";
-import { FormSubmission } from "@/lib/types/form/form_submission";
-import { formatDatesWithYear } from "@/utils/common";
-import { ProtectedPage } from "@/lib/components/Auth/ProtectedPage";
-import { PERMISSIONS } from "@/lib/constants/permissions";
-import PageContainer from "@/lib/components/Container/PageContainer";
-import { URLs } from "@/lib/constants/urls";
-import { useAuth } from "@/lib/context/AuthContext";
-import { renderSubmittedFieldValue } from "@/utils/fieldUtils";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/lib/ui/tooltip";
-import { InfoIcon } from "lucide-react";
-import { WorkflowStatusBadge } from "@/lib/components/Workflow/WorkflowStatusBadge";
-import BackButton from "@/lib/components/Common/BackButton";
+import { Loader2, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 
 type PageState = "loading" | "loaded" | "submitting" | "success" | "error";
 
@@ -54,17 +48,13 @@ function ApprovalDetailsContent() {
     null
   );
 
-  useEffect(() => {
-    loadSubmission();
-  }, [submissionId]);
-
   const loadSubmission = async () => {
     try {
       setState("loading");
       const res = await API_FORM_SUBMISSION.getSubmissionById(submissionId);
       setSubmission(res);
       setState("loaded");
-    } catch (err: any) {
+    } catch (err: unknown) {
       handleServerError(err as ErrorResponse, (err_msg) => {
         setError(err_msg as string);
         toast.error(err_msg);
@@ -72,6 +62,10 @@ function ApprovalDetailsContent() {
       setState("error");
     }
   };
+
+  useEffect(() => {
+    loadSubmission();
+  }, [loadSubmission, submissionId]);
 
   const handleApprove = async () => {
     if (!submission) {
@@ -104,7 +98,7 @@ function ApprovalDetailsContent() {
       setTimeout(() => {
         router.push(URLs.admin.approvals.index);
       }, 2000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       handleServerError(err as ErrorResponse, (err_msg) => {
         toast.error(err_msg);
       });
@@ -148,7 +142,7 @@ function ApprovalDetailsContent() {
       setTimeout(() => {
         router.push(URLs.admin.approvals.index);
       }, 2000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       handleServerError(err as ErrorResponse, (err_msg) => {
         toast.error(err_msg);
       });
@@ -385,7 +379,7 @@ function ApprovalDetailsContent() {
                       }
                     : { width: "100%" };
 
-                  const value = submission.submissionData[field.name];
+                  const value = submission.submissionData[field.name] as SubmittedFieldValue;
 
                   return (
                     <div key={field._id} style={widthStyle}>

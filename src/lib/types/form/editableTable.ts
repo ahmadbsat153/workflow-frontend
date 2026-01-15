@@ -4,7 +4,7 @@
  */
 
 export interface TableCell {
-  value: any;
+  value: string | number | boolean | null;
   editable: boolean;
   dataType: "text" | "number" | "date" | "select" | "checkbox";
   options?: Array<{ label: string; value: string }>;

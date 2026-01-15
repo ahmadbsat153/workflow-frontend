@@ -13,7 +13,7 @@ import {
 } from "recharts";
 import { chartColors } from "@/lib/types/dashboard";
 
-interface FormSubmissionsChartProps {
+export type FormSubmissionsChartProps = {
   data: Array<{
     formId: string;
     formName: string;

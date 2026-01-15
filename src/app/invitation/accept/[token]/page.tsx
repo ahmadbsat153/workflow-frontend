@@ -13,6 +13,7 @@ import { handleServerError } from "@/lib/api/_axios";
 import { ErrorResponse } from "@/lib/types/common";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { toast } from "sonner";
+import Image from "next/image";
 
 const AcceptInvitationPage = () => {
   const router = useRouter();
@@ -61,7 +62,9 @@ const AcceptInvitationPage = () => {
         token,
         password,
       });
-      toast.success("Invitation accepted! You can now log in with your password.");
+      toast.success(
+        "Invitation accepted! You can now log in with your password."
+      );
       router.push(URLs.auth.login);
     } catch (e) {
       handleServerError(e as ErrorResponse, (err_msg) => {
@@ -118,7 +121,7 @@ const AcceptInvitationPage = () => {
       }
     };
     checkToken();
-  }, []);
+  }, [router, validateToken]);
 
   if (validating) {
     return (
@@ -136,9 +139,10 @@ const AcceptInvitationPage = () => {
       <div className="h-full flex items-center justify-center w-full rounded-lg shadow-sm relative">
         {/* The Image */}
         <div className="w-1/2 h-full bg-muted hidden lg:block">
-          <img
+          <Image
             src="/images/login.png"
             alt=""
+            fill
             className="absolute inset-0 h-full w-full object-cover"
           />
         </div>
@@ -161,16 +165,24 @@ const AcceptInvitationPage = () => {
                 {userInfo && (
                   <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
                     <p className="text-sm text-muted-foreground">
-                      Welcome, <span className="font-semibold text-default">{userInfo.firstname} {userInfo.lastname}</span>
+                      Welcome,{" "}
+                      <span className="font-semibold text-default">
+                        {userInfo.firstname} {userInfo.lastname}
+                      </span>
                     </p>
-                    <p className="text-sm text-muted-foreground">{userInfo.email}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {userInfo.email}
+                    </p>
                   </div>
                 )}
               </div>
             </FadeIn>
 
             <FadeIn>
-              <form className="mt-8" onSubmit={(e) => handleAcceptInvitation(e)}>
+              <form
+                className="mt-8"
+                onSubmit={(e) => handleAcceptInvitation(e)}
+              >
                 <div className="space-y-3 relative sm:mt-2.5">
                   <Input
                     id="password"

@@ -6,6 +6,8 @@ import { Button } from "@/lib/ui/button";
 import { Input } from "@/lib/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/lib/ui/card";
 import { Upload, Trash2, X } from "lucide-react";
+import { ErrorResponse } from "@/lib/types/common";
+import Image from "next/image";
 
 interface ImageUploadCardProps {
   title: string;
@@ -75,8 +77,9 @@ export const ImageUploadCard: React.FC<ImageUploadCardProps> = ({
       setFile(null);
       setPreview(null);
       setDescription("");
-    } catch (err: any) {
-      setError(err.message || "Failed to upload image");
+    } catch (err: unknown) {
+      const err_res = err as ErrorResponse;
+      setError(err_res.message || "Failed to upload image");
     } finally {
       setIsUploading(false);
     }
@@ -90,8 +93,9 @@ export const ImageUploadCard: React.FC<ImageUploadCardProps> = ({
 
     try {
       await onDelete(settingKey);
-    } catch (err: any) {
-      setError(err.message || "Failed to delete image");
+    } catch (err: unknown) {
+      const err_res = err as ErrorResponse;
+      setError(err_res.message || "Failed to delete image");
     } finally {
       setIsDeleting(false);
     }
@@ -118,10 +122,11 @@ export const ImageUploadCard: React.FC<ImageUploadCardProps> = ({
         {/* Image Preview */}
         {displayImage && (
           <div className="relative w-full h-48 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50">
-            <img
+            <Image
               src={displayImage}
               alt={title}
-              className="w-full h-full object-contain"
+              fill
+              className="object-contain"
             />
           </div>
         )}

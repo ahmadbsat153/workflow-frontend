@@ -1,21 +1,22 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { ChevronDownIcon, ChevronRightIcon, SearchIcon } from "lucide-react";
-import { FieldsType } from "@/lib/types/form/fields";
-import FieldSidebarItem from "./FieldSidebarItem";
-import {
-  getInputFieldTypes,
-  getDisplayElementTypes,
-} from "@/lib/constants/formFields";
-import { Button } from "@/lib/ui/button";
-import { Input } from "@/lib/ui/input";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/lib/ui/accordion";
+
+import {
+  getInputFieldTypes,
+  getDisplayElementTypes,
+} from "@/lib/constants/formFields";
+
+import { Input } from "@/lib/ui/input";
+import {SearchIcon } from "lucide-react";
+import { useState, useMemo } from "react";
+import FieldSidebarItem from "./FieldSidebarItem";
+import { FieldsType } from "@/lib/types/form/fields";
 
 type FieldsSidebarProps = {
   onDoubleClick?: (fieldType: FieldsType) => void;

@@ -1,17 +1,24 @@
 import { useCallback, useEffect, useRef } from "react";
 
-export default function useDebounce(effect: () => void, dependencies: any[], delay: number) {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+export default function useDebounce(
+  effect: () => void,
+  dependencies: React.DependencyList,
+  delay: number
+) {
   const callback = useCallback(effect, dependencies);
-  const mounted = useRef(false); // Ref to track component mount status
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
-    if (mounted.current) {
-      const timeout = setTimeout(callback, delay);
-      return () => clearTimeout(timeout);
-    } else {
-      mounted.current = true;
-      return () => {}; // Update the mount status after initial render
+    // If it's the first time, just flip the switch and skip
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
     }
+
+    const timeout = setTimeout(() => {
+      callback();
+    }, delay);
+
+    return () => clearTimeout(timeout);
   }, [callback, delay]);
 }

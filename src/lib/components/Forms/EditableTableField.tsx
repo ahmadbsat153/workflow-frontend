@@ -51,23 +51,27 @@ const EditableTableField: React.FC<EditableTableFieldProps> = ({
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Validate a single cell
-  const validateCell = (
-    cell: TableCell,
-    rowId: string,
-    cellIndex: number
-  ): string | null => {
+  const validateCell = (cell: TableCell): string | null => {
     if (!cell.editable || !cell.validation) return null;
 
     const val = cell.value;
     const validation = cell.validation;
 
     // Required validation
-    if (validation.required && (val === null || val === undefined || val === "")) {
+    if (
+      validation.required &&
+      (val === null || val === undefined || val === "")
+    ) {
       return "This field is required";
     }
 
     // Number validations
-    if (cell.dataType === "number" && val !== null && val !== undefined && val !== "") {
+    if (
+      cell.dataType === "number" &&
+      val !== null &&
+      val !== undefined &&
+      val !== ""
+    ) {
       const numVal = Number(val);
       if (isNaN(numVal)) {
         return "Must be a valid number";
@@ -83,10 +87,16 @@ const EditableTableField: React.FC<EditableTableFieldProps> = ({
     // Text validations
     if (cell.dataType === "text" && val) {
       const strVal = String(val);
-      if (validation.minLength !== undefined && strVal.length < validation.minLength) {
+      if (
+        validation.minLength !== undefined &&
+        strVal.length < validation.minLength
+      ) {
         return `Must be at least ${validation.minLength} characters`;
       }
-      if (validation.maxLength !== undefined && strVal.length > validation.maxLength) {
+      if (
+        validation.maxLength !== undefined &&
+        strVal.length > validation.maxLength
+      ) {
         return `Must be at most ${validation.maxLength} characters`;
       }
       if (validation.pattern) {
@@ -101,12 +111,14 @@ const EditableTableField: React.FC<EditableTableFieldProps> = ({
   };
 
   // Validate all cells
-  const validateTable = (config: EditableTableConfig): CellValidationError[] => {
+  const validateTable = (
+    config: EditableTableConfig
+  ): CellValidationError[] => {
     const errors: CellValidationError[] = [];
 
     config.rows.forEach((row) => {
       row.cells.forEach((cell, cellIndex) => {
-        const error = validateCell(cell, row.rowId, cellIndex);
+        const error = validateCell(cell);
         if (error) {
           errors.push({
             rowId: row.rowId,
@@ -121,7 +133,7 @@ const EditableTableField: React.FC<EditableTableFieldProps> = ({
   };
 
   // Update cell value
-  const updateCellValue = (rowId: string, cellIndex: number, newValue: any) => {
+  const updateCellValue = (rowId: string, cellIndex: number, newValue: string | number | boolean | null) => {
     const newConfig = { ...tableConfig };
     const rowIndex = newConfig.rows.findIndex((r) => r.rowId === rowId);
 
@@ -195,7 +207,10 @@ const EditableTableField: React.FC<EditableTableFieldProps> = ({
   };
 
   // Get cell validation error
-  const getCellError = (rowId: string, cellIndex: number): string | undefined => {
+  const getCellError = (
+    rowId: string,
+    cellIndex: number
+  ): string | undefined => {
     const error = validationErrors.find(
       (e) => e.rowId === rowId && e.cellIndex === cellIndex
     );
@@ -241,14 +256,23 @@ const EditableTableField: React.FC<EditableTableFieldProps> = ({
       className: cellError ? "border-red-500" : "",
     };
 
+    // Helper to get string value for inputs
+    const getStringValue = (val: string | number | boolean | null): string => {
+      if (val === null || val === undefined) return "";
+      if (typeof val === "boolean") return "";
+      return String(val);
+    };
+
     switch (cell.dataType) {
       case "text":
         return (
           <div>
             <Input
               type="text"
-              value={cell.value || ""}
-              onChange={(e) => updateCellValue(rowId, cellIndex, e.target.value)}
+              value={getStringValue(cell.value)}
+              onChange={(e) =>
+                updateCellValue(rowId, cellIndex, e.target.value)
+              }
               required={cell.validation?.required}
               minLength={cell.validation?.minLength}
               maxLength={cell.validation?.maxLength}
@@ -265,8 +289,10 @@ const EditableTableField: React.FC<EditableTableFieldProps> = ({
           <div>
             <Input
               type="number"
-              value={cell.value ?? ""}
-              onChange={(e) => updateCellValue(rowId, cellIndex, e.target.value)}
+              value={getStringValue(cell.value)}
+              onChange={(e) =>
+                updateCellValue(rowId, cellIndex, e.target.value)
+              }
               required={cell.validation?.required}
               min={cell.validation?.min}
               max={cell.validation?.max}
@@ -283,8 +309,10 @@ const EditableTableField: React.FC<EditableTableFieldProps> = ({
           <div>
             <Input
               type="date"
-              value={cell.value || ""}
-              onChange={(e) => updateCellValue(rowId, cellIndex, e.target.value)}
+              value={getStringValue(cell.value)}
+              onChange={(e) =>
+                updateCellValue(rowId, cellIndex, e.target.value)
+              }
               required={cell.validation?.required}
               {...commonProps}
             />
@@ -298,8 +326,10 @@ const EditableTableField: React.FC<EditableTableFieldProps> = ({
         return (
           <div>
             <Select
-              value={cell.value || ""}
-              onValueChange={(value) => updateCellValue(rowId, cellIndex, value)}
+              value={getStringValue(cell.value)}
+              onValueChange={(value) =>
+                updateCellValue(rowId, cellIndex, value)
+              }
               disabled={isDisabled}
             >
               <SelectTrigger className={cellError ? "border-red-500" : ""}>
@@ -344,7 +374,9 @@ const EditableTableField: React.FC<EditableTableFieldProps> = ({
   };
 
   if (tableConfig.settings?.showBorders) {
-    tableStyle.border = `1px solid ${tableConfig.tableStyle?.borderColor || "#e5e7eb"}`;
+    tableStyle.border = `1px solid ${
+      tableConfig.tableStyle?.borderColor || "#e5e7eb"
+    }`;
   }
 
   // Header style
@@ -357,7 +389,9 @@ const EditableTableField: React.FC<EditableTableFieldProps> = ({
   };
 
   if (tableConfig.settings?.showBorders) {
-    headerStyle.border = `1px solid ${tableConfig.tableStyle?.borderColor || "#e5e7eb"}`;
+    headerStyle.border = `1px solid ${
+      tableConfig.tableStyle?.borderColor || "#e5e7eb"
+    }`;
   }
 
   if (tableConfig.settings?.stickyHeader) {
@@ -372,7 +406,10 @@ const EditableTableField: React.FC<EditableTableFieldProps> = ({
         <thead>
           <tr>
             {tableConfig.columns.map((col) => (
-              <th key={col.columnId} style={{ ...headerStyle, width: col.width }}>
+              <th
+                key={col.columnId}
+                style={{ ...headerStyle, width: col.width }}
+              >
                 {col.header}
               </th>
             ))}
@@ -417,7 +454,9 @@ const EditableTableField: React.FC<EditableTableFieldProps> = ({
                   };
 
                   if (tableConfig.settings?.showBorders) {
-                    cellStyle.border = `1px solid ${tableConfig.tableStyle?.borderColor || "#e5e7eb"}`;
+                    cellStyle.border = `1px solid ${
+                      tableConfig.tableStyle?.borderColor || "#e5e7eb"
+                    }`;
                   }
 
                   return (
@@ -431,7 +470,9 @@ const EditableTableField: React.FC<EditableTableFieldProps> = ({
                     style={{
                       padding: "8px 12px",
                       border: tableConfig.settings?.showBorders
-                        ? `1px solid ${tableConfig.tableStyle?.borderColor || "#e5e7eb"}`
+                        ? `1px solid ${
+                            tableConfig.tableStyle?.borderColor || "#e5e7eb"
+                          }`
                         : undefined,
                     }}
                   >

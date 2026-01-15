@@ -1,5 +1,5 @@
-import { Field, FieldsType, FormFieldOption } from "@/lib/types/form/fields";
 import { z } from "zod";
+import { Field, FieldsType } from "@/lib/types/form/fields";
 import { isDisplayElement } from "@/lib/constants/formFields";
 
 const optionSchema = z.object({
@@ -368,7 +368,7 @@ export const buildValidationSchema = (fields: Field[]) => {
             const fileArray =
               files instanceof FileList ? Array.from(files) : files;
 
-            return fileArray.every((file: any) => {
+            return fileArray.every((file: File | string) => {
               if (typeof file === "string") return true;
               return file.size <= (field.validation?.maxFileSize || Infinity);
             });
@@ -383,7 +383,7 @@ export const buildValidationSchema = (fields: Field[]) => {
             const fileArray =
               files instanceof FileList ? Array.from(files) : files;
 
-            return fileArray.every((file: any) => {
+            return fileArray.every((file: File | string) => {
               if (typeof file === "string") return true;
               return field.validation?.allowedFileTypes?.includes(file.type);
             });
@@ -393,7 +393,9 @@ export const buildValidationSchema = (fields: Field[]) => {
           fileSchema = fileSchema.refine((files) => {
             if (!files) return false;
             const fileArray =
-              files instanceof FileList ? Array.from(files) : (files as any[]);
+              files instanceof FileList
+                ? Array.from(files)
+                : (files as unknown[]);
             return Array.isArray(fileArray) ? fileArray.length > 0 : false;
           }, `${field.label} is required`);
         } else {

@@ -8,7 +8,7 @@ export type ActionConfigField = {
   placeholder?: string;
   actionDescription?: string;
   options?: Array<{ label: string; value: string }>;
-  defaultValue?: any;
+  defaultValue?: unknown;
   supportsTemplate?: boolean;
 };
 

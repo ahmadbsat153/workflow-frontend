@@ -1,7 +1,21 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/lib/ui/card";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/lib/ui/card";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Legend,
+  Tooltip,
+  PieLabelRenderProps,
+} from "recharts";
 import { chartColors } from "@/lib/types/dashboard";
 
 interface SubmissionStatusChartProps {
@@ -19,7 +33,9 @@ export function SubmissionStatusChart({ data }: SubmissionStatusChartProps) {
   const chartData = data.map((item) => ({
     name: formatStatus(item.status),
     value: item.count,
-    color: chartColors.workflow[item.status as keyof typeof chartColors.workflow] || "#6b7280",
+    color:
+      chartColors.workflow[item.status as keyof typeof chartColors.workflow] ||
+      "#6b7280",
   }));
 
   const totalSubmissions = data.reduce((sum, item) => sum + item.count, 0);
@@ -54,9 +70,16 @@ export function SubmissionStatusChart({ data }: SubmissionStatusChartProps) {
               cx="50%"
               cy="50%"
               outerRadius={80}
-              label={({ name, percent }) =>
-                `${name}: ${(percent * 100).toFixed(0)}%`
-              }
+              label={(props: PieLabelRenderProps) => {
+                const { name, percent } = props;
+                // Ensure percent exists before calling toFixed
+                const percentage =
+                  typeof percent === "number"
+                    ? `${(percent * 100).toFixed(0)}%`
+                    : "";
+
+                return `${name}: ${percentage}`;
+              }}
             >
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />

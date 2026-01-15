@@ -12,10 +12,15 @@ import {
 } from "lucide-react";
 
 import { formatDatesWithYear } from "@/utils/common";
+import { User } from "@/lib/types/user/user";
 
-const UserOverview = ({ data }: { data: any }) => {
+const UserOverview = ({ data }: { data: User | null }) => {
   if (!data) {
-    return <div className="text-center py-8 text-gray-500">No user data available</div>;
+    return (
+      <div className="text-center py-8 text-gray-500">
+        No user data available
+      </div>
+    );
   }
 
   return (
@@ -80,16 +85,18 @@ const UserOverview = ({ data }: { data: any }) => {
       <div className="text-dark border-b-2 border-b-gray-100 pb-5 w-full">
         <div className="flex items-center border rounded-b-md relative w-full text-sm py-3">
           <span className="p-4">
-            <Briefcase  className="size-8" />
+            <Briefcase className="size-8" />
           </span>
           <div className="flex flex-col text-sm">
-            <span className="font-semibold">Gold Tiger Logistics Solutions</span>
+            <span className="font-semibold">
+              Gold Tiger Logistics Solutions
+            </span>
             <span className="text-xs font-normal">
-              {typeof data.role === 'object' && data.role?.name
+              {typeof data.role === "object" && data.role?.name
                 ? data.role.name
-                : typeof data.role === 'string'
-                  ? data.role
-                  : "N/A"}
+                : typeof data.role === "string"
+                ? data.role
+                : "N/A"}
             </span>
           </div>
           <div className="absolute right-0 text-xs font-medium">

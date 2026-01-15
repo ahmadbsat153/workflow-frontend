@@ -25,17 +25,20 @@ import { Switch } from "@/lib/ui/switch";
 import { useForm } from "react-hook-form";
 import { Textarea } from "@/lib/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ActionConfigField } from "@/lib/types/actions/action";
+import { ActionConfigField, UserFieldValue } from "@/lib/types/actions/action";
 import { FieldTemplate } from "@/lib/types/form/form";
 import { TemplateInput } from "./TemplateInput";
 import { UserFieldInput } from "./UserFieldInput";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/lib/ui/tooltip";
 import { InfoIcon } from "lucide-react";
 
+type ConfigValue = string | number | boolean | FileList | UserFieldValue | undefined;
+export type ConfigRecord = Record<string, ConfigValue>;
+
 type DynamicConfigFormProps = {
   fields: ActionConfigField[];
-  initialConfig?: Record<string, any>;
-  onSubmit: (config: Record<string, any>) => void;
+  initialConfig?: ConfigRecord;
+  onSubmit: (config: ConfigRecord) => void;
   onCancel?: () => void;
   nodeId?: string;
   availableTemplates?: FieldTemplate[];
@@ -120,7 +123,8 @@ const buildDynamicSchema = (fields: ActionConfigField[]) => {
 
         if (field.required) {
           fieldSchema = fieldSchema.refine(
-            (val: any) => {
+            (value: unknown) => {
+              const val = value as UserFieldValue;
               // Validate based on mode
               if (val.mode === "direct_email") {
                 // Support both new emails array and legacy email field
@@ -175,7 +179,7 @@ export const DynamicConfigForm = ({
   }, [nodeId, initialConfig, form]);
 
   const handleSubmit = (data: FormValues) => {
-    onSubmit(data as Record<string, any>);
+    onSubmit(data as ConfigRecord);
   };
 
   if (fields.length === 0) {
@@ -196,7 +200,7 @@ export const DynamicConfigForm = ({
           <FormField
             key={field.name}
             control={form.control}
-            name={field.name as any}
+            name={field.name as keyof FormValues}
             render={({ field: formField }) => (
               <FormItem>
                 <FormLabel>
@@ -296,7 +300,7 @@ export const DynamicConfigForm = ({
                     </div>
                   ) : field.type === "user" ? (
                     <UserFieldInput
-                      value={formField.value as any}
+                      value={formField.value as UserFieldValue}
                       onChange={formField.onChange}
                       onBlur={formField.onBlur}
                       availableTemplates={availableTemplates}

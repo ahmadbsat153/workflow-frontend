@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {
@@ -93,7 +91,7 @@ const RolesTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [query]);
+  }, [searchParams, query]);
 
   useEffect(() => {
     getRoles();
@@ -164,13 +162,13 @@ const RolesTable = () => {
         onClick={() => navigateToEdit(row)}
         className="font-medium cursor-pointer hover:text-primary"
       >
-        {value}
+        {value as string}
       </span>
     ),
 
     description: (value) => (
       <span className="text-sm text-muted-foreground line-clamp-2">
-        {value || "-"}
+        {(value as string) || "-"}
       </span>
     ),
 
@@ -199,11 +197,11 @@ const RolesTable = () => {
     ),
 
     createdAt: (value) => {
-      return <span>{formatDatesWithYear(value)}</span>;
+      return <span>{formatDatesWithYear(value as string)}</span>;
     },
 
     updatedAt: (value) => {
-      return <span>{formatDatesWithYear(value)}</span>;
+      return <span>{formatDatesWithYear(value as string)}</span>;
     },
 
     actions: (value, row) => (
@@ -269,8 +267,8 @@ const RolesTable = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This won't acutally delete the role but will deactivate it.
-              All users assigned to this role will not be able to access the system.
+              {`This won't acutally delete the role but will deactivate it. All
+              users assigned to this role will not be able to access the system.`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

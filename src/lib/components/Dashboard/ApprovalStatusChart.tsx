@@ -14,11 +14,17 @@ import {
   ResponsiveContainer,
   Legend,
   Tooltip,
+  PieLabelRenderProps,
 } from "recharts";
 import { chartColors } from "@/lib/types/dashboard";
 
 interface ApprovalStatusChartProps {
   data: Array<{ status: string; count: number }>;
+}
+
+interface PieLabelProps {
+  name: string;
+  percent: number;
 }
 
 const formatStatus = (status: string): string => {
@@ -75,9 +81,16 @@ export function ApprovalStatusChart({ data }: ApprovalStatusChartProps) {
               cx="50%"
               cy="50%"
               outerRadius={80}
-              label={({ name, percent }) =>
-                `${name}: ${(percent * 100).toFixed(0)}%`
-              }
+              label={(props: PieLabelRenderProps) => {
+                const { name, percent } = props;
+                // Ensure percent exists before calling toFixed
+                const percentage =
+                  typeof percent === "number"
+                    ? `${(percent * 100).toFixed(0)}%`
+                    : "";
+
+                return `${name}: ${percentage}`;
+              }}
             >
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />

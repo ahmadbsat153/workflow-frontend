@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
+ 
 "use client";
 
 import {
@@ -22,7 +22,7 @@ import { formatDatesWithYear } from "@/utils/common";
 import { handleServerError } from "@/lib/api/_axios";
 import { INITIAL_META } from "@/lib/constants/initials";
 import { API_APPROVAL } from "@/lib/services/approval_service";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { APPROVAL_COLUMNS, APPROVAL_VISIBLE_COL } from "@/lib/constants/tables";
 import { CellRenderer } from "@/lib/types/table/table_data";
 import { MyApproval, MyApprovalTable } from "@/lib/types/approval";
@@ -89,7 +89,7 @@ const ApprovalsTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [query]);
+  }, [query, searchParams]);
 
   useEffect(() => {
     getApprovals();
@@ -173,7 +173,7 @@ const ApprovalsTable = () => {
         onClick={() => navigateToDetails(row)}
         className="font-medium cursor-pointer hover:text-primary"
       >
-        {value}
+        {value as ReactNode}
       </span>
     ),
 
@@ -187,7 +187,7 @@ const ApprovalsTable = () => {
     ),
 
     submittedAt: (value) => {
-      return <span className="text-sm">{formatDatesWithYear(value)}</span>;
+      return <span className="text-sm">{formatDatesWithYear(value as string)}</span>;
     },
 
     stage: (value, row) => (

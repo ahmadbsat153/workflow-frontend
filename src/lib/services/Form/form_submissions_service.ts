@@ -6,6 +6,8 @@ import {
   FormSubmissionList,
 } from "@/lib/types/form/form_submission";
 
+
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace API_FORM_SUBMISSION {
   export async function getAllSubmissionsByForm(query: string, slug: string) {
     try {

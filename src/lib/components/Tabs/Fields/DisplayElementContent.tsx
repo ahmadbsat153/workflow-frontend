@@ -18,9 +18,11 @@ import {
   SelectValue,
 } from "@/lib/ui/select";
 import { UseFormReturn } from "react-hook-form";
+import Image from "next/image";
 
 type DisplayElementContentProps = {
   field: Field;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: UseFormReturn<any>;
   loading: boolean;
 };
@@ -35,8 +37,8 @@ const DisplayElementContent = ({
       return (
         <div className="space-y-4">
           <p className="text-sm text-gray-500">
-            Separators don't have editable content. Use the Style tab to
-            customize appearance.
+            {`Separators don't have editable content. Use the Style tab to
+            customize appearance.`}
           </p>
         </div>
       );
@@ -135,9 +137,7 @@ const DisplayElementContent = ({
                     max={1000}
                     placeholder="30"
                     disabled={loading}
-                    onChange={(e) =>
-                      formField.onChange(Number(e.target.value))
-                    }
+                    onChange={(e) => formField.onChange(Number(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
@@ -191,13 +191,12 @@ const DisplayElementContent = ({
           {form.watch("content.imageUrl") && (
             <div className="mt-4">
               <p className="text-sm font-medium mb-2">Preview:</p>
-              <img
+              <Image
                 src={form.watch("content.imageUrl")}
                 alt={form.watch("content.imageAlt") || "Preview"}
+                width={600}
+                height={400}
                 className="max-w-full h-auto rounded border"
-                onError={(e) => {
-                  e.currentTarget.src = "https://placehold.co/600x400";
-                }}
               />
             </div>
           )}

@@ -56,7 +56,7 @@ export type Field = {
   type: FieldsType;
   required: boolean;
   placeholder?: string;
-  defaultValue?: any;
+  defaultValue?: unknown;
   options?: FormFieldOption[] | null;
   content?: DisplayContent; // For display elements
   validation?: FormFieldValidation;

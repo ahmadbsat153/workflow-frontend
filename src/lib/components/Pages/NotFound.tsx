@@ -1,13 +1,12 @@
 "use client";
 
-import Link from "next/link";
-import { Button } from "@/lib/ui/button";
-import { FadeIn, FadeInStagger } from "../Motion/FadeIn";
-import Image from "next/image";
-import { authImages } from "@/lib/constants/authImages";
-import { API_SETTINGS } from "@/lib/services/Settings/settings_service";
-import { useEffect, useState } from "react";
 
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/lib/ui/button";
+import { useEffect, useState } from "react";
+import { FadeIn, FadeInStagger } from "../Motion/FadeIn";
+import { API_SETTINGS } from "@/lib/services/Settings/settings_service";
 type Props = {
   title?: string;
   error?: string;

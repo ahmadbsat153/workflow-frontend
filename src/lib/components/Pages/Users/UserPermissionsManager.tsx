@@ -5,6 +5,7 @@ import { API_PERMISSION } from "@/lib/services/Permission/permission_service";
 import { API_USER } from "@/lib/services/User/user_service";
 import { API_ROLE } from "@/lib/services/Role/role_service";
 import type { PermissionGroup, Permission } from "@/lib/types/role/role";
+import type { User } from "@/lib/types/user/user";
 import { Button } from "@/lib/ui/button";
 import { Badge } from "@/lib/ui/badge";
 import { Checkbox } from "@/lib/ui/checkbox";
@@ -35,7 +36,7 @@ const UserPermissionsManager = ({ userId }: UserPermissionsManagerProps) => {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [permissionGroups, setPermissionGroups] =
     useState<PermissionGroup | null>(null);
   const [rolePermissions, setRolePermissions] = useState<string[]>([]);
@@ -68,21 +69,15 @@ const UserPermissionsManager = ({ userId }: UserPermissionsManagerProps) => {
 
           // Extract permission keys from Permission objects
           if (Array.isArray(roleData.permissions)) {
-            userRolePermissions = roleData.permissions.map((p: any) =>
+            userRolePermissions = roleData.permissions.map((p: Permission | string) =>
               typeof p === "string" ? p : p.key
             );
           } else {
             userRolePermissions = [];
           }
 
-          // Update user object with populated role (convert permissions to strings)
-          setUser({
-            ...userData,
-            role: {
-              ...roleData,
-              permissions: userRolePermissions,
-            },
-          });
+          // User data already has the role reference, no need to update it
+          setUser(userData);
         } catch (roleError) {
           console.error("✗ Error fetching role details:", roleError);
         }
@@ -99,12 +94,12 @@ const UserPermissionsManager = ({ userId }: UserPermissionsManagerProps) => {
       const effective = new Set<string>();
 
       // Add all role permissions (these are checked by default)
-      userRolePermissions.forEach((perm: string, index: number) => {
+      userRolePermissions.forEach((perm: string) => {
         effective.add(perm);
       });
 
       // Add custom granted permissions (these are also checked)
-      customGranted.forEach((perm: string, index: number) => {
+      customGranted.forEach((perm: string) => {
         effective.add(perm);
       });
 

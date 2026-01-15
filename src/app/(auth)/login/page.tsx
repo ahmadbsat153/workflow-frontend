@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { toast } from "sonner";
+import Image from "next/image";
+import { Suspense } from "react";
 import { Input } from "@/lib/ui/input";
 import { Button } from "@/lib/ui/button";
 import { redirect } from "@/utils/common";
@@ -11,15 +13,15 @@ import { useAuth } from "@/lib/context/AuthContext";
 import { handleServerError } from "@/lib/api/_axios";
 import { FormEvent, useState, useEffect } from "react";
 import { API_AUTH } from "@/lib/services/auth_service";
+import { authImages } from "@/lib/constants/authImages";
 import DotsLoader from "@/lib/components/Loader/DotsLoader";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import { FadeIn, FadeInStagger } from "@/lib/components/Motion/FadeIn";
-import { microsoftOAuthService } from "@/lib/services/microsoft_oauth_service";
 import { API_SETTINGS } from "@/lib/services/Settings/settings_service";
-import { authImages } from "@/lib/constants/authImages";
+import { microsoftOAuthService } from "@/lib/services/microsoft_oauth_service";
 
-export default function Login() {
+function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [loadingAzure, setLoadingAzure] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -118,9 +120,10 @@ export default function Login() {
 
       // Redirect to appropriate page
       router.push(getUrl(URLs.app.dashboard));
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as ErrorResponse;
       console.error("Microsoft login error:", error);
-      toast.error(error.message || "Failed to login with Microsoft");
+      toast.error(err.message || "Failed to login with Microsoft");
     } finally {
       setLoadingAzure(false);
     }
@@ -138,9 +141,10 @@ export default function Login() {
     <div className="h-screen w-full flex items-center justify center">
       <div className="h-full flex items-center justify-center w-full rounded-lg shadow-sm">
         <div className="w-1/2 h-full bg-muted relative hidden lg:block">
-          <img
+          <Image
             src={loginBgImage || "/images/login.png"}
             alt="Login background"
+            fill
             className="absolute inset-0 h-full w-full object-cover"
           />
         </div>
@@ -149,9 +153,11 @@ export default function Login() {
             <FadeIn>
               {logo && (
                 <div className="flex justify-center mb-6">
-                  <img
+                  <Image
                     src={logo}
                     alt="Logo"
+                    width={64}
+                    height={64}
                     className="h-16 w-auto object-contain"
                   />
                 </div>
@@ -260,5 +266,19 @@ export default function Login() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Login() {
+  return (
+    <Suspense
+      fallback={
+        <div className="h-screen w-full flex items-center justify-center">
+          <DotsLoader />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

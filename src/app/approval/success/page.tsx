@@ -1,12 +1,14 @@
 "use client";
 
+import { Suspense } from "react";
+import { Button } from "@/lib/ui/button";
+import { URLs } from "@/lib/constants/urls";
+import { CheckCircle2, XCircle, Home } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/lib/ui/card";
-import { Button } from "@/lib/ui/button";
-import { CheckCircle2, XCircle, Home } from "lucide-react";
-import { URLs } from "@/lib/constants/urls";
+import DotsLoader from "@/lib/components/Loader/DotsLoader";
 
-export default function ApprovalSuccessPage() {
+function ApprovalSuccess() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const decision = searchParams.get("decision") || "approved";
@@ -17,7 +19,11 @@ export default function ApprovalSuccessPage() {
     <div className="h-screen w-full flex items-center justify-center p-4 bg-gray-50">
       <Card className="max-w-lg w-full">
         <CardHeader>
-          <div className={`flex items-center gap-3 ${isApproved ? "text-green-600" : "text-red-600"}`}>
+          <div
+            className={`flex items-center gap-3 ${
+              isApproved ? "text-green-600" : "text-red-600"
+            }`}
+          >
             {isApproved ? (
               <CheckCircle2 className="h-8 w-8" />
             ) : (
@@ -29,7 +35,13 @@ export default function ApprovalSuccessPage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className={`p-6 rounded-lg ${isApproved ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`}>
+          <div
+            className={`p-6 rounded-lg ${
+              isApproved
+                ? "bg-green-50 border border-green-200"
+                : "bg-red-50 border border-red-200"
+            }`}
+          >
             <h3 className="font-semibold text-lg mb-2">
               {isApproved ? "✓ Thank You!" : "✗ Decision Recorded"}
             </h3>
@@ -58,14 +70,15 @@ export default function ApprovalSuccessPage() {
               <div>
                 <p className="font-medium">Email confirmation</p>
                 <p className="text-sm text-muted-foreground">
-                  A confirmation email has been sent to your email address with the details of your decision.
+                  A confirmation email has been sent to your email address with
+                  the details of your decision.
                 </p>
               </div>
             </div>
           </div>
 
           <div className="pt-4 border-t">
-            <Button onClick={() =>  router.push(URLs.home)} className="w-full">
+            <Button onClick={() => router.push(URLs.home)} className="w-full">
               <Home className="h-4 w-4 mr-2" />
               Back to Home
             </Button>
@@ -73,5 +86,19 @@ export default function ApprovalSuccessPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function ApprovalSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="h-screen w-full flex items-center justify-center">
+          <DotsLoader />
+        </div>
+      }
+    >
+      <ApprovalSuccess />
+    </Suspense>
   );
 }

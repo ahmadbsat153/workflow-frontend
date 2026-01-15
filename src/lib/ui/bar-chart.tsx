@@ -17,6 +17,7 @@ import {
   ChartTooltipContent,
 } from "./chart";
 import { ChartColumnStackedIcon } from "lucide-react";
+import { BarChartDataPoint } from "../components/Pages/Users/UserAnalytics";
 
 export function ChartBarMultiple({
   title,
@@ -27,7 +28,7 @@ export function ChartBarMultiple({
 }: {
   title?: string;
   subtitle?: string;
-  data?: any;
+  data: BarChartDataPoint[];
   chartConfig?: ChartConfig;
   footer?: React.ReactNode;
 }) {

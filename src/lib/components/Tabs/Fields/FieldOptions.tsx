@@ -1,7 +1,6 @@
-import { Field, FieldsType, FormFieldOption } from "@/lib/types/form/fields";
+import { Field, FormFieldOption } from "@/lib/types/form/fields";
 import {
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -14,12 +13,13 @@ import { Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 
 type Props = {
-  field: Field;
+  field?: Field;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: UseFormReturn<any>;
   loading: boolean;
 };
 
-const FieldOptions = ({ form, field, loading }: Props) => {
+const FieldOptions = ({ form, loading }: Props) => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   // Use field array for managing options
   const {
@@ -67,7 +67,7 @@ const FieldOptions = ({ form, field, loading }: Props) => {
       {optionFields.length === 0 && (
         <div className="text-center py-8 border rounded-lg border-dashed">
           <p className="text-sm text-muted-foreground">
-            No options added yet. Click "Add Option" to get started.
+           {` No options added yet. Click "Add Option" to get started.`}
           </p>
         </div>
       )}

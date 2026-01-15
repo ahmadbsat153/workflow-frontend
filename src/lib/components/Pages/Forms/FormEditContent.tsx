@@ -1,22 +1,23 @@
 "use client";
 
+import FormDetailsTab from "./FormDetailsTab";
 import FormBuilder from "./CreateForm/FormBuilder";
-import { FileText, TextCursorInput, Workflow } from "lucide-react";
 import WorkflowBuilder from "../workflow/WorkflowBuilder";
 import { useLayoutState } from "../../Common/ConditionalSelector";
+import { FileText, TextCursorInput, Workflow } from "lucide-react";
 import { LayoutOption, LayoutSelector } from "../../Common/LayoutSelector";
-import FormDetailsTab from "./FormDetailsTab";
 
 type LayoutType = "details" | "forms" | "workflow";
 
-const layoutOptions: LayoutOption<any>[] = [
+const layoutOptions: LayoutOption<LayoutType>[] = [
   { value: "details", label: "Form Details", icon: FileText },
   { value: "forms", label: "Form Edit", icon: TextCursorInput },
   { value: "workflow", label: "Workflow Edit", icon: Workflow },
 ];
 
 const FormEditContent = () => {
-  const [currentLayout, setCurrentLayout] = useLayoutState<LayoutType>("details");
+  const [currentLayout, setCurrentLayout] =
+    useLayoutState<LayoutType>("details");
 
   const renderContent = () => {
     switch (currentLayout) {
@@ -42,9 +43,7 @@ const FormEditContent = () => {
         />
       </div>
 
-      <div className="flex-1 h-full">
-        {renderContent()}
-      </div>
+      <div className="flex-1 h-full">{renderContent()}</div>
     </div>
   );
 };

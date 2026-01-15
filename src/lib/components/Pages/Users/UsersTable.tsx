@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 "use client";
 
 import {
@@ -31,7 +31,6 @@ import UserFromADModal from "./UserFromADModal";
 import { URLs } from "@/lib/constants/urls";
 
 const UsersTable = () => {
-
   const searchParams = {
     page: parseAsInteger,
     limit: parseAsInteger,
@@ -86,7 +85,7 @@ const UsersTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [query]);
+  }, [searchParams, query]);
 
   useEffect(() => {
     getUsers();
@@ -138,7 +137,7 @@ const UsersTable = () => {
 
     email: (value) => (
       <a href={`mailto:${value}`} className="text-blue-600 hover:underline">
-        {value}
+        {value as string}
       </a>
     ),
 
@@ -171,11 +170,11 @@ const UsersTable = () => {
     ),
 
     createdAt: (value, row) => {
-      return <span>{formatDatesWithYear(value)}</span>;
+      return <span>{formatDatesWithYear(value as string)}</span>;
     },
 
     updatedAt: (value) => {
-      return <span>{formatDatesWithYear(value)}</span>;
+      return <span>{formatDatesWithYear(value as string)}</span>;
     },
 
     is_active: (value) => (

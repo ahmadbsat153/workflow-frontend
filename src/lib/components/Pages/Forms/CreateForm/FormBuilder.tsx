@@ -12,6 +12,7 @@ import {
   useSensors,
   pointerWithin,
   rectIntersection,
+  CollisionDetection,
 } from "@dnd-kit/core";
 
 import FormInformation, {
@@ -101,7 +102,7 @@ const FormBuilder = () => {
   );
 
   // Custom collision detection - prioritize drop zone when dragging from sidebar
-  const customCollisionDetection = (args: any) => {
+  const customCollisionDetection: CollisionDetection = (args) => {
     // When dragging a new field from sidebar
     if (activeField) {
       // First check if pointer is within any droppable
@@ -341,19 +342,19 @@ const FormBuilder = () => {
     setOverId(null);
   };
 
-  const cleanFieldForSubmission = (field: Field): any => {
+  const cleanFieldForSubmission = (field: Field): Partial<Field> => {
     const isDisplay = isDisplayElement(field.type);
 
     // Remove undefined and empty string values
-    const removeEmpty = (obj: any) => {
+    const removeEmpty = <T extends Record<string, unknown>>(obj: T): Partial<T> => {
       return Object.fromEntries(
-        Object.entries(obj).filter(([_, v]) => v !== undefined && v !== "")
-      );
+        Object.entries(obj).filter(([, v]) => v !== undefined && v !== "")
+      ) as Partial<T>;
     };
 
     if (isDisplay) {
       // For display elements, only keep these properties
-      const cleanField: any = {
+      const cleanField: Partial<Field> = {
         name: field.name,
         type: field.type,
         order: field.order,
@@ -380,12 +381,14 @@ const FormBuilder = () => {
       return cleanField;
     } else {
       // For input fields, keep all input-related properties
-      const cleanField: any = {
+      const cleanField: Partial<Field> = {
+        _id: field._id,
         name: field.name,
         label: field.label,
         type: field.type,
         required: field.required ?? false,
         order: field.order,
+        style: field.style,
       };
 
       // Only add _id if it exists (for updates)
@@ -477,8 +480,6 @@ const FormBuilder = () => {
   };
 
   const handleUpdateForm = async () => {
-
-
     const result = formInformationSchema.safeParse(formInfo);
 
     if (!result.success) {
@@ -494,7 +495,7 @@ const FormBuilder = () => {
 
     setFormInfoErrors({});
 
-    console.log(droppedFields)
+    console.log(droppedFields);
     // Clean fields before submission
     const cleanedFields = droppedFields.map(cleanFieldForSubmission);
 
@@ -505,7 +506,7 @@ const FormBuilder = () => {
       fields: cleanedFields,
     };
 
-    console.log(cleanedFields)
+    console.log(cleanedFields);
     setLoading(true);
     const id = "form-update";
 

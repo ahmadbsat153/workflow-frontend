@@ -1,30 +1,37 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-import { API_FORM } from "@/lib/services/Form/form_service";
-import { API_FORM_SUBMISSION } from "@/lib/services/Form/form_submissions_service";
-import { handleServerError } from "@/lib/api/_axios";
-import { ErrorResponse } from "@/lib/types/common";
-import { toast } from "sonner";
-import DotsLoader from "../../Loader/DotsLoader";
-import FormAnalyticsCard from "./FormAnalyticsCard";
-import { DataTable, CellRenderer } from "../../Table/DataTable";
-import { getUrl, URLs } from "@/lib/constants/urls";
-import { build_path, formatDatesWithYear } from "@/utils/common";
-import {
-  FormSubmission,
-  FormSubmissionList,
-} from "@/lib/types/form/form_submission";
-import { Field } from "@/lib/types/form/fields";
-import { INITIAL_META } from "@/lib/constants/initials";
 import {
   createSerializer,
   parseAsInteger,
   parseAsString,
   useQueryStates,
 } from "nuqs";
+import {
+  FormSubmission,
+  FormSubmissionList,
+} from "@/lib/types/form/form_submission";
+
+import { toast } from "sonner";
 import { useMemo } from "react";
+import { Field } from "@/lib/types/form/fields";
+import DotsLoader from "../../Loader/DotsLoader";
+import { ErrorResponse } from "@/lib/types/common";
+import FormAnalyticsCard from "./FormAnalyticsCard";
+import { getUrl, URLs } from "@/lib/constants/urls";
+import { handleServerError } from "@/lib/api/_axios";
+import { useParams, useRouter } from "next/navigation";
+import { INITIAL_META } from "@/lib/constants/initials";
+import { useCallback, useEffect, useState } from "react";
+import { API_FORM } from "@/lib/services/Form/form_service";
+import { DataTable, CellRenderer } from "../../Table/DataTable";
+import { build_path, formatDatesWithYear } from "@/utils/common";
+import { API_FORM_SUBMISSION } from "@/lib/services/Form/form_submissions_service";
+
+interface FormAnalytics {
+  totalSubmissions: number;
+  uniqueSubmitters: number;
+  recentSubmissions: number;
+}
 
 const FormDetailsTab = () => {
   const params = useParams();
@@ -33,7 +40,7 @@ const FormDetailsTab = () => {
 
   const [loading, setLoading] = useState(true);
   const [formSlug, setFormSlug] = useState<string | null>(null);
-  const [analytics, setAnalytics] = useState<any>(null);
+  const [analytics, setAnalytics] = useState<FormAnalytics | null>(null);
   const [fields, setFields] = useState<Field[]>([]);
   const [submissions, setSubmissions] = useState<FormSubmissionList>({
     data: [],
@@ -156,12 +163,16 @@ const FormDetailsTab = () => {
   // Cell renderers
   const cellRenderers: Partial<Record<string, CellRenderer<FormSubmission>>> = {
     createdAt: (value) => {
-      return <span>{formatDatesWithYear(value)}</span>;
+      return <span>{formatDatesWithYear(value as string)}</span>;
     },
-    submittedBy: (value) => <div>{value.email}</div>,
+    submittedBy: (_, row) => {
+      // We ignore 'value' because it's 'unknown'
+      // We use 'row' because we KNOW it is 'FormSubmission'
+      return <div>{row.submittedBy?.email}</div>;
+    },
     ...fields.reduce((acc, field) => {
       acc[field.name] = (value, row) => {
-        const fieldValue = row.submissionData?.[field.name];
+        const fieldValue = row.submissionData?.[field.name] as string;
 
         if (
           fieldValue === undefined ||

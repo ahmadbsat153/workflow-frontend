@@ -60,7 +60,7 @@ const departmentSchema = z.object({
   isActive: z.boolean(),
 });
 
-type DepartmentFormValues = z.infer<typeof departmentSchema>;
+export type DepartmentFormValues = z.infer<typeof departmentSchema>;
 
 const DepartmentForm = ({
   isEdit = false,

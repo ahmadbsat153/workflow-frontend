@@ -19,8 +19,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/lib/ui/tooltip";
 import { WorkflowStatus } from "@/lib/types/approval";
 import { WorkflowStatusBadge } from "../../Workflow/WorkflowStatusBadge";
 
-type SubmissionData = {
-  [key: string]: any;
+export type SubmissionData = {
+  [key: string]: string;
 };
 
 type SubmissionDisplayProps = {

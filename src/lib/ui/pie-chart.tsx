@@ -18,6 +18,11 @@ import {
   ChartTooltipContent,
 } from "./chart";
 import { DataKey } from "recharts/types/util/types";
+import { PieData } from "../components/Pages/Users/UserAnalytics";
+
+interface BaseChartData {
+  [key: string]: string | number | boolean | undefined;
+}
 
 export function ChartPieDonutText({
   title,
@@ -33,13 +38,15 @@ export function ChartPieDonutText({
   subtitle?: string;
   footer?: React.ReactNode;
   content?: { label: string; value: string };
-  data?: any;
+  data?: PieData[];
   chartConfig?: ChartConfig;
-  nameKey: DataKey<any>;
-  dataKey: DataKey<any>;
+  nameKey: DataKey<string>;
+  dataKey: DataKey<string>;
 }) {
   //Map over the count of each category and see if all are 0 then return null
-  const isDataEmpty = data.every((item: any) => item.count === 0);
+  const isDataEmpty = data
+    ? data.every((item: PieData) => item.count === 0)
+    : true;
 
   return (
     <div className="w-full lg:w-[40vw] h-full">
@@ -60,7 +67,7 @@ export function ChartPieDonutText({
                   content={<ChartTooltipContent hideLabel />}
                 />
                 <Pie
-                  data={data}
+                  data={data as unknown as BaseChartData[]}
                   dataKey={dataKey}
                   nameKey={nameKey}
                   innerRadius={60}

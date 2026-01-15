@@ -1,20 +1,19 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
-import { Button } from "@/lib/ui/button";
-import { Input } from "@/lib/ui/input";
-import { FadeIn, FadeInStagger } from "@/lib/components/Motion/FadeIn";
-import { useRouter } from "next/navigation";
-import { FileLock2Icon, Loader2, MailIcon } from "lucide-react";
-import { MoveLeftIcon } from "lucide-react";
-import { API_AUTH } from "@/lib/services/auth_service";
-import { URLs } from "@/lib/constants/urls";
 import { toast } from "sonner";
-import { handleServerError } from "@/lib/api/_axios";
+import { Input } from "@/lib/ui/input";
+import { Button } from "@/lib/ui/button";
+import { useRouter } from "next/navigation";
+import { URLs } from "@/lib/constants/urls";
 import { ErrorResponse } from "@/lib/types/common";
+import { handleServerError } from "@/lib/api/_axios";
+import { FormEvent, useEffect, useState } from "react";
+import { API_AUTH } from "@/lib/services/auth_service";
+import { authImages } from "@/lib/constants/authImages";
+import { FileLock2Icon, Loader2, MailIcon } from "lucide-react";
+import { FadeIn, FadeInStagger } from "@/lib/components/Motion/FadeIn";
 import { API_SETTINGS } from "@/lib/services/Settings/settings_service";
 import Image from "next/image";
-import { authImages } from "@/lib/constants/authImages";
 
 const ForgotPasswordPage = () => {
   const router = useRouter();
@@ -88,9 +87,10 @@ const ForgotPasswordPage = () => {
       <div className="h-full flex items-center justify-center w-full rounded-lg shadow-sm relative">
         {/* The Image */}
         <div className="w-1/2 h-full bg-muted relative hidden lg:block">
-          <img
+          <Image
             src={imageUrl || "/images/login.png"}
             alt="Login background"
+            fill
             className="absolute inset-0 h-full w-full object-cover"
           />
         </div>
@@ -103,8 +103,8 @@ const ForgotPasswordPage = () => {
                   Forgot Password
                 </h1>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Enter your email address and we'll send you a link to reset
-                  your password
+                  {` Enter your email address and we'll send you a link to reset
+                  your password`}
                 </p>
               </div>
             </FadeIn>
@@ -115,12 +115,12 @@ const ForgotPasswordPage = () => {
                   <MailIcon className="h-12 w-12 text-green-600 mx-auto mb-4" />
                   <h3 className="font-semibold text-lg mb-2">Email Sent!</h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    We've sent a password reset link to{" "}
+                    {`  We've sent a password reset link to`}{" "}
                     <span className="font-semibold">{email}</span>
                   </p>
                   <p className="text-xs text-muted-foreground mb-4">
-                    The link will expire in 60 minutes. Please check your spam
-                    folder if you don't see it.
+                    {`The link will expire in 60 minutes. Please check your spam
+                    folder if you don't see it.`}
                   </p>
                   <Button variant="outline" onClick={GoBack} className="w-full">
                     Back to Login

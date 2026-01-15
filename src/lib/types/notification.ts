@@ -28,13 +28,14 @@ export interface NotificationMetadata {
   approvalStage?: string;
   decision?: string;
   workflowStatus?: string;
-  customData?: any;
+  customData?: unknown;
 }
 
 /**
  * Main notification object structure
  */
 export interface Notification {
+  _id?: string;
   id: string;
   recipientId: string;
   type: NotificationType;

@@ -60,7 +60,7 @@ export const ConditionBuilder = ({
   const updateCondition = (
     index: number,
     field: keyof ConditionData,
-    value: any
+    value: string
   ) => {
     const updated = conditions.map((condition, i) =>
       i === index ? { ...condition, [field]: value } : condition
@@ -174,7 +174,7 @@ export const ConditionBuilder = ({
                   <label className="text-sm font-medium">Value</label>
                   <Input
                     placeholder="e.g., IT"
-                    value={condition.value}
+                    value={condition.value as string}
                     onChange={(e) => updateCondition(index, "value", e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground">

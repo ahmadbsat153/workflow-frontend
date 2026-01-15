@@ -1,27 +1,34 @@
 "use client";
-
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import {
   BellIcon,
   TrashIcon,
   CheckIcon,
-  DocumentTextIcon,
   ClockIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
   FunnelIcon,
+  CheckCircleIcon,
+  DocumentTextIcon,
+  ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
-import { formatDistanceToNow } from "date-fns";
+
+import {
+  Select,
+  SelectItem,
+  SelectValue,
+  SelectContent,
+  SelectTrigger,
+} from "@/lib/ui/select";
+
 import { toast } from "sonner";
-import { API_NOTIFICATION } from "@/lib/services/notification_service";
-import { Button } from "@/lib/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/lib/ui/card";
-import { Separator } from "@/lib/ui/separator";
 import { Badge } from "@/lib/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/lib/ui/select";
-import { Tabs, TabsList, TabsTrigger } from "@/lib/ui/tabs";
+import { Button } from "@/lib/ui/button";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Skeleton } from "@/lib/ui/skeleton";
+import { formatDistanceToNow } from "date-fns";
+import { Separator } from "@/lib/ui/separator";
+import { Card, CardContent } from "@/lib/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/lib/ui/tabs";
+import { API_NOTIFICATION } from "@/lib/services/notification_service";
 import type { Notification, NotificationType } from "@/lib/types/notification";
 
 /**
@@ -88,7 +95,9 @@ const NotificationCard = ({
   return (
     <Card
       className={`cursor-pointer transition-all hover:shadow-md ${
-        !notification.read ? "border-blue-500 bg-blue-50/30 dark:bg-blue-950/10" : ""
+        !notification.read
+          ? "border-blue-500 bg-blue-50/30 dark:bg-blue-950/10"
+          : ""
       }`}
       onClick={handleClick}
     >
@@ -197,15 +206,19 @@ export default function NotificationsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [filterType, setFilterType] = useState<NotificationType | "all">("all");
-  const [filterRead, setFilterRead] = useState<"all" | "unread" | "read">("all");
+  const [filterRead, setFilterRead] = useState<"all" | "unread" | "read">(
+    "all"
+  );
 
   const limit = 20;
 
   // Normalize notification data (handle both id and _id)
-  const normalizeNotification = (notification: any): Notification => {
+  const normalizeNotification = (
+    notification: Notification & { _id?: string }
+  ): Notification => {
     return {
       ...notification,
-      id: notification.id || notification._id,
+      id: notification.id || notification._id || "",
     };
   };
 
@@ -341,9 +354,15 @@ export default function NotificationsPage() {
             <SelectContent>
               <SelectItem value="all">All Types</SelectItem>
               <SelectItem value="form_submission">Form Submissions</SelectItem>
-              <SelectItem value="approval_request">Approval Requests</SelectItem>
-              <SelectItem value="approval_decision">Approval Decisions</SelectItem>
-              <SelectItem value="workflow_completed">Workflow Completed</SelectItem>
+              <SelectItem value="approval_request">
+                Approval Requests
+              </SelectItem>
+              <SelectItem value="approval_decision">
+                Approval Decisions
+              </SelectItem>
+              <SelectItem value="workflow_completed">
+                Workflow Completed
+              </SelectItem>
               <SelectItem value="workflow_failed">Workflow Failed</SelectItem>
             </SelectContent>
           </Select>
@@ -364,7 +383,8 @@ export default function NotificationsPage() {
               <BellIcon className="size-16 text-muted-foreground/50 mb-4" />
               <h3 className="text-lg font-semibold mb-2">No notifications</h3>
               <p className="text-sm text-muted-foreground text-center">
-                You don&apos;t have any notifications matching the selected filters
+                {` You don't have any notifications matching the selected
+                filters`}
               </p>
             </CardContent>
           </Card>

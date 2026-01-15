@@ -2,7 +2,7 @@
 
 import { toast } from "sonner";
 import { Button } from "@/lib/ui/button";
-import { useForm } from "react-hook-form";
+import { useForm, FieldError } from "react-hook-form";
 import { useParams, useRouter } from "next/navigation";
 import { Form } from "@/lib/types/form/form";
 import DotsLoader from "../../Loader/DotsLoader";
@@ -89,7 +89,7 @@ const SubmissionFormBuilder = () => {
         acc[field.name] = field.defaultValue || "";
       }
       return acc;
-    }, {} as Record<string, any>);
+    }, {} as Record<string, unknown>);
   }, [form]);
 
   const {
@@ -108,7 +108,7 @@ const SubmissionFormBuilder = () => {
     }
   }, [form, defaultValues, reset]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: Record<string, unknown>) => {
     if (!form) return;
     try {
       setSubmitting(true);
@@ -121,7 +121,7 @@ const SubmissionFormBuilder = () => {
         const formData = new FormData();
         formData.append("formId", form._id);
 
-        const nonFileData: any = {};
+        const nonFileData: Record<string, unknown> = {};
 
         form.fields.forEach((field) => {
           const value = data[field.name];
@@ -151,7 +151,7 @@ const SubmissionFormBuilder = () => {
         );
         console.log("- Non-file fields:", Object.keys(nonFileData));
 
-        const res = await API_FORM.submitFormWithFiles(formData);
+        await API_FORM.submitFormWithFiles(formData);
         toast.success("Form submitted successfully!");
       } else {
         const SubmissionData = {
@@ -159,7 +159,7 @@ const SubmissionFormBuilder = () => {
           submissionData: data,
         };
 
-        const res = await API_FORM.submitForm(SubmissionData);
+        await API_FORM.submitForm(SubmissionData);
         toast.success("Form submitted successfully!");
       }
 
@@ -216,7 +216,7 @@ const SubmissionFormBuilder = () => {
                   ? { width: `calc(${field.style.width}% - 1.25rem)` }
                   : { width: "100%" };
 
-                const fieldError = errors[field.name] as any;
+                const fieldError = errors[field.name] as FieldError | undefined;
 
                 return (
                   <div key={field._id} style={widthStyle}>

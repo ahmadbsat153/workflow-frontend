@@ -1,26 +1,26 @@
 "use client";
 
-import { Button } from "@/lib/ui/button";
-import { SettingsIcon, TrashIcon, GripVertical } from "lucide-react";
-import { useDroppable } from "@dnd-kit/core";
-import {
-  SortableContext,
-  useSortable,
-  rectSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { Field, FieldWidth } from "@/lib/types/form/fields";
-import { getFieldTypeIcon, isDisplayElement } from "@/lib/constants/formFields";
-import FieldSettingsSheet from "./FieldSettingsSheet";
-import { renderFieldPreview } from "@/utils/fieldUtils";
-import { Dispatch, SetStateAction, useRef } from "react";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/lib/ui/select";
+import {
+  SortableContext,
+  useSortable,
+  rectSortingStrategy,
+} from "@dnd-kit/sortable";
+
+import { Button } from "@/lib/ui/button";
+import { CSS } from "@dnd-kit/utilities";
+import { useDroppable } from "@dnd-kit/core";
+import FieldSettingsSheet from "./FieldSettingsSheet";
+import { renderFieldPreview } from "@/utils/fieldUtils";
+import { Dispatch, SetStateAction, useRef } from "react";
+import { Field, FieldWidth } from "@/lib/types/form/fields";
+import { SettingsIcon, TrashIcon, GripVertical } from "lucide-react";
+import { getFieldTypeIcon, isDisplayElement } from "@/lib/constants/formFields";
 
 type DnDContainerProps = {
   droppedFields: Field[];
