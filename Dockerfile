@@ -22,6 +22,10 @@ COPY . .
 # Learn more here: https://nextjs.org/telemetry
 ENV NEXT_TELEMETRY_DISABLED 1
 
+# Build arguments for NEXT_PUBLIC_* env vars (required at build time for Next.js)
+ARG NEXT_PUBLIC_BACKEND_HOST
+ARG SENTRY_AUTH_TOKEN
+
 # Build the application
 RUN pnpm build
 
