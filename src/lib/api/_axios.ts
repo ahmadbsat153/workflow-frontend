@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const BACKEND_HOST = process.env.NEXT_PUBLIC_BACKEND_HOST;
-
+console.log("Using backend host:", BACKEND_HOST);
 export const _axios = axios.create({
   baseURL: BACKEND_HOST,
   withCredentials: true,

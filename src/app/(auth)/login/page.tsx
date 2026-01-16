@@ -49,6 +49,7 @@ function LoginForm() {
       try {
         const backendHost =
           process.env.NEXT_PUBLIC_BACKEND_HOST || "http://localhost:8080";
+          console.log("Using backend host:", backendHost);
         const response = await API_SETTINGS.getPublicAuthImages();
         setLoginBgImage(
           backendHost + response.data[authImages.login]?.value || null
