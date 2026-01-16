@@ -93,11 +93,11 @@ class MicrosoftOAuthService {
           console.log("Window origin:", window.location.origin);
           console.log("Message data:", event.data);
 
-          // Security: Accept messages from backend (localhost:8080) or same origin
+          // Security: Accept messages from backend or same origin
           const allowedOrigins = [
             window.location.origin, // Frontend origin
-            "http://localhost:8080", // Backend origin
-            process.env.NEXT_PUBLIC_API_URL, // Production API URL if set
+            "http://localhost:8080", // Backend origin (development)
+            process.env.NEXT_PUBLIC_BACKEND_HOST, // Production API URL
           ].filter(Boolean);
 
           if (!allowedOrigins.includes(event.origin)) {
