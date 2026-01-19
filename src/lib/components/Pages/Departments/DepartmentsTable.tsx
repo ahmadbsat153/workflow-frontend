@@ -26,15 +26,15 @@ import { Button } from "@/lib/ui/button";
 import { Badge } from "@/lib/ui/badge";
 import { URLs } from "@/lib/constants/urls";
 
-const DepartmentsTable = () => {
-  const searchParams = {
-    page: parseAsInteger,
-    limit: parseAsInteger,
-    search: parseAsString,
-    sortField: parseAsString,
-    sortOrder: parseAsString,
-  };
+const searchParams = {
+  page: parseAsInteger,
+  limit: parseAsInteger,
+  search: parseAsString,
+  sortField: parseAsString,
+  sortOrder: parseAsString,
+};
 
+const DepartmentsTable = () => {
   const [departments, setDepartments] = useState<DepartmentTable>({
     data: [],
     meta: INITIAL_META,
@@ -78,7 +78,7 @@ const DepartmentsTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [query, searchParams]);
+  }, [query]);
 
   useEffect(() => {
     getDepartments();

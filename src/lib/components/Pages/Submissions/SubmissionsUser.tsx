@@ -25,19 +25,19 @@ import DotsLoader from "../../Loader/DotsLoader";
 import { useAuth } from "@/lib/context/AuthContext";
 import { WorkflowStatusBadge } from "../../Workflow/WorkflowStatusBadge";
 
+const searchParams = {
+  page: parseAsInteger,
+  limit: parseAsInteger,
+  search: parseAsString,
+  sortField: parseAsString,
+  sortOrder: parseAsString,
+};
+
 const SubmissionsUserTable = () => {
   const params = useParams();
   const router = useRouter();
   const { isAdmin } = useAuth();
   const form_slug = params.slug as string;
-
-  const searchParams = {
-    page: parseAsInteger,
-    limit: parseAsInteger,
-    search: parseAsString,
-    sortField: parseAsString,
-    sortOrder: parseAsString,
-  };
 
   const [forms, setSubmissions] = useState<FormSubmissionList>({
     data: [],
@@ -106,7 +106,7 @@ const SubmissionsUserTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [searchParams, query, form_slug]);
+  }, [query, form_slug]);
 
   useEffect(() => {
     getSubmissionsByUser();

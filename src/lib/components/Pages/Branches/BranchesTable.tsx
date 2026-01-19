@@ -23,15 +23,15 @@ import { Button } from "@/lib/ui/button";
 import { Badge } from "@/lib/ui/badge";
 import { URLs } from "@/lib/constants/urls";
 
-const BranchesTable = () => {
-  const searchParams = {
-    page: parseAsInteger,
-    limit: parseAsInteger,
-    search: parseAsString,
-    sortField: parseAsString,
-    sortOrder: parseAsString,
-  };
+const searchParams = {
+  page: parseAsInteger,
+  limit: parseAsInteger,
+  search: parseAsString,
+  sortField: parseAsString,
+  sortOrder: parseAsString,
+};
 
+const BranchesTable = () => {
   const [branches, setBranches] = useState<BranchTable>({
     data: [],
     meta: INITIAL_META,
@@ -73,7 +73,7 @@ const BranchesTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [query, searchParams]);
+  }, [query]);
 
   useEffect(() => {
     getBranches();

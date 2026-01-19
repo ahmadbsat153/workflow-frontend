@@ -26,15 +26,15 @@ import { API_ACTION } from "@/lib/services/Actions/action_service";
 import { ACTION_COLUMNS, ACTION_VISIBLE_COL } from "@/lib/constants/tables";
 import { CellRenderer, AdditionalButton } from "@/lib/types/table/table_data";
 
-const ActionsTable = () => {
-  const searchParams = {
-    page: parseAsInteger,
-    limit: parseAsInteger,
-    search: parseAsString,
-    sortField: parseAsString,
-    sortOrder: parseAsString,
-  };
+const searchParams = {
+  page: parseAsInteger,
+  limit: parseAsInteger,
+  search: parseAsString,
+  sortField: parseAsString,
+  sortOrder: parseAsString,
+};
 
+const ActionsTable = () => {
   const [actions, setActions] = useState<ActionTable>({
     data: [],
     meta: INITIAL_META,
@@ -81,7 +81,7 @@ const ActionsTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [query, searchParams]);
+  }, [query]);
 
   useEffect(() => {
     getActions();

@@ -28,16 +28,16 @@ import { CellRenderer } from "@/lib/types/table/table_data";
 import { MyApproval, MyApprovalTable } from "@/lib/types/approval";
 import { URLs } from "@/lib/constants/urls";
 
-const ApprovalsTable = () => {
-  const searchParams = {
-    page: parseAsInteger,
-    limit: parseAsInteger,
-    search: parseAsString,
-    sortField: parseAsString.withDefault("submittedAt"),
-    sortOrder: parseAsString.withDefault("desc"),
-    status: parseAsStringEnum(["pending", "approved", "rejected"]),
-  };
+const searchParams = {
+  page: parseAsInteger,
+  limit: parseAsInteger,
+  search: parseAsString,
+  sortField: parseAsString.withDefault("submittedAt"),
+  sortOrder: parseAsString.withDefault("desc"),
+  status: parseAsStringEnum(["pending", "approved", "rejected"]),
+};
 
+const ApprovalsTable = () => {
   const [approvals, setApprovals] = useState<MyApprovalTable>({
     data: [],
     meta: INITIAL_META,
@@ -89,7 +89,7 @@ const ApprovalsTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [query, searchParams]);
+  }, [query]);
 
   useEffect(() => {
     getApprovals();
