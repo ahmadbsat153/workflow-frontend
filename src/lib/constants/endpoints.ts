@@ -27,6 +27,7 @@ export const USER_ENDPOINTS = {
 export const ADUSER_ENDPOINTS = {
   GET_BY_EMAIL: "/api/v1/ad/users/:email",
   GET_ALL: "/api/v1/ad/users/all",
+  BULK_SYNC: "/api/v1/ad/bulk-sync",
 };
 
 export const WORKFLOW_HISTORY_ENDPOINTS = {

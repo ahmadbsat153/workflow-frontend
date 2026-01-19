@@ -67,6 +67,7 @@ export interface DataTableProps<TData> {
 
   className?: string;
   tableClassName?: string;
+  maxHeight?: string;
 }
 
 export interface AdditionalButton {

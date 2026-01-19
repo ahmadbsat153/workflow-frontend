@@ -112,4 +112,40 @@ export namespace API_USER {
       throw handleErrors(error);
     }
   }
+
+  export type BulkSyncOptions = {
+    createNewUsers?: boolean;
+    defaultRoleCode?: string;
+  };
+
+  export type BulkSyncResult = {
+    synced: number;
+    created: number;
+    updated: number;
+    managersLinked: number;
+    errors: number;
+    details: {
+      created: string[];
+      updated: string[];
+      managersLinked: string[];
+      failed: { email: string; reason: string }[];
+    };
+  };
+
+  /**
+   * Bulk sync AD users with their managers
+   */
+  export async function bulkSyncADUsersWithManager(
+    options?: BulkSyncOptions
+  ): Promise<BulkSyncResult> {
+    try {
+      const response = await _axios.post(ADUSER_ENDPOINTS.BULK_SYNC, {
+        createNewUsers: options?.createNewUsers ?? true,
+        defaultRoleCode: options?.defaultRoleCode ?? "TEAM_MEMBER",
+      });
+      return response.data.data as BulkSyncResult;
+    } catch (error: unknown) {
+      throw handleErrors(error);
+    }
+  }
 }

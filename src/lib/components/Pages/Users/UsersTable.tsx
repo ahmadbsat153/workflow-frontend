@@ -14,21 +14,22 @@ import { Badge } from "@/lib/ui/badge";
 import { Button } from "@/lib/ui/button";
 import { PencilIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { URLs } from "@/lib/constants/urls";
+import { RefreshCwIcon } from "lucide-react";
+import UserFromADModal from "./UserFromADModal";
+import BulkADSyncModal from "./BulkADSyncModal";
 import { DataTable } from "../../Table/DataTable";
 import { ErrorResponse } from "@/lib/types/common";
 import { formatDatesWithYear } from "@/utils/common";
 import { handleServerError } from "@/lib/api/_axios";
 import { INITIAL_META } from "@/lib/constants/initials";
 import { User, UserTable } from "@/lib/types/user/user";
+import { PERMISSIONS } from "@/lib/constants/permissions";
 import { API_USER } from "@/lib/services/User/user_service";
-import { usePermissions } from "@/lib/hooks/usePermissions";
 import { UserRoundPlusIcon, ShieldCheck } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { USER_COLUMNS, USER_VISIBLE_COL } from "@/lib/constants/tables";
 import { CellRenderer, AdditionalButton } from "@/lib/types/table/table_data";
-import { PERMISSIONS } from "@/lib/constants/permissions";
-import UserFromADModal from "./UserFromADModal";
-import { URLs } from "@/lib/constants/urls";
 
 const searchParams = {
   page: parseAsInteger,
@@ -241,11 +242,28 @@ const UsersTable = () => {
       ),
       onClick: () => "",
     },
+    {
+      label: "Bulk AD Sync",
+      icon: RefreshCwIcon,
+      permission: PERMISSIONS.ACTIVE_DIRECTORY.CREATE_USER,
+      style: "",
+      wrapper: ({ children }) => (
+        <BulkADSyncModal
+          title="AD User Sync with Manager"
+          description="Sync all users from Active Directory and link their managers"
+          onSyncComplete={getUsers}
+        >
+          {children}
+        </BulkADSyncModal>
+      ),
+      onClick: () => "",
+    },
   ];
   return (
     <>
       <div className="flex flex-col gap-4 w-full">
         <DataTable
+          maxHeight="400px"
           data={users?.data}
           columns={headerColumns}
           // Server-side configuration
