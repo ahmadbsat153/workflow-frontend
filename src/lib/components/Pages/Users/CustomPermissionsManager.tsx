@@ -39,6 +39,10 @@ const CustomPermissionsManager = ({ userId }: CustomPermissionsManagerProps) => 
   const [checkedPermissions, setCheckedPermissions] = useState<Set<string>>(new Set());
   const [hasChanges, setHasChanges] = useState(false);
 
+  // Track current server state for custom permissions
+  const [serverGranted, setServerGranted] = useState<string[]>([]);
+  const [serverDenied, setServerDenied] = useState<string[]>([]);
+
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
@@ -58,6 +62,10 @@ const CustomPermissionsManager = ({ userId }: CustomPermissionsManagerProps) => 
       // Calculate effective permissions (role + granted - denied)
       const customGranted = userPermissionsData.grantedPermissions || [];
       const customDenied = userPermissionsData.deniedPermissions || [];
+
+      // Store server state for comparison during save
+      setServerGranted(customGranted);
+      setServerDenied(customDenied);
 
       const effective = new Set<string>();
 
@@ -120,8 +128,8 @@ const CustomPermissionsManager = ({ userId }: CustomPermissionsManagerProps) => 
     try {
       setSaving(true);
 
-      const toGrant: string[] = [];
-      const toDeny: string[] = [];
+      const newGrants: string[] = [];
+      const newDenies: string[] = [];
 
       // Check all available permissions
       if (permissionGroups) {
@@ -132,10 +140,10 @@ const CustomPermissionsManager = ({ userId }: CustomPermissionsManagerProps) => 
 
             if (isChecked && !isFromRole) {
               // Checked but not from role = custom grant
-              toGrant.push(perm.key);
+              newGrants.push(perm.key);
             } else if (!isChecked && isFromRole) {
               // Unchecked but from role = custom deny
-              toDeny.push(perm.key);
+              newDenies.push(perm.key);
             }
             // If checked and from role = default (no custom needed)
             // If unchecked and not from role = default (no custom needed)
@@ -143,17 +151,34 @@ const CustomPermissionsManager = ({ userId }: CustomPermissionsManagerProps) => 
         });
       }
 
-      // Clear all custom permissions first, then set new ones
-      await API_PERMISSION.clearUserCustomPermissions(userId);
+      // Calculate what needs to be added/removed by comparing with server state
+      const grantsToAdd = newGrants.filter((p) => !serverGranted.includes(p));
+      const grantsToRemove = serverGranted.filter((p) => !newGrants.includes(p));
+      const deniesToAdd = newDenies.filter((p) => !serverDenied.includes(p));
+      const deniesToRemove = serverDenied.filter((p) => !newDenies.includes(p));
 
-      await Promise.all([
-        toGrant.length > 0
-          ? API_PERMISSION.grantUserPermissions(userId, { permissions: toGrant })
-          : Promise.resolve(),
-        toDeny.length > 0
-          ? API_PERMISSION.denyUserPermissions(userId, { permissions: toDeny })
-          : Promise.resolve(),
-      ]);
+      // Only clear if we need to remove some custom permissions
+      const needsClear = grantsToRemove.length > 0 || deniesToRemove.length > 0;
+
+      if (needsClear) {
+        // Clear all and re-apply everything
+        await API_PERMISSION.clearUserCustomPermissions(userId);
+
+        if (newGrants.length > 0) {
+          await API_PERMISSION.grantUserPermissions(userId, { permissions: newGrants });
+        }
+        if (newDenies.length > 0) {
+          await API_PERMISSION.denyUserPermissions(userId, { permissions: newDenies });
+        }
+      } else {
+        // Just add new permissions without clearing
+        if (grantsToAdd.length > 0) {
+          await API_PERMISSION.grantUserPermissions(userId, { permissions: grantsToAdd });
+        }
+        if (deniesToAdd.length > 0) {
+          await API_PERMISSION.denyUserPermissions(userId, { permissions: deniesToAdd });
+        }
+      }
 
       toast.success("Permissions updated successfully");
       setHasChanges(false);

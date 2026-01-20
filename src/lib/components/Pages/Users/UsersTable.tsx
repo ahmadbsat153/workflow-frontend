@@ -55,7 +55,7 @@ const UsersTable = () => {
     },
     {
       history: "push",
-    }
+    },
   );
 
   const router = useRouter();
@@ -67,7 +67,7 @@ const UsersTable = () => {
       return USER_COLUMNS;
 
     return USER_COLUMNS.filter((column) =>
-      Array.from(visibleColumns as unknown as Set<string>).includes(column.uid)
+      Array.from(visibleColumns as unknown as Set<string>).includes(column.uid),
     );
   }, [visibleColumns]);
 
@@ -97,21 +97,21 @@ const UsersTable = () => {
     (page: number) => {
       setQuery({ page });
     },
-    [setQuery]
+    [setQuery],
   );
 
   const handlePageSizeChange = useCallback(
     (size: number) => {
       setQuery({ limit: size, page: 1 }); // Reset to first page when changing page size
     },
-    [setQuery]
+    [setQuery],
   );
 
   const handleSearch = useCallback(
     (search: string) => {
       setQuery({ search: search || null, page: 1 }); // Reset to first page when searching
     },
-    [setQuery]
+    [setQuery],
   );
 
   const handleSort = useCallback(
@@ -122,7 +122,7 @@ const UsersTable = () => {
         page: 1, // Reset to first page when sorting
       });
     },
-    [setQuery]
+    [setQuery],
   );
 
   const navigateToDetails = (user: User) => {
@@ -131,7 +131,10 @@ const UsersTable = () => {
   };
   const cellRenderers: Partial<Record<string, CellRenderer<User>>> = {
     firstname: (value, row) => (
-      <span onClick={() => navigateToDetails(row)} className="font-medium">
+      <span
+        onClick={() => navigateToDetails(row)}
+        className="font-medium cursor-pointer"
+      >
         {row.firstname} {row.lastname}
       </span>
     ),
@@ -205,7 +208,7 @@ const UsersTable = () => {
           size="sm"
           onClick={() =>
             router.push(
-              `${URLs.admin.users.detail.replace(":slug", row._id)}/permissions`
+              `${URLs.admin.users.detail.replace(":slug", row._id)}/permissions`,
             )
           }
           title="Manage Permissions"
