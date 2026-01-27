@@ -23,9 +23,12 @@ import { PERMISSIONS } from "@/lib/constants/permissions";
 import { API_FORM } from "@/lib/services/Form/form_service";
 import { usePermissions } from "@/lib/hooks/usePermissions";
 import { PermissionGuard } from "../../Auth/PermissionGuard";
+import { useAuth } from "@/lib/context/AuthContext";
+import { canEditForm } from "@/lib/utils";
 
 const FormCardList = () => {
   const router = useRouter();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const { hasPermission } = usePermissions();
   const searchParams = {
@@ -51,7 +54,7 @@ const FormCardList = () => {
     },
     {
       history: "push",
-    }
+    },
   );
 
   const getForms = useCallback(async () => {
@@ -100,6 +103,10 @@ const FormCardList = () => {
       </PermissionGuard>
 
       {forms.data.map((form: Form) => {
+        const canEdit =
+          hasPermission(PERMISSIONS.FORMS.EDIT) &&
+          canEditForm(user?.user, form.settings?.canEdit, form.createdBy?._id);
+
         return (
           <FormCard
             key={form._id}
@@ -107,7 +114,7 @@ const FormCardList = () => {
             title={form.name}
             iconColor={"white"}
             icon={BookCheckIcon}
-            editable={hasPermission(PERMISSIONS.FORMS.EDIT)}
+            editable={canEdit}
             createdAt={form.createdAt}
             createdBy={
               form.createdBy?.firstname + " " + form.createdBy?.lastname
@@ -118,7 +125,7 @@ const FormCardList = () => {
               const url = getUrl(
                 build_path(URLs.app.submissions.submit, {
                   form_slug: form.slug,
-                })
+                }),
               );
               router.push(url);
             }}

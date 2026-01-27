@@ -29,6 +29,12 @@ export interface NotificationMetadata {
   decision?: string;
   workflowStatus?: string;
   customData?: unknown;
+  /**
+   * Indicates if the user is a notification receiver (not an actual approver).
+   * When true, the user can only view the approval but cannot approve/reject.
+   * When false or undefined, the user is an actual approver.
+   */
+  isNotificationReceiver?: boolean;
 }
 
 /**

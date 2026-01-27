@@ -21,6 +21,9 @@ export enum FieldsType {
   POSITION = "position",
   BRANCH = "branch",
 
+  // Submitter Info field
+  SUBMITTER_INFO = "submitterInfo",
+
   // Display elements
   SEPARATOR = "separator",
   TITLE = "title",
@@ -65,6 +68,7 @@ export type Field = {
   style: FieldStyle;
   autofill?: boolean; // For organizational fields (department, position, branch)
   tableConfig?: EditableTableConfig; // For table fields
+  submitterInfoConfig?: SubmitterInfoConfig; // For submitterInfo fields
 };
 
 export type FormFieldValidation = {
@@ -86,11 +90,22 @@ export type FormFieldOption = {
   value: string;
 };
 
+export type SensitiveAccess = {
+  allowSubmitter: boolean;
+  allowApprovers: boolean;
+  roles: string[];
+  positions: string[];
+  departments: string[];
+  branches: string[];
+  userIds: string[];
+};
+
 export type FormFieldDisplay = {
   showInTable: boolean;
   showInForm: boolean;
   showInDetail: boolean;
   sensitiveInfo: boolean;
+  sensitiveAccess?: SensitiveAccess;
 };
 
 export type DisplayContent = {
@@ -101,4 +116,24 @@ export type DisplayContent = {
   level?: number; // 1-6 for title
   height?: number; // pixels for spacer
   alertType?: "info" | "success" | "warning" | "error";
+};
+
+// Submitter Info Configuration
+export type SubmitterInfoProperty =
+  | "firstname"
+  | "lastname"
+  | "fullName"
+  | "email"
+  | "phone"
+  | "payrollNo"
+  | "businessUnit"
+  | "businessUnitAddress"
+  | "paymentMethod"
+  | "department"
+  | "position"
+  | "branch"
+  | "manager";
+
+export type SubmitterInfoConfig = {
+  property: SubmitterInfoProperty;
 };

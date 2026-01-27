@@ -26,6 +26,20 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/lib/ui/popover";
 import type { Notification, NotificationType } from "@/lib/types/notification";
 
 /**
+ * Get display title for notification
+ * For approval_request type, shows different title based on whether user is a notification receiver
+ */
+const getNotificationTitle = (notification: Notification): string => {
+  if (
+    notification.type === "approval_request" &&
+    notification.metadata?.isNotificationReceiver
+  ) {
+    return "Approval Notification";
+  }
+  return notification.title;
+};
+
+/**
  * Get appropriate icon for each notification type
  */
 const getNotificationIcon = (type: NotificationType) => {
@@ -63,7 +77,14 @@ const NotificationItem = ({
       await markAsRead(notification.id);
     }
     onClose();
-    router.push(notification.actionUrl);
+
+    // For notification receivers, append viewOnly param to indicate they can only view
+    let targetUrl = notification.actionUrl;
+    if (notification.metadata?.isNotificationReceiver) {
+      const separator = targetUrl.includes("?") ? "&" : "?";
+      targetUrl = `${targetUrl}${separator}viewOnly=true`;
+    }
+    router.push(targetUrl);
   };
 
   const handleDelete = async (e: React.MouseEvent) => {
@@ -90,7 +111,7 @@ const NotificationItem = ({
                 !notification.read ? "font-semibold" : "font-medium"
               }`}
             >
-              {notification.title}
+              {getNotificationTitle(notification)}
             </p>
             <Button
               onClick={handleDelete}

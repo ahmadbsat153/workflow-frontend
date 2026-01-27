@@ -50,8 +50,10 @@ const SubmissionDisplay = ({
 }: SubmissionDisplayProps) => {
   const router = useRouter();
   const sortedFields = [...fields].sort(
-    (a, b) => (a.order ?? 0) - (b.order ?? 0)
+    (a, b) => (a.order ?? 0) - (b.order ?? 0),
   );
+
+  console.log(workflowStatus);
 
   return (
     <PageContainer className="bg-cultured !p-0 flex justify-center overflow-hidden">

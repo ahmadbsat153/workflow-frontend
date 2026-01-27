@@ -24,7 +24,7 @@ import PanelSidebarAccount from "./PanelSidebarAccount";
 import { usePermissions } from "@/lib/hooks/usePermissions";
 import { NotificationBell } from "@/lib/components/Navigations/Notifications/NotificationBell";
 
-const HIDDEN_SIDEBAR_ROUTES = ["/admin/forms/create", "/admin/forms/edit"];
+const HIDDEN_SIDEBAR_ROUTES = [""];
 
 export function PanelSidebar({
   children,
@@ -36,14 +36,15 @@ export function PanelSidebar({
   const filteredNavigation = NAVIGATION.map((section) => ({
     ...section,
     data: section.data.filter(
-      (item) => !item.permission || hasPermission(item.permission)
+      (item) => !item.permission || hasPermission(item.permission),
     ),
   })).filter((section) => section.data.length > 0);
 
-  const shouldHideSidebar = HIDDEN_SIDEBAR_ROUTES.some((route) =>
-    pathname.startsWith(route)
-  );
+  // const shouldHideSidebar = HIDDEN_SIDEBAR_ROUTES.some((route) =>
+  //   pathname.startsWith(route),
+  // );
 
+  const shouldHideSidebar = false;
   return (
     <SidebarProvider forceCollapsed={shouldHideSidebar}>
       {true && (
@@ -69,7 +70,7 @@ export function PanelSidebar({
                               isLinkActive(item.link, pathname)
                                 ? "text-primary bg-primary/10 font-medium"
                                 : "text-black",
-                              "font-large"
+                              "font-large",
                             )}
                           >
                             <IconComponent className="!size-5" />

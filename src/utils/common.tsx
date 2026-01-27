@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getUrl } from "@/lib/constants/urls";
-import { parseISO, format } from "date-fns";
+import { parseISO, format, isValid } from "date-fns";
 
 export const hexToRgb = (hex: any) => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -113,13 +113,22 @@ export const formatDatesWithYear = (date: string) => {
     return "N/A";
   }
   const parsedDate = parseISO(date);
+  if (!isValid(parsedDate)) {
+    return "N/A";
+  }
   const formattedDate = format(parsedDate, "MMMM d, yyyy h:mm a");
 
   return formattedDate;
 };
 
 export const formatDatesWithYearWithoutTime = (date: string) => {
+  if (!date) {
+    return "N/A";
+  }
   const parsedDate = parseISO(date);
+  if (!isValid(parsedDate)) {
+    return "N/A";
+  }
   const formattedDate = format(parsedDate, "MMMM d, yyyy");
 
   return formattedDate;

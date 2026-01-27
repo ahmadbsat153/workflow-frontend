@@ -1,6 +1,15 @@
 "use client";
 
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/lib/ui/card";
 import { toast } from "sonner";
+import { Badge } from "@/lib/ui/badge";
 import { InfoIcon } from "lucide-react";
 import { Button } from "@/lib/ui/button";
 import { URLs } from "@/lib/constants/urls";
@@ -10,35 +19,29 @@ import { ErrorResponse } from "@/lib/types/common";
 import { useAuth } from "@/lib/context/AuthContext";
 import { formatDatesWithYear } from "@/utils/common";
 import { handleServerError } from "@/lib/api/_axios";
-import { useParams, useRouter } from "next/navigation";
 import { PERMISSIONS } from "@/lib/constants/permissions";
 import BackButton from "@/lib/components/Common/BackButton";
 import { API_APPROVAL } from "@/lib/services/approval_service";
-import { renderSubmittedFieldValue, SubmittedFieldValue } from "@/utils/fieldUtils";
 import { FormSubmission } from "@/lib/types/form/form_submission";
 import { ProtectedPage } from "@/lib/components/Auth/ProtectedPage";
 import PageContainer from "@/lib/components/Container/PageContainer";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/lib/ui/tooltip";
-import { API_FORM_SUBMISSION } from "@/lib/services/Form/form_submissions_service";
-import { WorkflowStatusBadge } from "@/lib/components/Workflow/WorkflowStatusBadge";
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/lib/ui/card";
-import { Badge } from "@/lib/ui/badge";
 import { Loader2, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
-
+import { API_FORM_SUBMISSION } from "@/lib/services/Form/form_submissions_service";
+import { renderSubmittedFieldValue, SubmittedFieldValue } from "@/utils/fieldUtils";
+import { WorkflowStatusBadge } from "@/lib/components/Workflow/WorkflowStatusBadge";
 type PageState = "loading" | "loaded" | "submitting" | "success" | "error";
 
 function ApprovalDetailsContent() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const submissionId = params.submissionId as string;
+
+  // Check if user is a notification receiver (view only, cannot approve/reject)
+  const isNotificationReceiver = searchParams.get("viewOnly") === "true";
 
   const [state, setState] = useState<PageState>("loading");
   const [submission, setSubmission] = useState<FormSubmission | null>(null);
@@ -65,7 +68,8 @@ function ApprovalDetailsContent() {
 
   useEffect(() => {
     loadSubmission();
-  }, [loadSubmission, submissionId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [submissionId]);
 
   const handleApprove = async () => {
     if (!submission) {
@@ -416,6 +420,7 @@ function ApprovalDetailsContent() {
 
         {/* Approval Actions */}
         {canApproveReject &&
+          !isNotificationReceiver &&
           submission.workflowStatus === "waiting_approval" && (
             <Card className="border-2 border-primary/20">
               <CardHeader>
@@ -485,8 +490,23 @@ function ApprovalDetailsContent() {
             </Card>
           )}
 
+        {/* Notification receiver message */}
+        {isNotificationReceiver && (
+          <Card className="border-2 border-blue-200 bg-blue-50">
+            <CardContent className="">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="h-5 w-5 text-blue-600" />
+                <p className="text-blue-800">
+                  You are receiving this notification for informational purposes
+                  only. You are not required to take any action on this approval.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Already decided message */}
-        {!canApproveReject && (
+        {!canApproveReject && !isNotificationReceiver && (
           <Card className="border-2 border-blue-200 bg-blue-50">
             <CardContent className="">
               <div className="flex items-center gap-3">

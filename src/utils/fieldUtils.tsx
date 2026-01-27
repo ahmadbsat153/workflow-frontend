@@ -11,7 +11,11 @@ import {
 
 import { Input } from "@/lib/ui/input";
 import { Textarea } from "@/lib/ui/textarea";
-import { Field, FieldsType } from "@/lib/types/form/fields";
+import {
+  Field,
+  FieldsType,
+  SubmitterInfoProperty,
+} from "@/lib/types/form/fields";
 import { Control, Controller, FieldError, FieldValues } from "react-hook-form";
 import {
   Calendar,
@@ -103,7 +107,9 @@ export const renderFieldPreview = (field: Field) => {
               style={{
                 fontSize: field.style?.fontSize || "1rem",
                 color: field.style?.color || "#6b7280",
-                textAlign: (field.style?.alignment as React.CSSProperties["textAlign"]) || "left",
+                textAlign:
+                  (field.style
+                    ?.alignment as React.CSSProperties["textAlign"]) || "left",
                 margin: field.style?.margin || "0",
               }}
             >
@@ -134,7 +140,11 @@ export const renderFieldPreview = (field: Field) => {
         return (
           <div
             className="px-4 py-2"
-            style={{ textAlign: (field.style?.alignment as React.CSSProperties["textAlign"]) || "center" }}
+            style={{
+              textAlign:
+                (field.style?.alignment as React.CSSProperties["textAlign"]) ||
+                "center",
+            }}
           >
             <Image
               src={field.content?.imageUrl || "https://placehold.co/600x400"}
@@ -447,7 +457,7 @@ export const FormFieldSubmission: React.FC<FormFieldSubmissionProps> = ({
                           formField.onChange([...currentValues, option.value]);
                         } else {
                           formField.onChange(
-                            currentValues.filter((val) => val !== option.value)
+                            currentValues.filter((val) => val !== option.value),
                           );
                         }
                       }}
@@ -504,7 +514,10 @@ export const FormFieldSubmission: React.FC<FormFieldSubmissionProps> = ({
         <Controller
           name={field.name}
           control={control}
-          render={({ field: formField, fieldState: { error: switchError } }) => (
+          render={({
+            field: formField,
+            fieldState: { error: switchError },
+          }) => (
             <div className="space-y-2">
               <div className="flex flex-row items-center justify-between rounded-lg border p-4">
                 <Label
@@ -623,7 +636,9 @@ export const FormFieldSubmission: React.FC<FormFieldSubmissionProps> = ({
               <div>
                 <label className="text-sm font-medium mb-2 block">
                   {field.label}
-                  {field.required && <span className="text-red-500 ml-1">*</span>}
+                  {field.required && (
+                    <span className="text-red-500 ml-1">*</span>
+                  )}
                 </label>
                 <EditableTableField
                   config={field.tableConfig}
@@ -642,9 +657,450 @@ export const FormFieldSubmission: React.FC<FormFieldSubmissionProps> = ({
         />
       );
 
+    case FieldsType.SUBMITTER_INFO:
+      return (
+        <SubmitterInfoFieldController
+          field={field}
+          control={control}
+          error={error}
+          user={user}
+        />
+      );
     default:
       return null;
   }
+};
+
+// Helper to get user's value for a SubmitterInfoProperty
+const getUserPropertyValue = (
+  user: ReturnType<typeof useAuth>["user"],
+  property: SubmitterInfoProperty,
+): string | null => {
+  if (!user?.user) return null;
+  const u = user.user;
+
+  switch (property) {
+    case "firstname":
+      return u.firstname || null;
+    case "lastname":
+      return u.lastname || null;
+    case "fullName":
+      return u.firstname && u.lastname ? `${u.firstname} ${u.lastname}` : null;
+    case "email":
+      return u.email || null;
+    case "phone":
+      return u.phone || null;
+    case "payrollNo":
+      return u.businessInformation?.payrollNo || null;
+    case "businessUnit":
+      return u.businessInformation?.businessUnit || null;
+    case "businessUnitAddress":
+      return u.businessInformation?.businessUnitAddress || null;
+    case "paymentMethod":
+      return u.businessInformation?.paymentMethod || null;
+    case "department":
+      return typeof u.departmentId === "object" && u.departmentId?._id
+        ? u.departmentId._id
+        : null;
+    case "position":
+      return typeof u.positionId === "object" && u.positionId?._id
+        ? u.positionId._id
+        : null;
+    case "branch":
+      return typeof u.branchId === "object" && u.branchId?._id
+        ? u.branchId._id
+        : null;
+    case "manager":
+      return null; // Not implemented yet
+    default:
+      return null;
+  }
+};
+
+// Helper to get display value for user property (for auto-filled display)
+const getUserPropertyDisplayValue = (
+  user: ReturnType<typeof useAuth>["user"],
+  property: SubmitterInfoProperty,
+): string | null => {
+  if (!user?.user) return null;
+  const u = user.user;
+
+  switch (property) {
+    case "firstname":
+      return u.firstname || null;
+    case "lastname":
+      return u.lastname || null;
+    case "fullName":
+      return u.firstname && u.lastname ? `${u.firstname} ${u.lastname}` : null;
+    case "email":
+      return u.email || null;
+    case "phone":
+      return u.phone || null;
+    case "payrollNo":
+      return u.businessInformation?.payrollNo || null;
+    case "businessUnit":
+      return u.businessInformation?.businessUnit || null;
+    case "businessUnitAddress":
+      return u.businessInformation?.businessUnitAddress || null;
+    case "paymentMethod":
+      return u.businessInformation?.paymentMethod === "weekly"
+        ? "Weekly"
+        : u.businessInformation?.paymentMethod === "monthly"
+          ? "Monthly"
+          : null;
+    case "department":
+      return typeof u.departmentId === "object" && u.departmentId?.name
+        ? `${u.departmentId.name} (${u.departmentId.code})`
+        : null;
+    case "position":
+      return typeof u.positionId === "object" && u.positionId?.name
+        ? `${u.positionId.name} (${u.positionId.code})`
+        : null;
+    case "branch":
+      return typeof u.branchId === "object" && u.branchId?.name
+        ? `${u.branchId.name} (${u.branchId.code})`
+        : null;
+    case "manager":
+      return null; // Not implemented yet
+    default:
+      return null;
+  }
+};
+
+// Property labels for display - exported for use in UserForm
+export const submitterInfoPropertyLabels: Record<
+  SubmitterInfoProperty,
+  string
+> = {
+  firstname: "First Name",
+  lastname: "Last Name",
+  fullName: "Full Name",
+  email: "Email",
+  phone: "Phone",
+  payrollNo: "Payroll Number",
+  businessUnit: "Business Unit",
+  businessUnitAddress: "Business Unit Address",
+  paymentMethod: "Payment Method",
+  department: "Department",
+  position: "Position",
+  branch: "Branch",
+  manager: "Manager",
+};
+
+// Field configuration for each SubmitterInfoProperty - shared between UserForm and FormFieldSubmission
+export type SubmitterInfoFieldConfig = {
+  type: "text" | "email" | "select" | "org-select";
+  placeholder: string;
+  options?: { value: string; label: string }[];
+  orgType?: "department" | "position" | "branch";
+};
+
+export const submitterInfoFieldConfigs: Record<
+  SubmitterInfoProperty,
+  SubmitterInfoFieldConfig
+> = {
+  firstname: {
+    type: "text",
+    placeholder: "Enter first name",
+  },
+  lastname: {
+    type: "text",
+    placeholder: "Enter last name",
+  },
+  fullName: {
+    type: "text",
+    placeholder: "Enter full name",
+  },
+  email: {
+    type: "email",
+    placeholder: "Enter email address",
+  },
+  phone: {
+    type: "text",
+    placeholder: "Enter phone number",
+  },
+  payrollNo: {
+    type: "text",
+    placeholder: "Enter payroll number",
+  },
+  businessUnit: {
+    type: "text",
+    placeholder: "Enter business unit",
+  },
+  businessUnitAddress: {
+    type: "text",
+    placeholder: "Enter business unit address",
+  },
+  paymentMethod: {
+    type: "select",
+    placeholder: "Select payment method",
+    options: [
+      { value: "weekly", label: "Weekly" },
+      { value: "monthly", label: "Monthly" },
+    ],
+  },
+  department: {
+    type: "org-select",
+    placeholder: "Select department",
+    orgType: "department",
+  },
+  position: {
+    type: "org-select",
+    placeholder: "Select position",
+    orgType: "position",
+  },
+  branch: {
+    type: "org-select",
+    placeholder: "Select branch",
+    orgType: "branch",
+  },
+  manager: {
+    type: "text", // Placeholder until manager field is implemented
+    placeholder: "Manager not implemented",
+  },
+};
+
+// Shared render function props
+interface RenderSubmitterInfoFieldProps {
+  property: SubmitterInfoProperty;
+  value: string;
+  onChange: (value: string) => void;
+  onBlur?: () => void;
+  disabled?: boolean;
+  error?: string;
+  required?: boolean;
+  label?: string;
+  // For org-select fields
+  options?: { value: string; label: string }[];
+  loading?: boolean;
+}
+
+// Shared render function that can be used by both UserForm and FormFieldSubmission
+export const renderSubmitterInfoInput = ({
+  property,
+  value,
+  onChange,
+  onBlur,
+  disabled,
+  error,
+  required,
+  label,
+  options,
+  loading,
+}: RenderSubmitterInfoFieldProps): React.ReactNode => {
+  const config = submitterInfoFieldConfigs[property];
+  const fieldLabel = label || submitterInfoPropertyLabels[property];
+
+  // Render select for static options (paymentMethod)
+  if (config.type === "select" && config.options) {
+    return (
+      <div className="w-full">
+        <label className="text-sm font-medium mb-2 block">
+          {fieldLabel}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+        <Select
+          onValueChange={onChange}
+          value={value || ""}
+          disabled={disabled}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder={config.placeholder} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {config.options.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+        {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      </div>
+    );
+  }
+
+  // Render select for organizational fields (department, position, branch)
+  if (config.type === "org-select") {
+    return (
+      <div className="w-full">
+        <label className="text-sm font-medium mb-2 block">
+          {fieldLabel}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+        <Select
+          onValueChange={onChange}
+          value={value || ""}
+          disabled={disabled || loading}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue
+              placeholder={loading ? "Loading..." : config.placeholder}
+            />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {options?.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+              {!loading && (!options || options.length === 0) && (
+                <div className="px-2 py-1.5 text-sm text-gray-500">
+                  No options available
+                </div>
+              )}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+        {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      </div>
+    );
+  }
+
+  // Render email or text input
+  return (
+    <div>
+      <Input
+        type={config.type === "email" ? "email" : "text"}
+        name={property}
+        label={
+          <>
+            {fieldLabel}
+            {required && <span className="text-red-500 ml-1">*</span>}
+          </>
+        }
+        placeholder={config.placeholder}
+        value={value || ""}
+        onChange={(e) => onChange(e.target.value)}
+        onBlur={onBlur}
+        disabled={disabled}
+        errorMessage={error}
+      />
+    </div>
+  );
+};
+
+// Get field config for a property - useful for UserForm to maintain consistency
+export const getSubmitterInfoFieldConfig = (
+  property: SubmitterInfoProperty,
+) => {
+  return {
+    config: submitterInfoFieldConfigs[property],
+    label: submitterInfoPropertyLabels[property],
+  };
+};
+
+// Hook to load organizational options for a property
+export const useOrgOptions = (property: SubmitterInfoProperty) => {
+  const [options, setOptions] = React.useState<
+    { value: string; label: string }[]
+  >([]);
+  const [loading, setLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    const config = submitterInfoFieldConfigs[property];
+    if (config.type !== "org-select" || !config.orgType) return;
+
+    const loadOptions = async () => {
+      try {
+        setLoading(true);
+        let data: OrganizationalItem[] = [];
+
+        if (config.orgType === "department") {
+          const { API_DEPARTMENT } =
+            await import("@/lib/services/Department/department_service");
+          const response = await API_DEPARTMENT.getActiveDepartments();
+          data = response.data;
+        } else if (config.orgType === "position") {
+          const { API_POSITION } =
+            await import("@/lib/services/Position/position_service");
+          const response = await API_POSITION.getActivePositions();
+          data = response.data;
+        } else if (config.orgType === "branch") {
+          const { API_BRANCH } =
+            await import("@/lib/services/Branch/branch_service");
+          const response = await API_BRANCH.getActiveBranches();
+          data = response.data;
+        }
+
+        const mappedOptions = data.map((item) => ({
+          value: item._id,
+          label: `${item.name} (${item.code})`,
+        }));
+        setOptions(mappedOptions);
+      } catch (err) {
+        console.error(`Error loading ${property} options:`, err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadOptions();
+  }, [property]);
+
+  return { options, loading };
+};
+
+// Props for SubmitterInfoFieldController
+interface SubmitterInfoFieldControllerProps {
+  field: Field;
+  control: Control<FieldValues>;
+  error?: FieldError;
+  user: ReturnType<typeof useAuth>["user"];
+}
+
+// Controller component for SubmitterInfo fields
+const SubmitterInfoFieldController: React.FC<
+  SubmitterInfoFieldControllerProps
+> = ({ field, control, error, user }) => {
+  const property = field.submitterInfoConfig?.property || "fullName";
+  const userValue = getUserPropertyValue(user, property);
+  const displayValue = getUserPropertyDisplayValue(user, property);
+  const propertyLabel = submitterInfoPropertyLabels[property];
+  const config = submitterInfoFieldConfigs[property];
+
+  // Use the shared hook for org options - only loads if property is org-select type
+  const { options, loading } = useOrgOptions(property);
+
+  // If user has the value, show auto-filled display
+  if (userValue && displayValue) {
+    return (
+      <div className="w-full p-3 bg-blue-50 border border-blue-200 rounded-md">
+        <div className="flex items-center gap-2">
+          <Badge className="bg-blue-500 text-white text-xs">Auto-filled</Badge>
+          <span className="text-sm text-gray-700">
+            {field.label || propertyLabel}: {displayValue}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // User doesn't have value - use shared render function via Controller
+  return (
+    <Controller
+      name={field.name}
+      control={control}
+      render={({ field: formField }) => (
+        <>
+          {renderSubmitterInfoInput({
+            property,
+            value: formField.value || "",
+            onChange: formField.onChange,
+            onBlur: formField.onBlur,
+            error: error?.message,
+            required: field.required,
+            label: field.label || propertyLabel,
+            options: config.type === "org-select" ? options : config.options,
+            loading,
+          })}
+        </>
+      )}
+    />
+  );
 };
 
 // Separate component for organizational fields to properly use hooks
@@ -655,12 +1111,9 @@ interface OrganizationalFieldControllerProps {
   user: ReturnType<typeof useAuth>["user"];
 }
 
-const OrganizationalFieldController: React.FC<OrganizationalFieldControllerProps> = ({
-  field,
-  control,
-  error,
-  user,
-}) => {
+const OrganizationalFieldController: React.FC<
+  OrganizationalFieldControllerProps
+> = ({ field, control, error, user }) => {
   const [options, setOptions] = React.useState<
     Array<{ value: string; label: string }>
   >([]);
@@ -676,7 +1129,10 @@ const OrganizationalFieldController: React.FC<OrganizationalFieldControllerProps
       // Check if user has this organizational field
       if (fieldType === FieldsType.DEPARTMENT && submittingUser.departmentId) {
         setUserHasValue(true);
-      } else if (fieldType === FieldsType.POSITION && submittingUser.positionId) {
+      } else if (
+        fieldType === FieldsType.POSITION &&
+        submittingUser.positionId
+      ) {
         setUserHasValue(true);
       } else if (fieldType === FieldsType.BRANCH && submittingUser.branchId) {
         setUserHasValue(true);
@@ -691,21 +1147,18 @@ const OrganizationalFieldController: React.FC<OrganizationalFieldControllerProps
         let data: OrganizationalItem[] = [];
 
         if (fieldType === FieldsType.DEPARTMENT) {
-          const { API_DEPARTMENT } = await import(
-            "@/lib/services/Department/department_service"
-          );
+          const { API_DEPARTMENT } =
+            await import("@/lib/services/Department/department_service");
           const response = await API_DEPARTMENT.getActiveDepartments();
           data = response.data;
         } else if (fieldType === FieldsType.POSITION) {
-          const { API_POSITION } = await import(
-            "@/lib/services/Position/position_service"
-          );
+          const { API_POSITION } =
+            await import("@/lib/services/Position/position_service");
           const response = await API_POSITION.getActivePositions();
           data = response.data;
         } else if (fieldType === FieldsType.BRANCH) {
-          const { API_BRANCH } = await import(
-            "@/lib/services/Branch/branch_service"
-          );
+          const { API_BRANCH } =
+            await import("@/lib/services/Branch/branch_service");
           const response = await API_BRANCH.getActiveBranches();
           data = response.data;
         }
@@ -804,7 +1257,7 @@ const OrganizationalFieldController: React.FC<OrganizationalFieldControllerProps
 export const renderFormFieldSubmission = (
   field: Field,
   control: Control<FieldValues>,
-  error?: FieldError
+  error?: FieldError,
 ) => {
   return <FormFieldSubmission field={field} control={control} error={error} />;
 };
@@ -852,14 +1305,17 @@ function valueToString(val: SubmittedFieldValue): string {
   if (val === null || val === undefined) return "";
   if (typeof val === "string") return val;
   if (typeof val === "number" || typeof val === "boolean") return String(val);
-  if (Array.isArray(val)) return val.map(v => String(v)).join(", ");
+  if (Array.isArray(val)) return val.map((v) => String(v)).join(", ");
   if (isOrgFieldValue(val)) return `${val.name} (${val.code})`;
   return String(val);
 }
 
 // Renders the submitted value of a field based on its type
 // Used in form submission review or detail views
-export const renderSubmittedFieldValue = (field: Field, value: SubmittedFieldValue) => {
+export const renderSubmittedFieldValue = (
+  field: Field,
+  value: SubmittedFieldValue,
+) => {
   if (isInputField(field.type)) {
     if (value === undefined || value === null || value === "") {
       return (
@@ -885,7 +1341,10 @@ export const renderSubmittedFieldValue = (field: Field, value: SubmittedFieldVal
     case FieldsType.EMAIL:
       return (
         <div className="py-2 flex items-center gap-2">
-          <a href={`mailto:${valueToString(value)}`} className=" hover:underline">
+          <a
+            href={`mailto:${valueToString(value)}`}
+            className=" hover:underline"
+          >
             {valueToString(value)}
           </a>
         </div>
@@ -902,14 +1361,20 @@ export const renderSubmittedFieldValue = (field: Field, value: SubmittedFieldVal
       return (
         <div className="py-2  flex items-center gap-2">
           <Calendar className="w-4 h-4 text-pumpkin" />
-          <span className="">{formatDatesWithYear(typeof value === "string" ? value : String(value ?? ""))}</span>
+          <span className="">
+            {formatDatesWithYear(
+              typeof value === "string" ? value : String(value ?? ""),
+            )}
+          </span>
         </div>
       );
 
     case FieldsType.TEXT_AREA:
       return (
         <div className="py-3">
-          <p className="whitespace-pre-wrap leading-relaxed">{valueToString(value)}</p>
+          <p className="whitespace-pre-wrap leading-relaxed">
+            {valueToString(value)}
+          </p>
         </div>
       );
 
@@ -938,12 +1403,14 @@ export const renderSubmittedFieldValue = (field: Field, value: SubmittedFieldVal
 
     case FieldsType.RADIO:
       const selectedRadioOption = field.options?.find(
-        (opt) => opt.value === value
+        (opt) => opt.value === value,
       );
       return (
         <div className="inline-flex items-center gap-2 py-2  ">
           <CircleCheckBigIcon className="w-4 h-4 text-pumpkin" />
-          <span className="">{selectedRadioOption?.label || valueToString(value)}</span>
+          <span className="">
+            {selectedRadioOption?.label || valueToString(value)}
+          </span>
         </div>
       );
 
@@ -971,11 +1438,7 @@ export const renderSubmittedFieldValue = (field: Field, value: SubmittedFieldVal
       // Handle single boolean value
       return (
         <div
-          className={`inline-flex items-center gap-2 py-2  rounded-md border ${
-            value
-              ? "bg-green-50 border-green-200"
-              : "bg-gray-50 border-gray-200"
-          }`}
+          className={`inline-flex items-center gap-2 py-2  rounded-md border `}
         >
           {value ? (
             <>
@@ -1006,20 +1469,16 @@ export const renderSubmittedFieldValue = (field: Field, value: SubmittedFieldVal
       if (value && isOrgFieldValue(value)) {
         // If populated with full object
         return (
-          <div className="py-2">
-            <Badge variant="outline" className="text-sm">
-              {value.name} ({value.code})
-            </Badge>
-          </div>
+          <Badge variant="ghost" className="text-sm">
+            {value.name} ({value.code})
+          </Badge>
         );
       } else if (value) {
         // If just the ID is stored
         return (
-          <div className="py-2">
-            <Badge variant="outline" className="text-sm">
-              {valueToString(value)}
-            </Badge>
-          </div>
+          <Badge variant="ghost" className="text-sm">
+            {valueToString(value)}
+          </Badge>
         );
       }
       return null;
@@ -1125,9 +1584,15 @@ export const renderSubmittedFieldValue = (field: Field, value: SubmittedFieldVal
         </div>
       );
 
+    case FieldsType.SUBMITTER_INFO:
+      return (
+        <div className="py-2  ">
+          <span className="text-secondary">{valueToString(value)}</span>
+        </div>
+      );
     default:
       return (
-        <div className="py-2  bg-gray-50 rounded-md border border-gray-200">
+        <div className="py-2">
           <span className="text-gray-900">{valueToString(value)}</span>
         </div>
       );

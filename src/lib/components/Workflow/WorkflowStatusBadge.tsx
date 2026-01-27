@@ -1,5 +1,11 @@
 import { Badge } from "@/lib/ui/badge";
-import { Clock, CheckCircle, XCircle, Loader2, AlertCircle } from "lucide-react";
+import {
+  Clock,
+  CheckCircle,
+  XCircle,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
 import type { WorkflowStatus } from "@/lib/types/approval";
 
 type WorkflowStatusBadgeProps = {
@@ -52,9 +58,19 @@ const statusConfig: Record<
     borderColor: "border-red-200",
     icon: <XCircle className="h-3 w-3" />,
   },
+  no_workflow: {
+    label: "Rejected",
+    color: "text-red-700",
+    bgColor: "bg-red-50",
+    borderColor: "border-red-200",
+    icon: <XCircle className="h-3 w-3" />,
+  },
 };
 
-export function WorkflowStatusBadge({ status, className = "" }: WorkflowStatusBadgeProps) {
+export function WorkflowStatusBadge({
+  status,
+  className = "",
+}: WorkflowStatusBadgeProps) {
   const config = statusConfig[status];
 
   return (
@@ -130,14 +146,17 @@ export function ApprovalStageStatus({
   return (
     <div className="flex items-center justify-between p-3 rounded-lg border bg-card">
       <div className="flex items-center gap-3">
-        <div className={`p-2 rounded-full ${statusColors[status]}`}>{statusIcons[status]}</div>
+        <div className={`p-2 rounded-full ${statusColors[status]}`}>
+          {statusIcons[status]}
+        </div>
         <div>
           <p className="font-medium">{stageName}</p>
-          {currentApprovals !== undefined && requiredApprovals !== undefined && (
-            <p className="text-sm text-muted-foreground">
-              {currentApprovals} of {requiredApprovals} approved
-            </p>
-          )}
+          {currentApprovals !== undefined &&
+            requiredApprovals !== undefined && (
+              <p className="text-sm text-muted-foreground">
+                {currentApprovals} of {requiredApprovals} approved
+              </p>
+            )}
         </div>
       </div>
       <Badge variant="outline" className={statusColors[status]}>

@@ -23,6 +23,7 @@ import {
   CardTitle,
 } from "@/lib/ui/card";
 import { FieldsType } from "@/lib/types/form/fields";
+import BackButton from "../../Common/BackButton";
 
 const SubmissionFormBuilder = () => {
   const params = useParams();
@@ -58,38 +59,45 @@ const SubmissionFormBuilder = () => {
   const defaultValues = useMemo(() => {
     if (!form) return {};
 
-    return form.fields.reduce((acc, field) => {
-      if (field.type === FieldsType.NUMBER) {
-        acc[field.name] = field.defaultValue ? Number(field.defaultValue) : "";
-      } else if (field.type === FieldsType.SWITCH) {
-        acc[field.name] =
-          field.defaultValue === "true" || field.defaultValue === true || false;
-      } else if (field.type === FieldsType.CHECKBOX) {
-        if (field.options && field.options.length > 0) {
+    return form.fields.reduce(
+      (acc, field) => {
+        if (field.type === FieldsType.NUMBER) {
           acc[field.name] = field.defaultValue
-            ? Array.isArray(field.defaultValue)
-              ? field.defaultValue
-              : [field.defaultValue]
-            : [];
-        } else {
+            ? Number(field.defaultValue)
+            : "";
+        } else if (field.type === FieldsType.SWITCH) {
           acc[field.name] =
             field.defaultValue === "true" ||
             field.defaultValue === true ||
             false;
+        } else if (field.type === FieldsType.CHECKBOX) {
+          if (field.options && field.options.length > 0) {
+            acc[field.name] = field.defaultValue
+              ? Array.isArray(field.defaultValue)
+                ? field.defaultValue
+                : [field.defaultValue]
+              : [];
+          } else {
+            acc[field.name] =
+              field.defaultValue === "true" ||
+              field.defaultValue === true ||
+              false;
+          }
+        } else if (
+          field.type === FieldsType.SELECT ||
+          field.type === FieldsType.RADIO
+        ) {
+          acc[field.name] = field.defaultValue || undefined;
+        } else if (field.type === FieldsType.TABLE) {
+          // Initialize table field with the tableConfig structure
+          acc[field.name] = field.tableConfig || undefined;
+        } else {
+          acc[field.name] = field.defaultValue || "";
         }
-      } else if (
-        field.type === FieldsType.SELECT ||
-        field.type === FieldsType.RADIO
-      ) {
-        acc[field.name] = field.defaultValue || undefined;
-      } else if (field.type === FieldsType.TABLE) {
-        // Initialize table field with the tableConfig structure
-        acc[field.name] = field.tableConfig || undefined;
-      } else {
-        acc[field.name] = field.defaultValue || "";
-      }
-      return acc;
-    }, {} as Record<string, unknown>);
+        return acc;
+      },
+      {} as Record<string, unknown>,
+    );
   }, [form]);
 
   const {
@@ -114,7 +122,7 @@ const SubmissionFormBuilder = () => {
       setSubmitting(true);
 
       const hasFileFields = form.fields.some(
-        (field) => field.type === FieldsType.FILE
+        (field) => field.type === FieldsType.FILE,
       );
 
       if (hasFileFields) {
@@ -140,17 +148,6 @@ const SubmissionFormBuilder = () => {
         });
 
         formData.append("submissionData", JSON.stringify(nonFileData));
-
-        console.log("Sending FormData with:");
-        console.log("- formId:", form._id);
-        console.log(
-          "- File fields:",
-          form.fields
-            .filter((f) => f.type === FieldsType.FILE)
-            .map((f) => f.name)
-        );
-        console.log("- Non-file fields:", Object.keys(nonFileData));
-
         await API_FORM.submitFormWithFiles(formData);
         toast.success("Form submitted successfully!");
       } else {
@@ -228,7 +225,12 @@ const SubmissionFormBuilder = () => {
           </CardContent>
 
           <CardFooter className="border-t flex-shrink-0">
-            <div className="w-full flex justify-end">
+            <div className="w-full flex justify-end gap-5">
+              <BackButton
+                handleGoBack={() => router.back()}
+                text="Cancel"
+                hideIcon={true}
+              />
               <Button type="submit" disabled={submitting}>
                 {submitting ? "Submitting..." : "Submit"}
               </Button>

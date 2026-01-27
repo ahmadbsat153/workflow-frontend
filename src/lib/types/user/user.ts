@@ -35,6 +35,13 @@ export type User = {
   departmentId?: Department | null;
   positionId?: Position | null;
   branchId?: Branch | null;
+  // Business information
+  businessInformation?: {
+    payrollNo: string;
+    businessUnit: string;
+    businessUnitAddress: string;
+    paymentMethod: "weekly" | "monthly" | null;
+  };
   createdAt: string;
   updatedAt: string;
   __v: number;

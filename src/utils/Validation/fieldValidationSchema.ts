@@ -591,6 +591,17 @@ export const buildFieldSettingsSchema = (field: Field) => {
       showInForm: z.boolean(),
       showInDetail: z.boolean(),
       sensitiveInfo: z.boolean(),
+      sensitiveAccess: z
+        .object({
+          allowSubmitter: z.boolean(),
+          allowApprovers: z.boolean(),
+          roles: z.array(z.string()),
+          positions: z.array(z.string()),
+          departments: z.array(z.string()),
+          branches: z.array(z.string()),
+          userIds: z.array(z.string()),
+        })
+        .optional(),
     }),
   };
 
@@ -695,7 +706,32 @@ export const buildFieldSettingsSchema = (field: Field) => {
   if (field.type === FieldsType.TABLE) {
     return z.object({
       ...baseSchema,
-      tableConfig: z.any(), // EditableTableConfig type
+      tableConfig: z.any(),
+      validation: z.any().optional(),
+    });
+  }
+
+  // Special handling for SUBMITTER_INFO field type
+  if (field.type === FieldsType.SUBMITTER_INFO) {
+    return z.object({
+      ...schemaObject,
+      submitterInfoConfig: z.object({
+        property: z.enum([
+          "firstname",
+          "lastname",
+          "fullName",
+          "email",
+          "phone",
+          "payrollNo",
+          "businessUnit",
+          "businessUnitAddress",
+          "paymentMethod",
+          "department",
+          "position",
+          "branch",
+          "manager",
+        ]),
+      }),
     });
   }
 

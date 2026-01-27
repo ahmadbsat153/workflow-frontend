@@ -77,7 +77,7 @@ const FormCard = ({
                 {/* This element is colored like the main page background (not the card) 
                     and is positioned to mask the curved corner of the card. */}
                 <div className="relative">
-                  <div className="absolute top-0 right-0 w-12 h-12 border-b-2 border-l-2 rounded-bl-full bg-white z-10 flex justify-end">
+                  <div className="absolute top-0 right-0 w-12 h-12 border-b-2 border-l-2 rounded-bl-full bg-gray-50 z-10 flex justify-end">
                     <Button
                       variant={"link"}
                       size={"icon"}

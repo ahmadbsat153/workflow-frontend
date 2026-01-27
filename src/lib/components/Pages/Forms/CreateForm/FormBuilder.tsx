@@ -286,7 +286,7 @@ const FormBuilder = () => {
   };
 
   const handleDoubleClickField = (fieldType: FieldsType) => {
-    let calculatedWidth: FieldWidth = 100;
+    let calculatedWidth: FieldWidth = 50;
 
     if (droppedFields.length > 0) {
       let currentRowWidth = 0;
@@ -389,6 +389,7 @@ const FormBuilder = () => {
         required: field.required ?? false,
         order: field.order,
         style: field.style,
+        
       };
 
       // Only add _id if it exists (for updates)
@@ -396,6 +397,9 @@ const FormBuilder = () => {
         cleanField._id = field._id;
       }
 
+      if (field.submitterInfoConfig) {
+        cleanField.submitterInfoConfig = field.submitterInfoConfig;
+      }
       // Add optional properties only if they have values
       if (field.placeholder) {
         cleanField.placeholder = field.placeholder;
@@ -495,7 +499,6 @@ const FormBuilder = () => {
 
     setFormInfoErrors({});
 
-    console.log(droppedFields);
     // Clean fields before submission
     const cleanedFields = droppedFields.map(cleanFieldForSubmission);
 
@@ -506,7 +509,6 @@ const FormBuilder = () => {
       fields: cleanedFields,
     };
 
-    console.log(cleanedFields);
     setLoading(true);
     const id = "form-update";
 

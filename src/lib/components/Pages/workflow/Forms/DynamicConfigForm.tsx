@@ -19,20 +19,20 @@ import {
 
 import { z } from "zod";
 import { Input } from "@/lib/ui/input";
-import React, { useEffect } from "react";
+import React, { useEffect, useImperativeHandle, forwardRef } from "react";
 import { Button } from "@/lib/ui/button";
 import { Switch } from "@/lib/ui/switch";
 import { useForm } from "react-hook-form";
 import { Textarea } from "@/lib/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ActionConfigField, UserFieldValue } from "@/lib/types/actions/action";
+import { ActionConfigField, UserFieldValue, NotificationReceivers } from "@/lib/types/actions/action";
 import { FieldTemplate } from "@/lib/types/form/form";
 import { TemplateInput } from "./TemplateInput";
 import { UserFieldInput } from "./UserFieldInput";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/lib/ui/tooltip";
 import { InfoIcon } from "lucide-react";
 
-type ConfigValue = string | number | boolean | FileList | UserFieldValue | undefined;
+type ConfigValue = string | number | boolean | FileList | UserFieldValue | NotificationReceivers | undefined;
 export type ConfigRecord = Record<string, ConfigValue>;
 
 type DynamicConfigFormProps = {
@@ -42,6 +42,12 @@ type DynamicConfigFormProps = {
   onCancel?: () => void;
   nodeId?: string;
   availableTemplates?: FieldTemplate[];
+  hideSubmitButton?: boolean;
+};
+
+export type DynamicConfigFormHandle = {
+  submit: () => void;
+  getValues: () => ConfigRecord;
 };
 
 const buildDynamicSchema = (fields: ActionConfigField[]) => {
@@ -158,14 +164,21 @@ const buildDynamicSchema = (fields: ActionConfigField[]) => {
   return z.object(shape);
 };
 
-export const DynamicConfigForm = ({
-  fields,
-  initialConfig = {},
-  onSubmit,
-  onCancel,
-  nodeId,
-  availableTemplates = [],
-}: DynamicConfigFormProps) => {
+export const DynamicConfigForm = forwardRef<
+  DynamicConfigFormHandle,
+  DynamicConfigFormProps
+>(function DynamicConfigForm(
+  {
+    fields,
+    initialConfig = {},
+    onSubmit,
+    onCancel,
+    nodeId,
+    availableTemplates = [],
+    hideSubmitButton = false,
+  },
+  ref
+) {
   const schema = buildDynamicSchema(fields);
   type FormValues = z.infer<typeof schema>;
 
@@ -181,6 +194,13 @@ export const DynamicConfigForm = ({
   const handleSubmit = (data: FormValues) => {
     onSubmit(data as ConfigRecord);
   };
+
+  useImperativeHandle(ref, () => ({
+    submit: () => {
+      form.handleSubmit(handleSubmit)();
+    },
+    getValues: () => form.getValues() as ConfigRecord,
+  }));
 
   if (fields.length === 0) {
     return (
@@ -335,15 +355,17 @@ export const DynamicConfigForm = ({
           />
         ))}
 
-        <div className="flex justify-end gap-2 pt-4">
-          {onCancel && (
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-          )}
-          <Button type="submit">Save Configuration</Button>
-        </div>
+        {!hideSubmitButton && (
+          <div className="flex justify-end gap-2 pt-4">
+            {onCancel && (
+              <Button type="button" variant="outline" onClick={onCancel}>
+                Cancel
+              </Button>
+            )}
+            <Button type="submit">Save Configuration</Button>
+          </div>
+        )}
       </form>
     </Form>
   );
-};
+});

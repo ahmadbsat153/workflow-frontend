@@ -338,11 +338,19 @@ const WorkflowBuilderInner = () => {
       toast.success("Action updated successfully");
     } else {
       // Get viewport center for better positioning
-      const viewport = getViewport();
-      const viewportCenter = {
-        x: -viewport.x / viewport.zoom + window.innerWidth / 2 / viewport.zoom,
-        y: -viewport.y / viewport.zoom + window.innerHeight / 2 / viewport.zoom,
-      };
+      // Use a sensible default position if no nodes exist
+      let viewportCenter: { x: number; y: number } | undefined;
+
+      if (nodes.length === 0) {
+        // For the first node, place it at a fixed reasonable position
+        viewportCenter = { x: 250, y: 100 };
+      } else {
+        const viewport = getViewport();
+        viewportCenter = {
+          x: -viewport.x / viewport.zoom + window.innerWidth / 2 / viewport.zoom,
+          y: -viewport.y / viewport.zoom + window.innerHeight / 2 / viewport.zoom,
+        };
+      }
 
       let position = getDefaultNodePosition(nodes, viewportCenter);
       if (snapToGridEnabled) {
@@ -372,11 +380,19 @@ const WorkflowBuilderInner = () => {
 
   const addBranchNode = () => {
     // Get viewport center for better positioning
-    const viewport = getViewport();
-    const viewportCenter = {
-      x: -viewport.x / viewport.zoom + window.innerWidth / 2 / viewport.zoom,
-      y: -viewport.y / viewport.zoom + window.innerHeight / 2 / viewport.zoom,
-    };
+    // Use a sensible default position if no nodes exist
+    let viewportCenter: { x: number; y: number } | undefined;
+
+    if (nodes.length === 0) {
+      // For the first node, place it at a fixed reasonable position
+      viewportCenter = { x: 250, y: 100 };
+    } else {
+      const viewport = getViewport();
+      viewportCenter = {
+        x: -viewport.x / viewport.zoom + window.innerWidth / 2 / viewport.zoom,
+        y: -viewport.y / viewport.zoom + window.innerHeight / 2 / viewport.zoom,
+      };
+    }
 
     let position = getDefaultNodePosition(nodes, viewportCenter);
     if (snapToGridEnabled) {

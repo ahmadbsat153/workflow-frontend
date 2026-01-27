@@ -7,7 +7,9 @@ export type WorkflowStatus =
   | "pending"
   | "processing"
   | "completed"
-  | "failed";
+  | "failed"
+  | "no_workflow";
+  
 
 export type ApproverDecision = {
   approverEmail: string;

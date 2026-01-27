@@ -2,8 +2,10 @@
 
 import * as React from 'react';
 import * as RechartsPrimitive from 'recharts';
-
+import { NameType, ValueType, Payload as RechartsPayload } from 'recharts/types/component/DefaultTooltipContent';
 import { cn } from '@/lib/utils';
+
+type Payload = RechartsPayload<ValueType, NameType>[];
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: '', dark: '.dark' } as const;
@@ -22,15 +24,7 @@ type ChartContextProps = {
   config: ChartConfig;
 };
 
-type Payload = {
-  dataKey: string;
-  name: string;
-  value: string;
-  payload: {
-    fill: string;
-  }[];
-  color: string;
-}[];
+
 
 const ChartContext = React.createContext<ChartContextProps | null>(null);
 
@@ -198,7 +192,7 @@ function ChartTooltipContent({
 
           return (
             <div
-              key={item.dataKey}
+              key={item.graphicalItemId || index}
               className={cn(
                 '[&>svg]:text-muted-foreground flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5',
                 indicator === 'dot' && 'items-center'
@@ -294,7 +288,7 @@ function ChartLegendContent({
 
         return (
           <div
-            key={item.value}
+            key={item.graphicalItemId}
             className={cn(
               '[&>svg]:text-muted-foreground flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3'
             )}

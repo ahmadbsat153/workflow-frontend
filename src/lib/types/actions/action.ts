@@ -52,6 +52,25 @@ export enum UserSelectionMode {
   BRANCH_FROM_FORM = "branch_from_form",
 }
 
+/**
+ * Configuration for notification receivers in approval actions.
+ * These users will be notified about the approval but cannot approve/reject.
+ */
+export type NotificationReceivers = {
+  /** Direct email addresses */
+  emails?: string[];
+  /** User IDs (24-char hex) */
+  userIds?: string[];
+  /** Role IDs */
+  roles?: string[];
+  /** Position IDs */
+  positions?: string[];
+  /** Department IDs */
+  departments?: string[];
+  /** Branch IDs */
+  branches?: string[];
+};
+
 // Configuration for user field value
 export type UserFieldValue = {
   mode: UserSelectionMode;
@@ -67,4 +86,15 @@ export type UserFieldValue = {
   // For BRANCH mode
   branchId?: string;
   // For BRANCH_FROM_FORM mode (uses formFieldName)
+};
+
+/**
+ * Configuration for approval actions.
+ * Extends standard action config with notification receivers.
+ */
+export type ApprovalActionConfig = {
+  /** Standard action configuration values */
+  [key: string]: unknown;
+  /** Users who should be notified but cannot approve/reject */
+  notificationReceivers?: NotificationReceivers;
 };

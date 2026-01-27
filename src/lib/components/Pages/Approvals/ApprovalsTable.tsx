@@ -13,20 +13,20 @@ import {
 import { toast } from "sonner";
 import { Badge } from "@/lib/ui/badge";
 import { Button } from "@/lib/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/lib/ui/tabs";
-import { Eye, CheckCircle2, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { URLs } from "@/lib/constants/urls";
 import { DataTable } from "../../Table/DataTable";
 import { ErrorResponse } from "@/lib/types/common";
 import { formatDatesWithYear } from "@/utils/common";
 import { handleServerError } from "@/lib/api/_axios";
 import { INITIAL_META } from "@/lib/constants/initials";
+import { Eye, CheckCircle2, XCircle } from "lucide-react";
+import { CellRenderer } from "@/lib/types/table/table_data";
 import { API_APPROVAL } from "@/lib/services/approval_service";
+import { MyApproval, MyApprovalTable } from "@/lib/types/approval";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/lib/ui/tabs";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { APPROVAL_COLUMNS, APPROVAL_VISIBLE_COL } from "@/lib/constants/tables";
-import { CellRenderer } from "@/lib/types/table/table_data";
-import { MyApproval, MyApprovalTable } from "@/lib/types/approval";
-import { URLs } from "@/lib/constants/urls";
 
 const searchParams = {
   page: parseAsInteger,
@@ -62,8 +62,8 @@ const ApprovalsTable = () => {
   );
 
   const router = useRouter();
-  const [visibleColumns] = useState<Set<string>>(new Set(APPROVAL_VISIBLE_COL));
   const [loading, setLoading] = useState(true);
+  const [visibleColumns] = useState<Set<string>>(new Set(APPROVAL_VISIBLE_COL));
 
   const headerColumns = useMemo(() => {
     if (typeof visibleColumns === "string" && visibleColumns === "all")

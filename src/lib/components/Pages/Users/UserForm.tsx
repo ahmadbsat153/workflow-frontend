@@ -50,6 +50,7 @@ import type { DepartmentOption } from "@/lib/types/department/department";
 import FixedHeaderFooterLayout from "../../Layout/FixedHeaderFooterLayout";
 import { API_DEPARTMENT } from "@/lib/services/Department/department_service";
 import DotsLoader from "../../Loader/DotsLoader";
+import { getSubmitterInfoFieldConfig } from "@/utils/fieldUtils";
 
 type UserFormProps = {
   userId?: string;
@@ -72,6 +73,13 @@ const userSchema = z
     is_active: z.boolean(),
     is_archived: z.boolean(),
     sendInvitation: z.boolean().optional(),
+    // Business Information
+    businessInformation: z.object({
+      payrollNo: z.string().optional(),
+      businessUnit: z.string().optional(),
+      businessUnitAddress: z.string().optional(),
+      paymentMethod: z.enum(["weekly", "monthly"]).nullable().optional(),
+    }).optional(),
   })
   .refine(
     (data) => {
@@ -121,6 +129,12 @@ const UserForm = ({ userId, title, description }: UserFormProps) => {
       is_active: true,
       is_archived: false,
       sendInvitation: false,
+      businessInformation: {
+        payrollNo: "",
+        businessUnit: "",
+        businessUnitAddress: "",
+        paymentMethod: null,
+      },
     },
   });
 
@@ -181,6 +195,12 @@ const UserForm = ({ userId, title, description }: UserFormProps) => {
         is_super_admin: userData.is_super_admin || false,
         is_active: userData.is_active !== undefined ? userData.is_active : true,
         is_archived: userData.is_archived || false,
+        businessInformation: {
+          payrollNo: userData.businessInformation?.payrollNo || "",
+          businessUnit: userData.businessInformation?.businessUnit || "",
+          businessUnitAddress: userData.businessInformation?.businessUnitAddress || "",
+          paymentMethod: userData.businessInformation?.paymentMethod || null,
+        },
       };
 
       form.reset(resetData);
@@ -452,9 +472,9 @@ const UserForm = ({ userId, title, description }: UserFormProps) => {
                     name="firstname"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>First Name *</FormLabel>
+                        <FormLabel>{getSubmitterInfoFieldConfig("firstname").label} *</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter first name" {...field} />
+                          <Input placeholder={getSubmitterInfoFieldConfig("firstname").config.placeholder} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -466,9 +486,9 @@ const UserForm = ({ userId, title, description }: UserFormProps) => {
                     name="lastname"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Last Name *</FormLabel>
+                        <FormLabel>{getSubmitterInfoFieldConfig("lastname").label} *</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter last name" {...field} />
+                          <Input placeholder={getSubmitterInfoFieldConfig("lastname").config.placeholder} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -482,11 +502,11 @@ const UserForm = ({ userId, title, description }: UserFormProps) => {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email *</FormLabel>
+                        <FormLabel>{getSubmitterInfoFieldConfig("email").label} *</FormLabel>
                         <FormControl>
                           <Input
                             type="email"
-                            placeholder="user@example.com"
+                            placeholder={getSubmitterInfoFieldConfig("email").config.placeholder}
                             {...field}
                           />
                         </FormControl>
@@ -500,9 +520,9 @@ const UserForm = ({ userId, title, description }: UserFormProps) => {
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Phone Number</FormLabel>
+                        <FormLabel>{getSubmitterInfoFieldConfig("phone").label}</FormLabel>
                         <FormControl>
-                          <Input placeholder="+1234567890" {...field} />
+                          <Input placeholder={getSubmitterInfoFieldConfig("phone").config.placeholder} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -715,6 +735,91 @@ const UserForm = ({ userId, title, description }: UserFormProps) => {
                     )}
                   />
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Business Information</CardTitle>
+                <CardDescription>
+                  Payroll and business unit details
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="businessInformation.payrollNo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{getSubmitterInfoFieldConfig("payrollNo").label}</FormLabel>
+                        <FormControl>
+                          <Input placeholder={getSubmitterInfoFieldConfig("payrollNo").config.placeholder} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="businessInformation.paymentMethod"
+                    render={({ field }) => {
+                      const paymentConfig = getSubmitterInfoFieldConfig("paymentMethod");
+                      return (
+                        <FormItem>
+                          <FormLabel>{paymentConfig.label}</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value || undefined}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder={paymentConfig.config.placeholder} />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {paymentConfig.config.options?.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="businessInformation.businessUnit"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{getSubmitterInfoFieldConfig("businessUnit").label}</FormLabel>
+                      <FormControl>
+                        <Input placeholder={getSubmitterInfoFieldConfig("businessUnit").config.placeholder} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="businessInformation.businessUnitAddress"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{getSubmitterInfoFieldConfig("businessUnitAddress").label}</FormLabel>
+                      <FormControl>
+                        <Input placeholder={getSubmitterInfoFieldConfig("businessUnitAddress").config.placeholder} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </CardContent>
             </Card>
 

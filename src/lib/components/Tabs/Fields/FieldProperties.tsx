@@ -9,9 +9,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/lib/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/lib/ui/select";
 import { Input } from "@/lib/ui/input";
 import { Switch } from "@/lib/ui/switch";
 import { UseFormReturn } from "react-hook-form";
+import { submitterInfoPropertyOptions } from "@/lib/constants/formFields";
 
 type Props = {
   field: Field;
@@ -24,12 +32,50 @@ const FieldProperties = ({ form, field, loading }: Props) => {
   return (
     <div className="flex-1 space-y-4">
       <h3 className="text-lg font-semibold">Field Settings</h3>
+
+      {/* Submitter Info property selector */}
+      {field.type === FieldsType.SUBMITTER_INFO && (
+        <FormField
+          control={form.control}
+          name="submitterInfoConfig.property"
+          render={({ field: formField }) => (
+            <FormItem>
+              <FormLabel>User Property</FormLabel>
+              <Select
+                onValueChange={formField.onChange}
+                value={formField.value || "fullName"}
+                disabled={loading}
+              >
+                <FormControl className="!w-full">
+                  <SelectTrigger className="w-full">
+                    <SelectValue
+                      className="w-full"
+                      placeholder="Select property to extract"
+                    />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent className="w-full">
+                  {submitterInfoPropertyOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormDescription>
+                Select which user property to display in this field
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      )}
       {/* Basic Fields */}
       <FormField
         control={form.control}
         name="name"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="hidden">
             <FormLabel>Field Name</FormLabel>
             <FormControl>
               <Input placeholder="field_name" {...field} disabled={loading} />

@@ -17,12 +17,19 @@ import { X, Trash2 } from "lucide-react";
 import { Button } from "@/lib/ui/button";
 import { Separator } from "@/lib/ui/separator";
 import { ScrollArea } from "@/lib/ui/scroll-area";
-import React, { useState, useEffect } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/lib/ui/tabs";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { FieldTemplate } from "@/lib/types/form/form";
 import { API_FORM } from "@/lib/services/Form/form_service";
 import { BranchConfigForm } from "../Forms/BranchConfigForm";
 import { WorkflowNode, BranchData } from "@/lib/types/workflow/workflow";
-import { DynamicConfigForm, ConfigRecord } from "../Forms/DynamicConfigForm";
+import {
+  DynamicConfigForm,
+  ConfigRecord,
+  DynamicConfigFormHandle,
+} from "../Forms/DynamicConfigForm";
+import { NotificationReceiversInput } from "../Forms/NotificationReceiversInput";
+import { NotificationReceivers } from "@/lib/types/actions/action";
 
 type NodeConfigPanelProps = {
   node: WorkflowNode | null;
@@ -32,7 +39,7 @@ type NodeConfigPanelProps = {
   onDeleteNode: (nodeId: string) => void;
   onUpdateBranches?: (nodeId: string, branches: BranchData[]) => void;
   formId?: string;
-}
+};
 
 export const NodeConfigPanel = ({
   node,
@@ -43,8 +50,29 @@ export const NodeConfigPanel = ({
   onUpdateBranches,
   formId,
 }: NodeConfigPanelProps) => {
-  const [availableTemplates, setAvailableTemplates] = useState<FieldTemplate[]>([]);
+  const [availableTemplates, setAvailableTemplates] = useState<FieldTemplate[]>(
+    []
+  );
   const [loadingTemplates, setLoadingTemplates] = useState(false);
+  const [notificationReceivers, setNotificationReceivers] = useState<
+    NotificationReceivers | undefined
+  >(undefined);
+  const [activeTab, setActiveTab] = useState("configuration");
+  const [hasConfigError, setHasConfigError] = useState(false);
+  const formRef = useRef<DynamicConfigFormHandle>(null);
+
+  // Initialize notification receivers from node config and reset tab state
+  useEffect(() => {
+    if (node?.data?.config) {
+      setNotificationReceivers(
+        (node.data.config as ConfigRecord)
+          ?.notificationReceivers as NotificationReceivers
+      );
+    }
+    // Reset tab state when node changes
+    setActiveTab("configuration");
+    setHasConfigError(false);
+  }, [node?.id, node?.data?.config]);
 
   // Fetch field templates when panel opens and formId is available
   useEffect(() => {
@@ -66,22 +94,55 @@ export const NodeConfigPanel = ({
     fetchTemplates();
   }, [formId]);
 
-  if (!node) return null;
+  const isApprovalAction =
+    node?.type === "action" && node?.data.action?.category === "approval";
 
-  const handleConfigSubmit = (config: ConfigRecord) => {
-    onUpdateConfig(node.id, config);
-  };
+  const handleConfigSubmit = useCallback((config: ConfigRecord) => {
+    if (!node) return;
+    setHasConfigError(false);
+    // For approval actions, include notification receivers
+    if (isApprovalAction) {
+      onUpdateConfig(node.id, {
+        ...config,
+        notificationReceivers,
+      });
+    } else {
+      onUpdateConfig(node.id, config);
+    }
+  }, [isApprovalAction, node, notificationReceivers, onUpdateConfig]);
 
-  const handleBranchesChange = (branches: BranchData[]) => {
-    if (onUpdateBranches) {
+  const handleSaveConfiguration = useCallback(() => {
+    if (formRef.current) {
+      // Get current form values to check if it will validate
+      formRef.current.submit();
+
+      // After a brief delay, check if there are validation errors
+      // If the form didn't submit (has errors), switch to configuration tab
+      setTimeout(() => {
+        const formElement = document.querySelector('form');
+        const hasErrors = formElement?.querySelector('[data-state="invalid"]') ||
+                         formElement?.querySelector('.text-destructive');
+        if (hasErrors) {
+          setHasConfigError(true);
+          setActiveTab("configuration");
+        }
+      }, 50);
+    }
+  }, []);
+
+  const handleBranchesChange = useCallback((branches: BranchData[]) => {
+    if (onUpdateBranches && node) {
       onUpdateBranches(node.id, branches);
     }
-  };
+  }, [node, onUpdateBranches]);
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
+    if (!node) return;
     onDeleteNode(node.id);
     onClose();
-  };
+  }, [node, onClose, onDeleteNode]);
+
+  if (!node) return null;
 
   return (
     <div className="w-96 max-h-[85vh] border-l bg-background h-full flex flex-col">
@@ -178,23 +239,62 @@ export const NodeConfigPanel = ({
 
           <Separator />
 
-          {/* Configuration Form */}
+          {/* Configuration Form - with tabs for approval actions */}
           {node.type === "action" && node.data.action && (
             <div>
-              <h4 className="text-sm font-semibold mb-4">Configuration</h4>
               {loadingTemplates && (
                 <div className="text-xs text-muted-foreground mb-2">
                   Loading field templates...
                 </div>
               )}
-              <DynamicConfigForm
-                key={node.id}
-                nodeId={node.id}
-                fields={node.data.action.configSchema.fields}
-                initialConfig={node.data.config as ConfigRecord}
-                onSubmit={handleConfigSubmit}
-                availableTemplates={availableTemplates}
-              />
+
+              {isApprovalAction ? (
+                // Tabbed interface for approval actions
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="configuration">
+                      Configuration
+                      {hasConfigError && (
+                        <span className="ml-1 h-2 w-2 rounded-full bg-destructive" />
+                      )}
+                    </TabsTrigger>
+                    <TabsTrigger value="receivers">Receivers</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="configuration" className="mt-4" forceMount hidden={activeTab !== "configuration"}>
+                    <DynamicConfigForm
+                      ref={formRef}
+                      key={node.id}
+                      nodeId={node.id}
+                      fields={node.data.action.configSchema.fields}
+                      initialConfig={node.data.config as ConfigRecord}
+                      onSubmit={handleConfigSubmit}
+                      availableTemplates={availableTemplates}
+                      hideSubmitButton
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="receivers" className="mt-4" forceMount hidden={activeTab !== "receivers"}>
+                    <NotificationReceiversInput
+                      value={notificationReceivers}
+                      onChange={setNotificationReceivers}
+                    />
+                  </TabsContent>
+                </Tabs>
+              ) : (
+                // Regular form for non-approval actions
+                <>
+                  <h4 className="text-sm font-semibold mb-4">Configuration</h4>
+                  <DynamicConfigForm
+                    key={node.id}
+                    nodeId={node.id}
+                    fields={node.data.action.configSchema.fields}
+                    initialConfig={node.data.config as ConfigRecord}
+                    onSubmit={handleConfigSubmit}
+                    availableTemplates={availableTemplates}
+                  />
+                </>
+              )}
             </div>
           )}
 
@@ -233,6 +333,15 @@ export const NodeConfigPanel = ({
           )}
         </div>
       </ScrollArea>
+
+      {/* Footer with Save button for approval actions */}
+      {isApprovalAction && (
+        <div className="p-4 border-t">
+          <Button onClick={handleSaveConfiguration} className="w-full">
+            Save Configuration
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

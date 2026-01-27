@@ -110,9 +110,11 @@ const FieldSettingsSheet = ({
             showInForm: field.display?.showInForm ?? true,
             showInDetail: field.display?.showInDetail ?? true,
             sensitiveInfo: field.display?.sensitiveInfo ?? false,
+            sensitiveAccess: field.display?.sensitiveAccess,
           },
           options: field.options || [],
           tableConfig: field.tableConfig,
+          submitterInfoConfig: field.submitterInfoConfig || { property: "fullName" },
         } as FormValues),
   });
 
@@ -157,6 +159,7 @@ const FieldSettingsSheet = ({
         display: inputValues.display,
         autofill: inputValues.autofill,
         tableConfig: inputValues.tableConfig,
+        submitterInfoConfig: inputValues.submitterInfoConfig,
       };
     }
 
@@ -238,12 +241,22 @@ const FieldSettingsSheet = ({
                   </TabsContent>
                 </Tabs>
               ) : field.type === FieldsType.TABLE ? (
-                <Tabs
-                  defaultValue={
-                    field.type === FieldsType.TABLE ? "table" : "setting"
-                  }
-                  className=""
-                >
+                <Tabs defaultValue="table" className="mt-5">
+                  <TabsList className="sticky top-0 z-10">
+                    <TabsTrigger value="table" className="cursor-pointer">
+                      <Settings2 className="!size-4" />
+                      Table Config
+                    </TabsTrigger>
+                    <TabsTrigger value="setting" className="cursor-pointer">
+                      <Settings2 className="!size-4" />
+                      Settings
+                    </TabsTrigger>
+                    <TabsTrigger value="display" className="cursor-pointer">
+                      <EyeIcon className="!size-4" />
+                      Display
+                    </TabsTrigger>
+                  </TabsList>
+
                   <TabsContent value="table">
                     <div className="py-4">
                       <TableConfig
@@ -257,6 +270,16 @@ const FieldSettingsSheet = ({
                   <TabsContent value="setting">
                     <div className="py-4">
                       <FieldProperties
+                        field={field}
+                        form={form}
+                        loading={loading}
+                      />
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="display">
+                    <div className="py-4">
+                      <FieldDisplay
                         field={field}
                         form={form}
                         loading={loading}

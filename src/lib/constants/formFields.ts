@@ -1,4 +1,4 @@
-import { FieldsType, Field } from "@/lib/types/form/fields";
+import { FieldsType, Field, SubmitterInfoProperty } from "@/lib/types/form/fields";
 import type { EditableTableConfig } from "@/lib/types/form/editableTable";
 import {
   CalendarIcon,
@@ -22,6 +22,7 @@ import {
   BriefcaseIcon,
   MapPinIcon,
   TableIcon,
+  UserIcon,
 } from "lucide-react";
 
 // Helper functions to categorize field types
@@ -52,6 +53,7 @@ export const isInputField = (type: FieldsType): boolean => {
     FieldsType.DEPARTMENT,
     FieldsType.POSITION,
     FieldsType.BRANCH,
+    FieldsType.SUBMITTER_INFO,
     FieldsType.TABLE,
   ].includes(type);
 };
@@ -174,6 +176,16 @@ export const fieldConfigs: Record<FieldsType, Partial<Field>> = {
     defaultValue: "",
     options: undefined,
     validation: {},
+  },
+  [FieldsType.SUBMITTER_INFO]: {
+    label: "Submitter Info",
+    placeholder: "",
+    required: false,
+    defaultValue: "",
+    validation: {},
+    submitterInfoConfig: {
+      property: "fullName" as SubmitterInfoProperty,
+    },
   },
   [FieldsType.TABLE]: {
     label: "Editable Table",
@@ -341,6 +353,7 @@ export const createFieldFromType = (
     options: config.options,
     validation: config.validation || {},
     tableConfig: config.tableConfig,
+    submitterInfoConfig: config.submitterInfoConfig,
   } as Field;
 };
 
@@ -374,6 +387,8 @@ export const getFieldTypeIcon = (type: FieldsType) => {
       return BriefcaseIcon;
     case FieldsType.BRANCH:
       return MapPinIcon;
+    case FieldsType.SUBMITTER_INFO:
+      return UserIcon;
     case FieldsType.TABLE:
       return TableIcon;
     // Display Elements
@@ -416,6 +431,7 @@ export const getFieldTypeLabel = (type: FieldsType): string => {
     [FieldsType.DEPARTMENT]: "Department",
     [FieldsType.POSITION]: "Position",
     [FieldsType.BRANCH]: "Branch",
+    [FieldsType.SUBMITTER_INFO]: "Submitter Info",
     [FieldsType.TABLE]: "Table",
 
     // Display Elements
@@ -429,4 +445,34 @@ export const getFieldTypeLabel = (type: FieldsType): string => {
   };
 
   return labels[type] || type;
+};
+
+// Submitter Info property options for dropdown
+export const submitterInfoPropertyOptions: {
+  value: SubmitterInfoProperty;
+  label: string;
+}[] = [
+  { value: "firstname", label: "First Name" },
+  { value: "lastname", label: "Last Name" },
+  { value: "fullName", label: "Full Name" },
+  { value: "email", label: "Email" },
+  { value: "phone", label: "Phone" },
+  { value: "payrollNo", label: "Payroll Number" },
+  { value: "businessUnit", label: "Business Unit" },
+  { value: "businessUnitAddress", label: "Business Unit Address" },
+  { value: "paymentMethod", label: "Payment Method" },
+  { value: "department", label: "Department" },
+  { value: "position", label: "Position" },
+  { value: "branch", label: "Branch" },
+  { value: "manager", label: "Manager" },
+];
+
+// Get label for submitter info property
+export const getSubmitterInfoPropertyLabel = (
+  property: SubmitterInfoProperty
+): string => {
+  return (
+    submitterInfoPropertyOptions.find((opt) => opt.value === property)?.label ||
+    property
+  );
 };

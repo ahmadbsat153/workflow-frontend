@@ -1,6 +1,23 @@
 import { Meta } from "../common";
 import { Field } from "./fields";
 
+export type FormVisibility = {
+  roles: string[];
+  departments: string[];
+  branches: string[];
+  positions: string[];
+};
+
+export type FormCanEdit = {
+  roles: string[];
+  positions: string[];
+};
+
+export type FormSettings = {
+  visibility: FormVisibility;
+  canEdit: FormCanEdit;
+};
+
 export type Form = {
   _id: string;
   name: string;
@@ -10,6 +27,7 @@ export type Form = {
   workflowId?: string | null;
   createdBy: createdBy;
   isActive: boolean;
+  settings?: FormSettings;
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -22,8 +40,10 @@ export type Analytics = {
 };
 
 type createdBy = {
+  _id: string;
   firstname: string;
   lastname: string;
+  email?: string;
 };
 export type FormDetails = {
   form: Form;

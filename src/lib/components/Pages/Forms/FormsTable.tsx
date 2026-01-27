@@ -17,6 +17,7 @@ import { ErrorResponse } from "@/lib/types/common";
 import { getUrl, URLs } from "@/lib/constants/urls";
 import { useAuth } from "@/lib/context/AuthContext";
 import { handleServerError } from "@/lib/api/_axios";
+import { canEditForm } from "@/lib/utils";
 import { Form, FormList } from "@/lib/types/form/form";
 import { INITIAL_META } from "@/lib/constants/initials";
 import { API_FORM } from "@/lib/services/Form/form_service";
@@ -36,7 +37,7 @@ const searchParams = {
 
 const FormsTable = () => {
   const router = useRouter();
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
 
   const [forms, setForms] = useState<FormList>({
     data: [],
@@ -144,26 +145,31 @@ const FormsTable = () => {
       </div>
     ),
 
-    //TODO: Fix edit overlay link
-    actions: (value, row) => (
-      <Button
-        variant="ghost"
-        size="sm"
-        asChild
-        onClick={(e) => e.stopPropagation()}
-      >
-        <Link
-          href={getUrl(
-            build_path(URLs.admin.forms.edit, {
-              id: row._id,
-            })
-          )}
+    actions: (value, row) => {
+      const canEdit = canEditForm(user?.user, row.settings?.canEdit, row.createdBy?._id);
+
+      if (!canEdit) return null;
+
+      return (
+        <Button
+          variant="ghost"
+          size="sm"
+          asChild
           onClick={(e) => e.stopPropagation()}
         >
-          <PencilIcon className="size-4 text-pumpkin" />
-        </Link>
-      </Button>
-    ),
+          <Link
+            href={getUrl(
+              build_path(URLs.admin.forms.edit, {
+                id: row._id,
+              })
+            )}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <PencilIcon className="size-4 text-pumpkin" />
+          </Link>
+        </Button>
+      );
+    },
   };
 
   return (
