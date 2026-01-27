@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useMemo, useEffect } from "react";
+import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import ReactFlow, {
   addEdge,
   Background,
@@ -58,6 +58,12 @@ import { useParams } from "next/navigation";
 import DotsLoader from "../../Loader/DotsLoader";
 import { handleServerError } from "@/lib/api/_axios";
 import { ErrorResponse } from "@/lib/types/common";
+import { useFormEditContext } from "@/lib/context/FormEditContext";
+
+// Sidebar widths for viewport calculation
+const SIDEBAR_WIDTH_EXPANDED = 320; // w-80
+const SIDEBAR_WIDTH_COLLAPSED = 48; // w-12
+const CONFIG_PANEL_WIDTH = 384; // w-96
 
 const WorkflowBuilderInner = () => {
   const params = useParams();
@@ -80,6 +86,33 @@ const WorkflowBuilderInner = () => {
   const [pendingNodeId, setPendingNodeId] = useState<string | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
+  // Track initial state for dirty detection
+  const initialStateRef = useRef<{ nodes: string; edges: string } | null>(null);
+  const isInitialLoadRef = useRef(true);
+
+  // Get dirty state context (may be undefined if not wrapped in provider)
+  let setWorkflowDirty: ((dirty: boolean) => void) | undefined;
+  try {
+    const context = useFormEditContext();
+    setWorkflowDirty = context.setWorkflowDirty;
+  } catch {
+    // Context not available, dirty tracking disabled
+  }
+
+  // Track dirty state when nodes or edges change
+  useEffect(() => {
+    if (isInitialLoadRef.current || !initialStateRef.current) return;
+
+    const currentNodesJson = JSON.stringify(nodes.map(n => ({ id: n.id, position: n.position, data: n.data })));
+    const currentEdgesJson = JSON.stringify(edges);
+
+    const isDirty =
+      currentNodesJson !== initialStateRef.current.nodes ||
+      currentEdgesJson !== initialStateRef.current.edges;
+
+    setWorkflowDirty?.(isDirty);
+  }, [nodes, edges, setWorkflowDirty]);
+
   // Load workflow by form ID on mount
   useEffect(() => {
     const loadWorkflowByForm = async () => {
@@ -87,6 +120,7 @@ const WorkflowBuilderInner = () => {
 
       try {
         setLoading(true);
+        isInitialLoadRef.current = true;
         const workflow = await API_WORKFLOW.getWorkflowByForm(form_id);
 
         if (workflow) {
@@ -100,7 +134,18 @@ const WorkflowBuilderInner = () => {
           }));
           setNodes(nodesWithoutSelection);
           setEdges(workflow.edges || []);
+
+          // Store initial state for dirty tracking
+          initialStateRef.current = {
+            nodes: JSON.stringify(nodesWithoutSelection.map(n => ({ id: n.id, position: n.position, data: n.data }))),
+            edges: JSON.stringify(workflow.edges || []),
+          };
+
           setLoading(false);
+          // Mark initial load as complete after state is set
+          setTimeout(() => {
+            isInitialLoadRef.current = false;
+          }, 100);
           // Fit view with better zoom settings after nodes are loaded
           setTimeout(() => {
             fitView({
@@ -110,9 +155,25 @@ const WorkflowBuilderInner = () => {
               maxZoom: 1.2,
             });
           }, 100);
+        } else {
+          // No existing workflow - set empty initial state
+          initialStateRef.current = {
+            nodes: JSON.stringify([]),
+            edges: JSON.stringify([]),
+          };
+          setLoading(false);
+          setTimeout(() => {
+            isInitialLoadRef.current = false;
+          }, 100);
         }
       } catch (error) {
         setLoading(false);
+        isInitialLoadRef.current = false;
+        // Set empty initial state on error
+        initialStateRef.current = {
+          nodes: JSON.stringify([]),
+          edges: JSON.stringify([]),
+        };
         handleServerError(error as ErrorResponse, (err_msg) => {
           toast.error(err_msg);
         });
@@ -272,9 +333,14 @@ const WorkflowBuilderInner = () => {
   const handleActionClick = useCallback(
     (action: Action) => {
       // Get viewport center for better positioning
+      // Account for sidebars when calculating the actual canvas center
       const viewport = getViewport();
+      const leftSidebarWidth = isSidebarCollapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED;
+      const rightPanelWidth = selectedNodeId ? CONFIG_PANEL_WIDTH : 0;
+      const actualCanvasWidth = window.innerWidth - leftSidebarWidth - rightPanelWidth;
+
       const viewportCenter = {
-        x: -viewport.x / viewport.zoom + window.innerWidth / 2 / viewport.zoom,
+        x: -viewport.x / viewport.zoom + (leftSidebarWidth + actualCanvasWidth / 2) / viewport.zoom,
         y: -viewport.y / viewport.zoom + window.innerHeight / 2 / viewport.zoom,
       };
 
@@ -305,7 +371,7 @@ const WorkflowBuilderInner = () => {
       setSelectedNodeId(nodeId);
       toast.success(`Added ${action.displayName}`);
     },
-    [setNodes, nodes, snapToGridEnabled, getViewport]
+    [setNodes, nodes, snapToGridEnabled, getViewport, isSidebarCollapsed, selectedNodeId]
   );
 
   const addActionNode = () => {
@@ -345,9 +411,14 @@ const WorkflowBuilderInner = () => {
         // For the first node, place it at a fixed reasonable position
         viewportCenter = { x: 250, y: 100 };
       } else {
+        // Account for sidebars when calculating the actual canvas center
         const viewport = getViewport();
+        const leftSidebarWidth = isSidebarCollapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED;
+        const rightPanelWidth = selectedNodeId ? CONFIG_PANEL_WIDTH : 0;
+        const actualCanvasWidth = window.innerWidth - leftSidebarWidth - rightPanelWidth;
+
         viewportCenter = {
-          x: -viewport.x / viewport.zoom + window.innerWidth / 2 / viewport.zoom,
+          x: -viewport.x / viewport.zoom + (leftSidebarWidth + actualCanvasWidth / 2) / viewport.zoom,
           y: -viewport.y / viewport.zoom + window.innerHeight / 2 / viewport.zoom,
         };
       }
@@ -387,9 +458,14 @@ const WorkflowBuilderInner = () => {
       // For the first node, place it at a fixed reasonable position
       viewportCenter = { x: 250, y: 100 };
     } else {
+      // Account for sidebars when calculating the actual canvas center
       const viewport = getViewport();
+      const leftSidebarWidth = isSidebarCollapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED;
+      const rightPanelWidth = selectedNodeId ? CONFIG_PANEL_WIDTH : 0;
+      const actualCanvasWidth = window.innerWidth - leftSidebarWidth - rightPanelWidth;
+
       viewportCenter = {
-        x: -viewport.x / viewport.zoom + window.innerWidth / 2 / viewport.zoom,
+        x: -viewport.x / viewport.zoom + (leftSidebarWidth + actualCanvasWidth / 2) / viewport.zoom,
         y: -viewport.y / viewport.zoom + window.innerHeight / 2 / viewport.zoom,
       };
     }
@@ -536,8 +612,16 @@ const WorkflowBuilderInner = () => {
   );
 
   const handleCloseConfigPanel = useCallback(() => {
+    // Deselect node in our state
     setSelectedNodeId(null);
-  }, []);
+    // Also deselect node in ReactFlow (remove selected state from all nodes)
+    setNodes((nds) =>
+      nds.map((node) => ({
+        ...node,
+        selected: false,
+      }))
+    );
+  }, [setNodes]);
 
   // Auto-arrange nodes
   const handleAutoArrange = useCallback(() => {
@@ -588,6 +672,13 @@ const WorkflowBuilderInner = () => {
         toast.success("Workflow saved successfully");
       }
       setWorkflowName(name);
+
+      // Update initial state to current state (no longer dirty)
+      initialStateRef.current = {
+        nodes: JSON.stringify(nodes.map(n => ({ id: n.id, position: n.position, data: n.data }))),
+        edges: JSON.stringify(edges),
+      };
+      setWorkflowDirty?.(false);
     } catch (error) {
       console.error("Error saving workflow:", error);
       throw error;

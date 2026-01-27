@@ -74,7 +74,7 @@ const NotificationItem = ({
 
   const handleClick = async () => {
     if (!notification.read) {
-      await markAsRead(notification.id);
+      await markAsRead(notification._id ?? notification.id);
     }
     onClose();
 
@@ -89,7 +89,7 @@ const NotificationItem = ({
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    await deleteNotification(notification.id);
+    await deleteNotification(notification._id ?? notification.id);
   };
 
   return (

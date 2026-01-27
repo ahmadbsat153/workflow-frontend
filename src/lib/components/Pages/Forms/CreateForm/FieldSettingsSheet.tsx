@@ -211,11 +211,11 @@ const FieldSettingsSheet = ({
                 <Tabs defaultValue="content" className="mt-5">
                   <TabsList className="sticky top-0 z-10">
                     <TabsTrigger value="content" className="cursor-pointer">
-                      <TypeIcon className="!size-4" />
+                      <TypeIcon className="size-4" />
                       Content
                     </TabsTrigger>
                     <TabsTrigger value="style" className="cursor-pointer">
-                      <PaletteIcon className="!size-4" />
+                      <PaletteIcon className="size-4" />
                       Style
                     </TabsTrigger>
                   </TabsList>

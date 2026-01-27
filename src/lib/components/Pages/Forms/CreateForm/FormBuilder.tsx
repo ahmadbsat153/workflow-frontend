@@ -23,7 +23,7 @@ import { toast } from "sonner";
 import { Button } from "@/lib/ui/button";
 import DnDContainer from "./DnDContainer";
 import FieldsSidebar from "./FieldsSidebar";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { arrayMove } from "@dnd-kit/sortable";
 import FieldSidebarItem from "./FieldSidebarItem";
 import { ErrorResponse } from "@/lib/types/common";
@@ -40,6 +40,7 @@ import {
 } from "@/lib/constants/formFields";
 import { ChevronLeftIcon, Trash2Icon } from "lucide-react";
 import AlertModal from "@/lib/components/Alert/AlertModal";
+import { useFormEditContext } from "@/lib/context/FormEditContext";
 
 const FormBuilder = () => {
   const router = useRouter();
@@ -59,6 +60,33 @@ const FormBuilder = () => {
     isActive: true,
   });
 
+  // Track initial state for dirty detection
+  const initialStateRef = useRef<{ fields: string; formInfo: string } | null>(null);
+  const isInitialLoadRef = useRef(true);
+
+  // Get dirty state context (may be undefined if not wrapped in provider)
+  let setFormDirty: ((dirty: boolean) => void) | undefined;
+  try {
+    const context = useFormEditContext();
+    setFormDirty = context.setFormDirty;
+  } catch {
+    // Context not available, dirty tracking disabled
+  }
+
+  // Track dirty state when fields or formInfo change
+  useEffect(() => {
+    if (isInitialLoadRef.current || !initialStateRef.current) return;
+
+    const currentFieldsJson = JSON.stringify(droppedFields);
+    const currentFormInfoJson = JSON.stringify(formInfo);
+
+    const isDirty =
+      currentFieldsJson !== initialStateRef.current.fields ||
+      currentFormInfoJson !== initialStateRef.current.formInfo;
+
+    setFormDirty?.(isDirty);
+  }, [droppedFields, formInfo, setFormDirty]);
+
   useEffect(() => {
     getForm();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -66,12 +94,21 @@ const FormBuilder = () => {
 
   const getForm = async () => {
     if (!form_id) {
+      // New form - set empty initial state
+      initialStateRef.current = {
+        fields: JSON.stringify([]),
+        formInfo: JSON.stringify({ title: "", description: "", isActive: true }),
+      };
       setLoading(false);
+      setTimeout(() => {
+        isInitialLoadRef.current = false;
+      }, 100);
       return;
     }
 
     try {
       setLoading(true);
+      isInitialLoadRef.current = true;
 
       const result = await API_FORM.getFormById(form_id);
       const info = {
@@ -82,8 +119,25 @@ const FormBuilder = () => {
 
       setFormInfo(info);
       setDroppedFields([...result.fields]);
+
+      // Store initial state for dirty tracking
+      initialStateRef.current = {
+        fields: JSON.stringify(result.fields),
+        formInfo: JSON.stringify(info),
+      };
+
+      // Mark initial load as complete after state is set
+      setTimeout(() => {
+        isInitialLoadRef.current = false;
+      }, 100);
     } catch (error) {
       console.log(error);
+      // Set empty initial state on error
+      initialStateRef.current = {
+        fields: JSON.stringify([]),
+        formInfo: JSON.stringify({ title: "", description: "", isActive: true }),
+      };
+      isInitialLoadRef.current = false;
     } finally {
       setLoading(false);
     }
@@ -472,6 +526,8 @@ const FormBuilder = () => {
 
     try {
       await API_FORM.createForm(data);
+      // Reset dirty state after successful save
+      setFormDirty?.(false);
       toast.success("Form Created Successfully", { id });
       router.push(getUrl(URLs.admin.forms.index));
     } catch (error) {
@@ -514,6 +570,8 @@ const FormBuilder = () => {
 
     try {
       await API_FORM.updateFormById(form_id, data);
+      // Reset dirty state after successful save
+      setFormDirty?.(false);
       toast.success("Form Updated Successfully", { id });
       router.push(getUrl(URLs.admin.forms.index));
     } catch (error) {

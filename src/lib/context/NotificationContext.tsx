@@ -223,10 +223,22 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   // Delete notification
   const deleteNotification = async (id: string) => {
     try {
+      // Optimistic update: remove from list immediately
+      const deletedNotification = notifications.find(
+        (n) => n._id === id || n.id === id
+      );
+      setNotifications((prev) =>
+        prev.filter((n) => n._id !== id && n.id !== id)
+      );
+      if (deletedNotification && !deletedNotification.read) {
+        setUnreadCount((count) => Math.max(0, count - 1));
+      }
+
       await API_NOTIFICATION.deleteNotification(id);
-      // Update will be handled by Socket.IO event
     } catch (error) {
       console.error("Failed to delete notification:", error);
+      // Revert on error: refetch notifications
+      await fetchNotifications();
     }
   };
 

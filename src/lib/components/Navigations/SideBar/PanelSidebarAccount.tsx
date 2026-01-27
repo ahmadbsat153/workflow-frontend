@@ -75,7 +75,7 @@ const PanelSidebarAccount = () => {
               <DropdownMenuItem asChild>
                 <Link href={URLs.app.notifications.preferences}>
                   <Bell />
-                  Notifications
+                  Notifications Preferences
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>

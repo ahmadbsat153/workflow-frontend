@@ -23,13 +23,9 @@ export const validateWorkflow = (
   const errors: ValidationError[] = [];
   const warnings: ValidationError[] = [];
 
+  // Allow empty workflows - user should be able to clear and save
   if (nodes.length === 0) {
-    errors.push({
-      nodeId: "",
-      type: "error",
-      message: "Workflow is empty. Add at least one node.",
-    });
-    return { isValid: false, errors, warnings };
+    return { isValid: true, errors, warnings };
   }
 
   const nodesWithIncoming = new Set(edges.map((e) => e.target));

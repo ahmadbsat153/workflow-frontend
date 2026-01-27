@@ -43,12 +43,12 @@ const EditableTableField: React.FC<EditableTableFieldProps> = ({
     CellValidationError[]
   >([]);
 
-  // Only sync on initial mount - don't reset on every value change
+  // Sync with value prop when it changes (for preview updates)
   useEffect(() => {
-    if (value && !tableConfig) {
+    if (value) {
       setTableConfig(value);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [value]);
 
   // Validate a single cell
   const validateCell = (cell: TableCell): string | null => {
