@@ -104,6 +104,7 @@ const FieldSettingsSheet = ({
             maxFiles: field.validation?.maxFiles,
             maxFileSize: field.validation?.maxFileSize,
             allowedFileTypes: field.validation?.allowedFileTypes,
+            dateConstraint: field.validation?.dateConstraint || "any",
           },
           display: {
             showInTable: field.display?.showInTable ?? true,
@@ -115,6 +116,8 @@ const FieldSettingsSheet = ({
           options: field.options || [],
           tableConfig: field.tableConfig,
           submitterInfoConfig: field.submitterInfoConfig || { property: "fullName" },
+          dateSettings: field.dateSettings || { format: "YYYY-MM-DD" },
+          phoneSettings: field.phoneSettings || { country: "AU", allowAnyCountry: true },
         } as FormValues),
   });
 
@@ -160,6 +163,8 @@ const FieldSettingsSheet = ({
         autofill: inputValues.autofill,
         tableConfig: inputValues.tableConfig,
         submitterInfoConfig: inputValues.submitterInfoConfig,
+        dateSettings: inputValues.dateSettings,
+        phoneSettings: inputValues.phoneSettings,
       };
     }
 
@@ -244,15 +249,15 @@ const FieldSettingsSheet = ({
                 <Tabs defaultValue="table" className="mt-5">
                   <TabsList className="sticky top-0 z-10">
                     <TabsTrigger value="table" className="cursor-pointer">
-                      <Settings2 className="!size-4" />
+                      <Settings2 className="size-4!" />
                       Table Config
                     </TabsTrigger>
                     <TabsTrigger value="setting" className="cursor-pointer">
-                      <Settings2 className="!size-4" />
+                      <Settings2 className="size-4!" />
                       Settings
                     </TabsTrigger>
                     <TabsTrigger value="display" className="cursor-pointer">
-                      <EyeIcon className="!size-4" />
+                      <EyeIcon className="size-4!" />
                       Display
                     </TabsTrigger>
                   </TabsList>
@@ -292,7 +297,7 @@ const FieldSettingsSheet = ({
                 <Tabs defaultValue={"setting"} className="mt-5">
                   <TabsList className="sticky top-0 z-10">
                     <TabsTrigger value="setting" className="cursor-pointer">
-                      <Settings2 className="!size-4" />
+                      <Settings2 className="size-4!" />
                       Settings
                     </TabsTrigger>
 
@@ -305,7 +310,7 @@ const FieldSettingsSheet = ({
                         value="validation"
                         className="cursor-pointer"
                       >
-                        <SquareCheckBigIcon className="!size-4" />
+                        <SquareCheckBigIcon className="size-4!" />
                         Validation
                       </TabsTrigger>
                     )}
@@ -313,12 +318,12 @@ const FieldSettingsSheet = ({
                       field.type === FieldsType.CHECKBOX ||
                       field.type === FieldsType.RADIO) && (
                       <TabsTrigger value="options" className="cursor-pointer">
-                        <ListIcon className="!size-4" />
+                        <ListIcon className="size-4!" />
                         Options
                       </TabsTrigger>
                     )}
                     <TabsTrigger value="display" className="cursor-pointer">
-                      <EyeIcon className="!size-4" />
+                      <EyeIcon className="size-4!" />
                       Display
                     </TabsTrigger>
                   </TabsList>

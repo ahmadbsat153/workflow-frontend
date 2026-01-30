@@ -13,13 +13,14 @@ import { Badge } from "@/lib/ui/badge";
 import { Button } from "@/lib/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import { ConditionData } from "@/lib/types/workflow/workflow";
+import { SearchableSelect, SelectOption, SelectOptionGroup } from "@/lib/components/Common/SearchableSelect";
 
 interface ConditionBuilderProps {
   conditions: ConditionData[];
   onChange: (conditions: ConditionData[]) => void;
   conditionLogic?: "AND" | "OR";
   onLogicChange?: (logic: "AND" | "OR") => void;
-  availableFields?: string[];
+  availableFields?: SelectOption[] | SelectOptionGroup[];
 }
 
 const OPERATORS = [
@@ -36,6 +37,16 @@ const OPERATORS = [
   { value: "isEmpty", label: "Is Empty" },
   { value: "isNotEmpty", label: "Is Not Empty" },
 ];
+
+// Helper to check if options array has items (works for both flat and grouped)
+const hasOptions = (options: SelectOption[] | SelectOptionGroup[]): boolean => {
+  if (options.length === 0) return false;
+  // Check if it's grouped options
+  if ("options" in options[0]) {
+    return (options as SelectOptionGroup[]).some((group) => group.options.length > 0);
+  }
+  return true;
+};
 
 export const ConditionBuilder = ({
   conditions,
@@ -123,22 +134,15 @@ export const ConditionBuilder = ({
               {/* Field Selection */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">Field</label>
-                {availableFields.length > 0 ? (
-                  <Select
+                {hasOptions(availableFields) ? (
+                  <SearchableSelect
+                    options={availableFields}
                     value={condition.field}
-                    onValueChange={(value) => updateCondition(index, "field", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select field" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableFields.map((field) => (
-                        <SelectItem key={field} value={field}>
-                          {field}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    onChange={(value) => updateCondition(index, "field", value)}
+                    placeholder="Select field"
+                    searchPlaceholder="Search fields..."
+                    emptyMessage="No fields found"
+                  />
                 ) : (
                   <Input
                     placeholder="e.g., department"

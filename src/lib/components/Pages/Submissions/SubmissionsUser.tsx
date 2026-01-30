@@ -168,6 +168,7 @@ const SubmissionsUserTable = () => {
       return <div>{row.submittedBy?.email}</div>;
     },
     workflowStatus: (value, row) => {
+      console.log("Workflow Status:", value, row);
       if (!row.workflowStatus) {
         return (
           <span className="text-muted-foreground text-sm">No workflow</span>

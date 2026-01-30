@@ -121,7 +121,6 @@ export const WORKFLOW_HISTORY_VISIBLE_COL = [
 export const DEPARTMENT_COLUMNS = [
   { name: "id", uid: "_id", sortable: true },
   { name: "name", uid: "name", sortable: true },
-  { name: "code", uid: "code", sortable: true },
   { name: "description", uid: "description", sortable: false },
   { name: "parent", uid: "parent", sortable: false },
   { name: "status", uid: "isActive", sortable: true },
@@ -132,7 +131,6 @@ export const DEPARTMENT_COLUMNS = [
 
 export const DEPARTMENT_VISIBLE_COL = [
   "name",
-  "code",
   "description",
   "parent",
   "isActive",
@@ -144,7 +142,6 @@ export const DEPARTMENT_VISIBLE_COL = [
 export const POSITION_COLUMNS = [
   { name: "id", uid: "_id", sortable: true },
   { name: "name", uid: "name", sortable: true },
-  { name: "code", uid: "code", sortable: true },
   { name: "department", uid: "department", sortable: false },
   { name: "level", uid: "level", sortable: true },
   { name: "status", uid: "isActive", sortable: true },
@@ -155,7 +152,6 @@ export const POSITION_COLUMNS = [
 
 export const POSITION_VISIBLE_COL = [
   "name",
-  "code",
   "department",
   "level",
   "isActive",
@@ -167,7 +163,6 @@ export const POSITION_VISIBLE_COL = [
 export const BRANCH_COLUMNS = [
   { name: "id", uid: "_id", sortable: true },
   { name: "name", uid: "name", sortable: true },
-  { name: "code", uid: "code", sortable: true },
   { name: "department", uid: "department", sortable: false },
   { name: "city", uid: "city", sortable: true },
   { name: "country", uid: "country", sortable: true },
@@ -181,7 +176,6 @@ export const BRANCH_COLUMNS = [
 
 export const BRANCH_VISIBLE_COL = [
   "name",
-  "code",
   "department",
   "city",
   "country",
@@ -196,7 +190,6 @@ export const BRANCH_VISIBLE_COL = [
 export const ROLE_COLUMNS = [
   { name: "id", uid: "_id", sortable: true },
   { name: "name", uid: "name", sortable: true },
-  { name: "Code", uid: "code", sortable: true },
   { name: "Description", uid: "description", sortable: true },
   { name: "System Role", uid: "isSystemRole", sortable: false },
   { name: "Active", uid: "isActive", sortable: true },
@@ -206,7 +199,6 @@ export const ROLE_COLUMNS = [
 ];
 export const ROLE_VISIBLE_COL = [
   "name",
-  "code",
   "description",
   "isSystemRole",
   "isActive",

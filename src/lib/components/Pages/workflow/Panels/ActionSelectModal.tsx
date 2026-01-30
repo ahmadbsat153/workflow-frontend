@@ -10,7 +10,15 @@ import { Action } from "@/lib/types/actions/action";
 import { Loader2, Search } from "lucide-react";
 import * as Icons from "lucide-react";
 import { LucideIcon } from "lucide-react";
-import { AlertDialog, AlertDialogContent, AlertDialogDescription,AlertDialogHeader, AlertDialogTitle } from "@/lib/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/lib/ui/alert-dialog";
 import { ScrollArea } from "@/lib/ui/scroll-area";
 
 interface ActionSelectionModalProps {
@@ -73,13 +81,19 @@ export const ActionSelectionModal = ({
     if (searchQuery) {
       filtered = filtered.filter(
         (action) =>
-          action.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          action.actionDescription.toLowerCase().includes(searchQuery.toLowerCase())
+          action.displayName
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          action.actionDescription
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()),
       );
     }
 
     if (selectedCategory) {
-      filtered = filtered.filter((action) => action.category === selectedCategory);
+      filtered = filtered.filter(
+        (action) => action.category === selectedCategory,
+      );
     }
 
     setFilteredActions(filtered);
@@ -97,7 +111,7 @@ export const ActionSelectionModal = ({
 
   return (
     <AlertDialog open={open} onOpenChange={onClose}>
-      <AlertDialogContent className="max-w-3xl max-h-[80vh]">
+      <AlertDialogContent className="max-w-3xl">
         <AlertDialogHeader>
           <AlertDialogTitle>Select an Action</AlertDialogTitle>
           <AlertDialogDescription>
@@ -141,7 +155,7 @@ export const ActionSelectionModal = ({
         </div>
 
         {/* Actions List */}
-        <ScrollArea className="h-[400px] pr-4">
+        <ScrollArea className="pr-4">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -166,7 +180,9 @@ export const ActionSelectionModal = ({
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-semibold">{action.displayName}</h4>
+                          <h4 className="font-semibold">
+                            {action.displayName}
+                          </h4>
                           <Badge className={getCategoryColor(action.category)}>
                             {action.category}
                           </Badge>
@@ -175,7 +191,8 @@ export const ActionSelectionModal = ({
                           {action.actionDescription}
                         </p>
                         <div className="mt-2 text-xs text-muted-foreground">
-                          {action.configSchema.fields.length} configuration field
+                          {action.configSchema.fields.length} configuration
+                          field
                           {action.configSchema.fields.length !== 1 ? "s" : ""}
                         </div>
                       </div>
@@ -186,6 +203,10 @@ export const ActionSelectionModal = ({
             </div>
           )}
         </ScrollArea>
+
+        <AlertDialogFooter>
+          <AlertDialogCancel variant="default">Cancel</AlertDialogCancel>
+        </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );

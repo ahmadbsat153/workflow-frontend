@@ -1,4 +1,11 @@
-import { FieldsType, Field, SubmitterInfoProperty } from "@/lib/types/form/fields";
+import {
+  FieldsType,
+  Field,
+  SubmitterInfoProperty,
+  CountryCode,
+  DateFormat,
+  DateConstraint,
+} from "@/lib/types/form/fields";
 import type { EditableTableConfig } from "@/lib/types/form/editableTable";
 import {
   CalendarIcon,
@@ -23,6 +30,7 @@ import {
   MapPinIcon,
   TableIcon,
   UserIcon,
+  PhoneIcon,
 } from "lucide-react";
 
 // Helper functions to categorize field types
@@ -44,6 +52,7 @@ export const isInputField = (type: FieldsType): boolean => {
     FieldsType.NUMBER,
     FieldsType.EMAIL,
     FieldsType.DATE,
+    FieldsType.PHONE,
     FieldsType.SELECT,
     FieldsType.RADIO,
     FieldsType.CHECKBOX,
@@ -120,7 +129,23 @@ export const fieldConfigs: Record<FieldsType, Partial<Field>> = {
     placeholder: "Select date...",
     required: false,
     defaultValue: "",
+    validation: {
+      dateConstraint: "any" as DateConstraint,
+    },
+    dateSettings: {
+      format: "YYYY-MM-DD" as DateFormat,
+    },
+  },
+  [FieldsType.PHONE]: {
+    label: "Phone Number",
+    placeholder: "Enter phone number...",
+    required: false,
+    defaultValue: "",
     validation: {},
+    phoneSettings: {
+      country: "AU" as CountryCode,
+      allowAnyCountry: true,
+    },
   },
   [FieldsType.EMAIL]: {
     label: "Email Address",
@@ -320,7 +345,7 @@ export const getDisplayElementTypes = () =>
 // Helper to create a field from config
 export const createFieldFromType = (
   type: FieldsType,
-  overrides?: Partial<Field>
+  overrides?: Partial<Field>,
 ): Field => {
   const config = fieldConfigs[type];
 
@@ -354,6 +379,8 @@ export const createFieldFromType = (
     validation: config.validation || {},
     tableConfig: config.tableConfig,
     submitterInfoConfig: config.submitterInfoConfig,
+    dateSettings: config.dateSettings,
+    phoneSettings: config.phoneSettings,
   } as Field;
 };
 
@@ -374,6 +401,8 @@ export const getFieldTypeIcon = (type: FieldsType) => {
       return CircleDotIcon;
     case FieldsType.DATE:
       return CalendarIcon;
+    case FieldsType.PHONE:
+      return PhoneIcon;
     case FieldsType.EMAIL:
       return MailIcon;
     case FieldsType.SWITCH:
@@ -420,6 +449,7 @@ export const getFieldTypeLabel = (type: FieldsType): string => {
     [FieldsType.NUMBER]: "Number",
     [FieldsType.EMAIL]: "Email",
     [FieldsType.DATE]: "Date",
+    [FieldsType.PHONE]: "Phone",
     [FieldsType.SELECT]: "Select",
     [FieldsType.RADIO]: "Radio",
     [FieldsType.CHECKBOX]: "Checkbox",
@@ -469,10 +499,131 @@ export const submitterInfoPropertyOptions: {
 
 // Get label for submitter info property
 export const getSubmitterInfoPropertyLabel = (
-  property: SubmitterInfoProperty
+  property: SubmitterInfoProperty,
 ): string => {
   return (
     submitterInfoPropertyOptions.find((opt) => opt.value === property)?.label ||
     property
   );
 };
+
+// Date format options for dropdown
+export const dateFormatOptions: { value: DateFormat; label: string }[] = [
+  { value: "MM-DD-YYYY", label: "MM-DD-YYYY" },
+  { value: "DD-MM-YYYY", label: "DD-MM-YYYY" },
+  { value: "YYYY-MM-DD", label: "YYYY-MM-DD" },
+  { value: "MM/DD/YYYY", label: "MM/DD/YYYY" },
+  { value: "DD/MM/YYYY", label: "DD/MM/YYYY" },
+  { value: "YYYY/MM/DD", label: "YYYY/MM/DD" },
+];
+
+// Country code options for phone field
+export const countryCodeOptions: {
+  group: string;
+  countries: { value: string; label: string; dialCode: string }[];
+}[] = [
+  {
+    group: "Most Common",
+    countries: [
+      { value: "AU", label: "Australia", dialCode: "+61" },
+      { value: "LB", label: "Lebanon", dialCode: "+961" },
+    ],
+  },
+  {
+    group: "Asia",
+    countries: [
+      // Asia
+      { value: "IN", label: "India", dialCode: "+91" },
+      { value: "PK", label: "Pakistan", dialCode: "+92" },
+      { value: "BD", label: "Bangladesh", dialCode: "+880" },
+      { value: "CN", label: "China", dialCode: "+86" },
+      { value: "JP", label: "Japan", dialCode: "+81" },
+      { value: "KR", label: "South Korea", dialCode: "+82" },
+      { value: "TH", label: "Thailand", dialCode: "+66" },
+      { value: "VN", label: "Vietnam", dialCode: "+84" },
+      { value: "MY", label: "Malaysia", dialCode: "+60" },
+      { value: "SG", label: "Singapore", dialCode: "+65" },
+      { value: "PH", label: "Philippines", dialCode: "+63" },
+      { value: "ID", label: "Indonesia", dialCode: "+62" },
+    ],
+  },
+  {
+    group: "Americas",
+    countries: [
+      { value: "US", label: "United States", dialCode: "+1" },
+      { value: "CA", label: "Canada", dialCode: "+1" },
+      { value: "MX", label: "Mexico", dialCode: "+52" },
+      { value: "BR", label: "Brazil", dialCode: "+55" },
+      { value: "AR", label: "Argentina", dialCode: "+54" },
+      { value: "CL", label: "Chile", dialCode: "+56" },
+      { value: "CO", label: "Colombia", dialCode: "+57" },
+    ],
+  },
+  {
+    group: "Europe",
+    countries: [
+      // Europe
+      { value: "GB", label: "United Kingdom", dialCode: "+44" },
+      { value: "DE", label: "Germany", dialCode: "+49" },
+      { value: "FR", label: "France", dialCode: "+33" },
+      { value: "IT", label: "Italy", dialCode: "+39" },
+      { value: "ES", label: "Spain", dialCode: "+34" },
+      { value: "NL", label: "Netherlands", dialCode: "+31" },
+      { value: "BE", label: "Belgium", dialCode: "+32" },
+      { value: "CH", label: "Switzerland", dialCode: "+41" },
+      { value: "AT", label: "Austria", dialCode: "+43" },
+      { value: "SE", label: "Sweden", dialCode: "+46" },
+      { value: "NO", label: "Norway", dialCode: "+47" },
+      { value: "DK", label: "Denmark", dialCode: "+45" },
+      { value: "FI", label: "Finland", dialCode: "+358" },
+      { value: "PL", label: "Poland", dialCode: "+48" },
+      { value: "CZ", label: "Czech Republic", dialCode: "+420" },
+      { value: "PT", label: "Portugal", dialCode: "+351" },
+      { value: "GR", label: "Greece", dialCode: "+30" },
+      { value: "TR", label: "Turkey", dialCode: "+90" },
+      { value: "RU", label: "Russia", dialCode: "+7" },
+      { value: "UA", label: "Ukraine", dialCode: "+380" },
+    ],
+  },
+  {
+    group: "Africa",
+    countries: [
+      // Africa
+      { value: "ZA", label: "South Africa", dialCode: "+27" },
+      { value: "NG", label: "Nigeria", dialCode: "+234" },
+      { value: "KE", label: "Kenya", dialCode: "+254" },
+      { value: "GH", label: "Ghana", dialCode: "+233" },
+      // North Africa
+      { value: "LY", label: "Libya", dialCode: "+218" },
+      { value: "TN", label: "Tunisia", dialCode: "+216" },
+      { value: "DZ", label: "Algeria", dialCode: "+213" },
+      { value: "MA", label: "Morocco", dialCode: "+212" },
+      { value: "SD", label: "Sudan", dialCode: "+249" },
+    ],
+  },
+  {
+    group: "Middle East",
+    countries: [
+      // Middle East
+      { value: "AE", label: "United Arab Emirates", dialCode: "+971" },
+      { value: "SA", label: "Saudi Arabia", dialCode: "+966" },
+      { value: "EG", label: "Egypt", dialCode: "+20" },
+      { value: "JO", label: "Jordan", dialCode: "+962" },
+      { value: "KW", label: "Kuwait", dialCode: "+965" },
+      { value: "QA", label: "Qatar", dialCode: "+974" },
+      { value: "BH", label: "Bahrain", dialCode: "+973" },
+      { value: "OM", label: "Oman", dialCode: "+968" },
+      { value: "SY", label: "Syria", dialCode: "+963" },
+      { value: "IQ", label: "Iraq", dialCode: "+964" },
+      { value: "PS", label: "Palestine", dialCode: "+970" },
+      { value: "YE", label: "Yemen", dialCode: "+967" },
+    ],
+  },
+  {
+    group: "Oceania",
+    countries: [
+      // Oceania
+      { value: "NZ", label: "New Zealand", dialCode: "+64" },
+    ],
+  },
+];

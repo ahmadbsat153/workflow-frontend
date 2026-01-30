@@ -90,11 +90,15 @@ export type UserFieldValue = {
 
 /**
  * Configuration for approval actions.
- * Extends standard action config with notification receivers.
+ * Extends standard action config with notification receivers and path routing.
  */
 export type ApprovalActionConfig = {
   /** Standard action configuration values */
   [key: string]: unknown;
   /** Users who should be notified but cannot approve/reject */
   notificationReceivers?: NotificationReceivers;
+  /** Next step to execute when approval is granted */
+  onApproveNextStepTempId?: string | null;
+  /** Next step to execute when approval is rejected */
+  onRejectNextStepTempId?: string | null;
 };

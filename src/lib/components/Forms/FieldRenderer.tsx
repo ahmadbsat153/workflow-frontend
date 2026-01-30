@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Field, FieldsType } from "@/lib/types/form/fields";
+import { Field, FieldsType, CountryCode } from "@/lib/types/form/fields";
 import { Input } from "@/lib/ui/input";
 import { Textarea } from "@/lib/ui/textarea";
 import { Switch } from "@/lib/ui/switch";
@@ -16,6 +16,8 @@ import {
 import { Label } from "@/lib/ui/label";
 import EditableTableField from "./EditableTableField";
 import { EditableTableConfig } from "@/lib/types/form/editableTable";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 
 // Field value is intentionally broad as this component handles all field types
 // Each case in the switch handles the specific type appropriately
@@ -48,6 +50,7 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({
 }) => {
   const stringValue = toStringValue(value);
 
+  console.log(field.type, "field type in renderer");
   switch (field.type) {
     case FieldsType.TEXT:
       return (
@@ -98,6 +101,24 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({
           required={field.required}
           disabled={disabled}
         />
+      );
+
+    case FieldsType.PHONE:
+      console.log("Rendering phone input with country:", field.phoneSettings?.country);
+      return (
+        // <PhoneInput
+        //   international
+        //   countryCallingCodeEditable={false}
+        //   defaultCountry={field.phoneSettings?.country as CountryCode || "AU"}
+        //   value={stringValue}
+        //   onChange={(val) => onChange(val || "")}
+        //   disabled={disabled}
+        //   placeholder={field.placeholder}
+        //   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        // />
+        <div>
+          A phone number
+        </div>
       );
 
     case FieldsType.TEXT_AREA:
@@ -340,6 +361,18 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({
             ))}
           </SelectContent>
         </Select>
+      );
+
+    case FieldsType.SUBMITTER_INFO:
+      // This field is auto-filled from user profile, so it's read-only
+      return (
+        <Input
+          type="text"
+          value={stringValue}
+          readOnly
+          disabled
+          className="bg-muted"
+        />
       );
 
     default:

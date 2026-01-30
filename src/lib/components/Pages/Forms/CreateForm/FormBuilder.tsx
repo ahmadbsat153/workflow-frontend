@@ -61,7 +61,9 @@ const FormBuilder = () => {
   });
 
   // Track initial state for dirty detection
-  const initialStateRef = useRef<{ fields: string; formInfo: string } | null>(null);
+  const initialStateRef = useRef<{ fields: string; formInfo: string } | null>(
+    null,
+  );
   const isInitialLoadRef = useRef(true);
 
   // Get dirty state context (may be undefined if not wrapped in provider)
@@ -97,7 +99,11 @@ const FormBuilder = () => {
       // New form - set empty initial state
       initialStateRef.current = {
         fields: JSON.stringify([]),
-        formInfo: JSON.stringify({ title: "", description: "", isActive: true }),
+        formInfo: JSON.stringify({
+          title: "",
+          description: "",
+          isActive: true,
+        }),
       };
       setLoading(false);
       setTimeout(() => {
@@ -135,7 +141,11 @@ const FormBuilder = () => {
       // Set empty initial state on error
       initialStateRef.current = {
         fields: JSON.stringify([]),
-        formInfo: JSON.stringify({ title: "", description: "", isActive: true }),
+        formInfo: JSON.stringify({
+          title: "",
+          description: "",
+          isActive: true,
+        }),
       };
       isInitialLoadRef.current = false;
     } finally {
@@ -152,7 +162,7 @@ const FormBuilder = () => {
       activationConstraint: {
         distance: 8,
       },
-    })
+    }),
   );
 
   // Custom collision detection - prioritize drop zone when dragging from sidebar
@@ -400,9 +410,11 @@ const FormBuilder = () => {
     const isDisplay = isDisplayElement(field.type);
 
     // Remove undefined and empty string values
-    const removeEmpty = <T extends Record<string, unknown>>(obj: T): Partial<T> => {
+    const removeEmpty = <T extends Record<string, unknown>>(
+      obj: T,
+    ): Partial<T> => {
       return Object.fromEntries(
-        Object.entries(obj).filter(([, v]) => v !== undefined && v !== "")
+        Object.entries(obj).filter(([, v]) => v !== undefined && v !== ""),
       ) as Partial<T>;
     };
 
@@ -443,7 +455,6 @@ const FormBuilder = () => {
         required: field.required ?? false,
         order: field.order,
         style: field.style,
-        
       };
 
       // Only add _id if it exists (for updates)
@@ -482,6 +493,10 @@ const FormBuilder = () => {
       // Add tableConfig for TABLE field type
       if (field.tableConfig) {
         cleanField.tableConfig = field.tableConfig;
+      }
+
+      if (field.phoneSettings) {
+        cleanField.phoneSettings = field.phoneSettings;
       }
 
       // Add style if it exists

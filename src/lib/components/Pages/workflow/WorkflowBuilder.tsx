@@ -709,6 +709,30 @@ const WorkflowBuilderInner = () => {
         : null;
 
       if (node.type === "action") {
+        // Check if this is an approval node
+        const isApprovalNode = node.data.action?.category === "approval";
+
+        let config = { ...node.data.config };
+
+        if (isApprovalNode) {
+          // Find approve and reject edges by their sourceHandle
+          const approveEdge = outgoingEdges.find((e) => e.sourceHandle === "approve");
+          const rejectEdge = outgoingEdges.find((e) => e.sourceHandle === "reject");
+
+          const approveTargetNode = approveEdge
+            ? nodes.find((n) => n.id === approveEdge.target)
+            : null;
+          const rejectTargetNode = rejectEdge
+            ? nodes.find((n) => n.id === rejectEdge.target)
+            : null;
+
+          config = {
+            ...config,
+            onApproveNextStepTempId: approveTargetNode?.data.tempId || null,
+            onRejectNextStepTempId: rejectTargetNode?.data.tempId || null,
+          };
+        }
+
         steps.push({
           tempId: node.data.tempId,
           stepName: node.data.stepName,
@@ -716,8 +740,9 @@ const WorkflowBuilderInner = () => {
           actionId: node.data.actionId ?? null,
           conditions: [],
           conditionLogic: "AND",
-          config: node.data.config,
-          nextStepTempId: nextStepTempId ?? null,
+          config,
+          // For approval nodes, nextStepTempId is null since we use the approve/reject paths
+          nextStepTempId: isApprovalNode ? null : (nextStepTempId ?? null),
         });
       } else if (node.type === "branch") {
         const branches = node.data.branches?.map((branch, idx) => {

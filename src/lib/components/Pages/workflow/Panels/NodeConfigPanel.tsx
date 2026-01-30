@@ -18,7 +18,7 @@ import { Button } from "@/lib/ui/button";
 import { Separator } from "@/lib/ui/separator";
 import { ScrollArea } from "@/lib/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/lib/ui/tabs";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { FieldTemplate } from "@/lib/types/form/form";
 import { API_FORM } from "@/lib/services/Form/form_service";
 import { BranchConfigForm } from "../Forms/BranchConfigForm";
@@ -30,6 +30,7 @@ import {
 } from "../Forms/DynamicConfigForm";
 import { NotificationReceiversInput } from "../Forms/NotificationReceiversInput";
 import { NotificationReceivers } from "@/lib/types/actions/action";
+import { SelectOption, SelectOptionGroup } from "@/lib/components/Common/SearchableSelect";
 
 type NodeConfigPanelProps = {
   node: WorkflowNode | null;
@@ -96,6 +97,56 @@ export const NodeConfigPanel = ({
 
   const isApprovalAction =
     node?.type === "action" && node?.data.action?.category === "approval";
+
+  // Compute available fields for branch conditions from templates + user org fields
+  const branchAvailableFields = useMemo((): SelectOptionGroup[] => {
+    // Dynamic form fields from templates (with labels)
+    const formFields: SelectOption[] = availableTemplates.map((template) => ({
+      label: template.label,
+      value: template.name,
+      description: template.type,
+    }));
+
+    // Static user organizational fields grouped by category
+    const submitterFields: SelectOption[] = [
+      { label: "Email", value: "submittedBy.email" },
+      { label: "Name", value: "submittedBy.name" },
+    ];
+
+    const departmentFields: SelectOption[] = [
+      { label: "Department Name", value: "user.department.name" },
+      { label: "Department Code", value: "user.department.code" },
+    ];
+
+    const positionFields: SelectOption[] = [
+      { label: "Position Name", value: "user.position.name" },
+      { label: "Position Code", value: "user.position.code" },
+      { label: "Position Level", value: "user.position.level" },
+    ];
+
+    const branchFields: SelectOption[] = [
+      { label: "Branch Name", value: "user.branch.name" },
+      { label: "Branch Code", value: "user.branch.code" },
+      { label: "Branch City", value: "user.branch.location.city" },
+      { label: "Branch Country", value: "user.branch.location.country" },
+    ];
+
+    const groups: SelectOptionGroup[] = [];
+
+    // Only add Form Fields group if there are form fields
+    if (formFields.length > 0) {
+      groups.push({ label: "Form Fields", options: formFields });
+    }
+
+    groups.push(
+      { label: "Submitter Info", options: submitterFields },
+      { label: "Department", options: departmentFields },
+      { label: "Position", options: positionFields },
+      { label: "Branch", options: branchFields }
+    );
+
+    return groups;
+  }, [availableTemplates]);
 
   const handleConfigSubmit = useCallback((config: ConfigRecord) => {
     if (!node) return;
@@ -307,27 +358,7 @@ export const NodeConfigPanel = ({
               <BranchConfigForm
                 branches={node.data.branches || []}
                 onChange={handleBranchesChange}
-                availableFields={[
-                  // Form fields
-                  "department",
-                  "leaveType",
-                  "status",
-
-                  // Submitter fields
-                  "submittedBy.email",
-                  "submittedBy.name",
-
-                  // User organizational fields
-                  "user.department.name",
-                  "user.department.code",
-                  "user.position.name",
-                  "user.position.code",
-                  "user.position.level",
-                  "user.branch.name",
-                  "user.branch.code",
-                  "user.branch.location.city",
-                  "user.branch.location.country",
-                ]}
+                availableFields={branchAvailableFields}
               />
             </div>
           )}

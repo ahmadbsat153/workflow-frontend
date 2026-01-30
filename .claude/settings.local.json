@@ -10,7 +10,8 @@
       "Bash(findstr:*)",
       "Bash(timeout 20 npm run dev:*)",
       "Bash(ls:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(pnpm add:*)"
     ]
   }
 }

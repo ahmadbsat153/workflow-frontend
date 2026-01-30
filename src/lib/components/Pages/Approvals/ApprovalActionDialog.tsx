@@ -9,10 +9,19 @@ import { Label } from "@/lib/ui/label";
 import { Badge } from "@/lib/ui/badge";
 import { CheckCircle2, XCircle, Loader2, AlertCircle } from "lucide-react";
 import { MyApproval } from "@/lib/types/approval";
-import { formatDatesWithYear } from "@/utils/common";
+import { build_path, formatDatesWithYear } from "@/utils/common";
 import { handleServerError } from "@/lib/api/_axios";
 import { ErrorResponse } from "@/lib/types/common";
-import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/lib/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/lib/ui/alert-dialog";
+import { useRouter } from "next/navigation";
+import { getUrl, URLs } from "@/lib/constants/urls";
 
 type ApprovalActionDialogProps = {
   approval: MyApproval | null;
@@ -27,6 +36,7 @@ export function ApprovalActionDialog({
   onOpenChange,
   action,
 }: ApprovalActionDialogProps) {
+  const router = useRouter();
   const [comments, setComments] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -48,8 +58,7 @@ export function ApprovalActionDialog({
 
       toast.info("Redirecting to approval page...");
 
-      // For now, redirect to submission details where they can approve/reject
-      window.location.href = `/admin/submissions/view/${approval.submissionId}`;
+      router.push(getUrl(build_path(URLs.admin.submissions.view, { id: approval.submissionId })));
 
     } catch (error) {
       handleServerError(error as ErrorResponse, (err_msg) => {
@@ -75,7 +84,7 @@ export function ApprovalActionDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={handleClose}>
-      <AlertDialogContent className="sm:max-w-[600px]">
+      <AlertDialogContent className="sm:max-w-150">
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             {isApprove ? (
@@ -101,8 +110,8 @@ export function ApprovalActionDialog({
                   approval.overallApprovalStatus === "Pending"
                     ? "secondary"
                     : approval.overallApprovalStatus === "Approved"
-                    ? "default"
-                    : "destructive"
+                      ? "default"
+                      : "destructive"
                 }
               >
                 {approval.overallApprovalStatus}
@@ -112,7 +121,9 @@ export function ApprovalActionDialog({
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <p className="text-sm text-muted-foreground">Submitted By</p>
-                <p className="font-medium text-sm">{approval.submittedBy.name}</p>
+                <p className="font-medium text-sm">
+                  {approval.submittedBy.name}
+                </p>
                 <p className="text-xs text-muted-foreground">
                   {approval.submittedBy.email}
                 </p>
@@ -129,8 +140,8 @@ export function ApprovalActionDialog({
               <p className="text-sm text-muted-foreground">Current Stage</p>
               <p className="font-medium text-sm">{approval.stage.stageName}</p>
               <p className="text-xs text-muted-foreground">
-                {approval.stage.currentApprovals} of {approval.stage.requiredApprovals}{" "}
-                approvals received
+                {approval.stage.currentApprovals} of{" "}
+                {approval.stage.requiredApprovals} approvals received
               </p>
             </div>
           </div>
@@ -163,23 +174,25 @@ export function ApprovalActionDialog({
           <div className="flex items-start gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
             <AlertCircle className="h-4 w-4 text-yellow-600 mt-0.5" />
             <p className="text-sm text-yellow-800">
-              This action cannot be undone. Your decision will be recorded and may
-              affect the workflow status.
+              This action cannot be undone. Your decision will be recorded and
+              may affect the workflow status.
             </p>
           </div>
         </div>
 
         <AlertDialogFooter>
-          <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
+          <Button
+            variant="outline"
+            onClick={handleClose}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={isSubmitting || (!isApprove && !comments.trim())}
             variant={isApprove ? "default" : "destructive"}
-            className={
-              isApprove ? "bg-green-600 hover:bg-green-700" : ""
-            }
+            className={isApprove ? "bg-green-600 hover:bg-green-700" : ""}
           >
             {isSubmitting ? (
               <>

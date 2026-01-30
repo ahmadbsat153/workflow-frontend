@@ -115,7 +115,7 @@ const FormsSubmissionsTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [searchParams, query, form_slug]);
+  }, [query, form_slug]);
 
   useEffect(() => {
     getForms();

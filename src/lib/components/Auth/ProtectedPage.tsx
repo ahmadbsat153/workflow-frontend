@@ -48,7 +48,7 @@ export const ProtectedPage = ({
   permission,
   requireAll = false,
   children,
-  redirectTo = URLs.admin.dashboard,
+  redirectTo = URLs.app.dashboard,
 }: ProtectedPageProps) => {
   const router = useRouter();
   const { hasPermission, hasAllPermissions, hasAnyPermission } = usePermissions();

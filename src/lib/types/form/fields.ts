@@ -9,6 +9,7 @@ export enum FieldsType {
   EMAIL = "email",
   NUMBER = "number",
   DATE = "date",
+  PHONE = "phone",
   SELECT = "select",
   RADIO = "radio",
   CHECKBOX = "checkbox",
@@ -69,20 +70,113 @@ export type Field = {
   autofill?: boolean; // For organizational fields (department, position, branch)
   tableConfig?: EditableTableConfig; // For table fields
   submitterInfoConfig?: SubmitterInfoConfig; // For submitterInfo fields
+  dateSettings?: DateSettings; // For date fields
+  phoneSettings?: PhoneSettings; // For phone fields
+};
+
+export type DateFormat =
+  | "MM-DD-YYYY"
+  | "DD-MM-YYYY"
+  | "YYYY-MM-DD"
+  | "MM/DD/YYYY"
+  | "DD/MM/YYYY"
+  | "YYYY/MM/DD";
+
+export type DateConstraint =
+  | "any"
+  | "today"
+  | "beforeToday"
+  | "afterToday"
+  | "todayOrBefore"
+  | "todayOrAfter";
+
+export type DateSettings = {
+  format: DateFormat;
+};
+
+export type CountryCode =
+  | "US"
+  | "GB"
+  | "AE"
+  | "SA"
+  | "EG"
+  | "JO"
+  | "KW"
+  | "QA"
+  | "BH"
+  | "OM"
+  | "LB"
+  | "SY"
+  | "IQ"
+  | "PS"
+  | "YE"
+  | "LY"
+  | "TN"
+  | "DZ"
+  | "MA"
+  | "SD"
+  | "IN"
+  | "PK"
+  | "BD"
+  | "DE"
+  | "FR"
+  | "IT"
+  | "ES"
+  | "NL"
+  | "BE"
+  | "CH"
+  | "AT"
+  | "SE"
+  | "NO"
+  | "DK"
+  | "FI"
+  | "PL"
+  | "CZ"
+  | "PT"
+  | "GR"
+  | "TR"
+  | "RU"
+  | "UA"
+  | "CN"
+  | "JP"
+  | "KR"
+  | "AU"
+  | "NZ"
+  | "CA"
+  | "MX"
+  | "BR"
+  | "AR"
+  | "CL"
+  | "CO"
+  | "ZA"
+  | "NG"
+  | "KE"
+  | "GH"
+  | "TH"
+  | "VN"
+  | "MY"
+  | "SG"
+  | "PH"
+  | "ID";
+
+export type PhoneSettings = {
+  country: CountryCode;
+  allowAnyCountry: boolean;
 };
 
 export type FormFieldValidation = {
   minLength?: number;
   maxLength?: number;
   pattern?: string;
-  min?: number;
-  max?: number;
+  min?: number | string;
+  max?: number | string;
   minSelections?: number;
   maxSelections?: number;
   minFiles?: number;
   maxFiles?: number;
   allowedFileTypes?: string[];
   maxFileSize?: number;
+  dateConstraint?: DateConstraint;
 };
 
 export type FormFieldOption = {

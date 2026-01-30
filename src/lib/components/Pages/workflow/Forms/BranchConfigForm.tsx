@@ -12,11 +12,12 @@ import { Button } from "@/lib/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import { ConditionBuilder } from "./ConditionBuilder";
 import { BranchData } from "@/lib/types/workflow/workflow";
+import { SelectOption, SelectOptionGroup } from "@/lib/components/Common/SearchableSelect";
 
 interface BranchConfigFormProps {
   branches: BranchData[];
   onChange: (branches: BranchData[]) => void;
-  availableFields?: string[];
+  availableFields?: SelectOption[] | SelectOptionGroup[];
 }
 
 export const BranchConfigForm = ({

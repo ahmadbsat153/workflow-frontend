@@ -6,7 +6,7 @@ import { PERMISSIONS } from "@/lib/constants/permissions";
 const page = () => {
   return (
     <ProtectedPage permission={PERMISSIONS.SUBMISSIONS.VIEW}>
-      <PageContainer className="bg-cultured !py-2">
+      <PageContainer className="bg-cultured py-2!">
         <SubmissionDetails />
       </PageContainer>
     </ProtectedPage>

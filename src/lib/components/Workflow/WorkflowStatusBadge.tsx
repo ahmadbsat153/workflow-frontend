@@ -59,11 +59,11 @@ const statusConfig: Record<
     icon: <XCircle className="h-3 w-3" />,
   },
   no_workflow: {
-    label: "Rejected",
-    color: "text-red-700",
-    bgColor: "bg-red-50",
-    borderColor: "border-red-200",
-    icon: <XCircle className="h-3 w-3" />,
+    label: "",
+    color: "",
+    bgColor: "",
+    borderColor: "",
+    icon: null,
   },
 };
 
@@ -75,7 +75,7 @@ export function WorkflowStatusBadge({
 
   return (
     <Badge
-      variant="outline"
+      variant={status === "no_workflow" ? "ghost" : "outline"}
       className={`${config.color} ${config.bgColor} ${config.borderColor} ${className}`}
     >
       {config.icon}

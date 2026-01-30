@@ -18,6 +18,8 @@ import { ChevronLeftIcon, InfoIcon } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/lib/ui/tooltip";
 import { WorkflowStatus } from "@/lib/types/approval";
 import { WorkflowStatusBadge } from "../../Workflow/WorkflowStatusBadge";
+import BackButton from "../../Common/BackButton";
+import { URLs } from "@/lib/constants/urls";
 
 export type SubmissionData = {
   [key: string]: string;
@@ -56,11 +58,11 @@ const SubmissionDisplay = ({
   console.log(workflowStatus);
 
   return (
-    <PageContainer className="bg-cultured !p-0 flex justify-center overflow-hidden">
+    <PageContainer className="bg-cultured p-0! flex justify-center overflow-hidden">
       <div className="w-full max-w-3xl flex items-center">
         <Card className="w-full flex flex-col max-h-[90vh]">
           {/* Header Section */}
-          <CardHeader className="flex-shrink-0">
+          <CardHeader className="shrink-0">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <CardTitle>{formName}</CardTitle>
@@ -146,16 +148,9 @@ const SubmissionDisplay = ({
             </div>
           </CardContent>
 
-          <CardFooter className="border-t flex-shrink-0">
+          <CardFooter className="border-t shrink-0">
             <div className="w-full flex justify-end">
-              <Button
-                type="reset"
-                variant="secondary"
-                className="mr-3"
-                onClick={() => router.back()}
-              >
-                <ChevronLeftIcon /> Go Back
-              </Button>
+              <BackButton text="Go Back" fallbackUrl={URLs.admin.forms.index}/>
             </div>
           </CardFooter>
         </Card>

@@ -161,14 +161,14 @@ export const buildValidationSchema = (fields: Field[]) => {
       case FieldsType.NUMBER:
         let numberSchema = z.coerce.number();
 
-        if (field.validation?.min !== undefined) {
+        if (field.validation?.min !== undefined && typeof field.validation.min === "number") {
           numberSchema = numberSchema.min(
             field.validation.min,
             `${field.label} must be at least ${field.validation.min}`
           );
         }
 
-        if (field.validation?.max !== undefined) {
+        if (field.validation?.max !== undefined && typeof field.validation.max === "number") {
           numberSchema = numberSchema.max(
             field.validation.max,
             `${field.label} must be at most ${field.validation.max}`
@@ -653,10 +653,14 @@ export const buildFieldSettingsSchema = (field: Field) => {
       case FieldsType.DATE:
         return z
           .object({
+            dateConstraint: z.enum(["any", "today", "beforeToday", "afterToday", "todayOrBefore", "todayOrAfter"]).optional(),
             min: z.string().optional(),
             max: z.string().optional(),
           })
           .optional();
+
+      case FieldsType.PHONE:
+        return z.object({}).optional();
 
       case FieldsType.FILE:
         return z
@@ -732,6 +736,27 @@ export const buildFieldSettingsSchema = (field: Field) => {
           "manager",
         ]),
       }),
+    });
+  }
+
+  // Special handling for DATE field type
+  if (field.type === FieldsType.DATE) {
+    return z.object({
+      ...schemaObject,
+      dateSettings: z.object({
+        format: z.enum(["MM-DD-YYYY", "DD-MM-YYYY", "YYYY-MM-DD", "MM/DD/YYYY", "DD/MM/YYYY", "YYYY/MM/DD"]),
+      }).optional(),
+    });
+  }
+
+  // Special handling for PHONE field type
+  if (field.type === FieldsType.PHONE) {
+    return z.object({
+      ...schemaObject,
+      phoneSettings: z.object({
+        country: z.string(),
+        allowAnyCountry: z.boolean(),
+      }).optional(),
     });
   }
 

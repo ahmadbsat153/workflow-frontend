@@ -48,6 +48,20 @@ export const VALIDATION_FIELD_CONFIGS = {
     placeholder: "",
     description: "Latest selectable date",
   },
+  dateConstraint: {
+    label: "Date Constraint",
+    type: "select",
+    placeholder: "Select constraint",
+    description: "Restrict which dates can be selected",
+    options: [
+      { label: "Any Date", value: "any" },
+      { label: "Today Only", value: "today" },
+      { label: "Before Today", value: "beforeToday" },
+      { label: "After Today", value: "afterToday" },
+      { label: "Today or Before", value: "todayOrBefore" },
+      { label: "Today or After", value: "todayOrAfter" },
+    ],
+  },
   minSelections: {
     label: "Minimum Selections",
     type: "number",
@@ -145,6 +159,10 @@ export const getValidationFieldsForType = (fieldType: FieldsType) => {
     case FieldsType.DATE:
       return [
         {
+          name: "validation.dateConstraint" as const,
+          ...VALIDATION_FIELD_CONFIGS.dateConstraint,
+        },
+        {
           name: "validation.min" as const,
           ...VALIDATION_FIELD_CONFIGS.minDate,
         },
@@ -153,6 +171,9 @@ export const getValidationFieldsForType = (fieldType: FieldsType) => {
           ...VALIDATION_FIELD_CONFIGS.maxDate,
         },
       ];
+
+    case FieldsType.PHONE:
+      return [];
 
     case FieldsType.CHECKBOX:
       return ["minSelections", "maxSelections"].map((key) => ({

@@ -22,6 +22,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/lib/ui/button";
 import { Badge } from "@/lib/ui/badge";
 import { URLs } from "@/lib/constants/urls";
+import { usePermissions } from "@/lib/hooks/usePermissions";
+import { PERMISSIONS } from "@/lib/constants/permissions";
 
 const searchParams = {
   page: parseAsInteger,
@@ -32,6 +34,8 @@ const searchParams = {
 };
 
 const BranchesTable = () => {
+  const { hasPermission } = usePermissions();
+
   const [branches, setBranches] = useState<BranchTable>({
     data: [],
     meta: INITIAL_META,
@@ -45,7 +49,7 @@ const BranchesTable = () => {
       sortField: parseAsString.withDefault("createdAt"),
       sortOrder: parseAsString.withDefault("asc"),
     },
-    { history: "push" }
+    { history: "push" },
   );
 
   const router = useRouter();
@@ -54,7 +58,7 @@ const BranchesTable = () => {
 
   const headerColumns = useMemo(() => {
     return BRANCH_COLUMNS.filter((column) =>
-      Array.from(visibleColumns as unknown as Set<string>).includes(column.uid)
+      Array.from(visibleColumns as unknown as Set<string>).includes(column.uid),
     );
   }, [visibleColumns]);
 
@@ -83,21 +87,21 @@ const BranchesTable = () => {
     (page: number) => {
       setQuery({ page });
     },
-    [setQuery]
+    [setQuery],
   );
 
   const handlePageSizeChange = useCallback(
     (size: number) => {
       setQuery({ limit: size, page: 1 });
     },
-    [setQuery]
+    [setQuery],
   );
 
   const handleSearch = useCallback(
     (search: string) => {
       setQuery({ search: search || null, page: 1 });
     },
-    [setQuery]
+    [setQuery],
   );
 
   const handleSort = useCallback(
@@ -108,7 +112,7 @@ const BranchesTable = () => {
         page: 1,
       });
     },
-    [setQuery]
+    [setQuery],
   );
 
   const cellRenderers: Partial<Record<string, CellRenderer<Branch>>> = {
@@ -148,28 +152,34 @@ const BranchesTable = () => {
         {value ? "Active" : "Inactive"}
       </Badge>
     ),
-    actions: (value, row) => (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() =>
-          router.push(`${URLs.admin.branches.edit.replace(":id", row._id)}`)
-        }
-      >
-        <PencilIcon className="size-4 text-blue-500" />
-      </Button>
-    ),
+    ...(hasPermission(PERMISSIONS.BRANCHES.EDIT) && {
+      actions: (value, row) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() =>
+            router.push(`${URLs.admin.branches.edit.replace(":id", row._id)}`)
+          }
+        >
+          <PencilIcon className="size-4 text-blue-500" />
+        </Button>
+      ),
+    }),
   };
 
   const additionalButtons: AdditionalButton[] = [
-    {
-      label: "Add Branch",
-      icon: PlusIcon,
-      style: "bg-primary text-primary-foreground hover:bg-primary/60",
-      onClick: () => {
-        router.push(URLs.admin.branches.create);
-      },
-    },
+    ...(hasPermission(PERMISSIONS.BRANCHES.CREATE)
+      ? [
+          {
+            label: "Add Branch",
+            icon: PlusIcon,
+            style: "bg-primary text-primary-foreground hover:bg-primary/60",
+            onClick: () => {
+              router.push(URLs.admin.branches.create);
+            },
+          },
+        ]
+      : []),
   ];
 
   return (

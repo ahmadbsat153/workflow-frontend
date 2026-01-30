@@ -6,22 +6,6 @@ import {
   parseAsString,
   useQueryStates,
 } from "nuqs";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { PencilIcon, PlusIcon } from "lucide-react";
-import { DataTable } from "../../Table/DataTable";
-import { ErrorResponse } from "@/lib/types/common";
-import { formatDatesWithYear } from "@/utils/common";
-import { handleServerError } from "@/lib/api/_axios";
-import { INITIAL_META } from "@/lib/constants/initials";
-import { Position, PositionTable } from "@/lib/types/position/position";
-import { API_POSITION } from "@/lib/services/Position/position_service";
-import { API_DEPARTMENT } from "@/lib/services/Department/department_service";
-import { POSITION_COLUMNS, POSITION_VISIBLE_COL } from "@/lib/constants/tables";
-import { CellRenderer, AdditionalButton } from "@/lib/types/table/table_data";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Button } from "@/lib/ui/button";
-import { Badge } from "@/lib/ui/badge";
 import {
   Select,
   SelectContent,
@@ -29,8 +13,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/lib/ui/select";
-import { DepartmentOption } from "@/lib/types/department/department";
+import { toast } from "sonner";
+import { Badge } from "@/lib/ui/badge";
+import { Button } from "@/lib/ui/button";
+import { useRouter } from "next/navigation";
 import { URLs } from "@/lib/constants/urls";
+import { DataTable } from "../../Table/DataTable";
+import { ErrorResponse } from "@/lib/types/common";
+import { PencilIcon, PlusIcon } from "lucide-react";
+import { formatDatesWithYear } from "@/utils/common";
+import { handleServerError } from "@/lib/api/_axios";
+import { INITIAL_META } from "@/lib/constants/initials";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { DepartmentOption } from "@/lib/types/department/department";
+import { Position, PositionTable } from "@/lib/types/position/position";
+import { API_POSITION } from "@/lib/services/Position/position_service";
+import { API_DEPARTMENT } from "@/lib/services/Department/department_service";
+import { CellRenderer, AdditionalButton } from "@/lib/types/table/table_data";
+import { POSITION_COLUMNS, POSITION_VISIBLE_COL } from "@/lib/constants/tables";
+import { usePermissions } from "@/lib/hooks/usePermissions";
+import { PERMISSIONS } from "@/lib/constants/permissions";
 
 const searchParams = {
   page: parseAsInteger,
@@ -42,6 +44,8 @@ const searchParams = {
 };
 
 const PositionsTable = () => {
+  const { hasPermission } = usePermissions();
+
   const [positions, setPositions] = useState<PositionTable>({
     data: [],
     meta: INITIAL_META,
@@ -58,7 +62,7 @@ const PositionsTable = () => {
       sortOrder: parseAsString.withDefault("asc"),
       departmentId: parseAsString,
     },
-    { history: "push" }
+    { history: "push" },
   );
 
   const router = useRouter();
@@ -67,7 +71,7 @@ const PositionsTable = () => {
 
   const headerColumns = useMemo(() => {
     return POSITION_COLUMNS.filter((column) =>
-      Array.from(visibleColumns as unknown as Set<string>).includes(column.uid)
+      Array.from(visibleColumns as unknown as Set<string>).includes(column.uid),
     );
   }, [visibleColumns]);
 
@@ -111,21 +115,21 @@ const PositionsTable = () => {
     (page: number) => {
       setQuery({ page });
     },
-    [setQuery]
+    [setQuery],
   );
 
   const handlePageSizeChange = useCallback(
     (size: number) => {
       setQuery({ limit: size, page: 1 });
     },
-    [setQuery]
+    [setQuery],
   );
 
   const handleSearch = useCallback(
     (search: string) => {
       setQuery({ search: search || null, page: 1 });
     },
-    [setQuery]
+    [setQuery],
   );
 
   const handleSort = useCallback(
@@ -136,7 +140,7 @@ const PositionsTable = () => {
         page: 1,
       });
     },
-    [setQuery]
+    [setQuery],
   );
 
   const handleDepartmentFilter = (value: string) => {
@@ -172,28 +176,35 @@ const PositionsTable = () => {
         {value ? "Active" : "Inactive"}
       </Badge>
     ),
-    actions: (value, row) => (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() =>
-          router.push(`${URLs.admin.positions.edit.replace(":id", row._id)}`)
-        }
-      >
-        <PencilIcon className="size-4 text-blue-500" />
-      </Button>
-    ),
+
+    ...(hasPermission(PERMISSIONS.POSITIONS.EDIT) && {
+      actions: (value, row) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() =>
+            router.push(`${URLs.admin.positions.edit.replace(":id", row._id)}`)
+          }
+        >
+          <PencilIcon className="size-4 text-blue-500" />
+        </Button>
+      ),
+    }),
   };
 
   const additionalButtons: AdditionalButton[] = [
-    {
-      label: "Add Position",
-      icon: PlusIcon,
-      style: "bg-primary text-primary-foreground hover:bg-primary/60",
-      onClick: () => {
-        router.push(URLs.admin.positions.create);
-      },
-    },
+    ...(hasPermission(PERMISSIONS.POSITIONS.CREATE)
+      ? [
+          {
+            label: "Add Position",
+            icon: PlusIcon,
+            style: "bg-primary text-primary-foreground hover:bg-primary/60",
+            onClick: () => {
+              router.push(URLs.admin.positions.create);
+            },
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -205,7 +216,7 @@ const PositionsTable = () => {
           value={query.departmentId || "all"}
           onValueChange={handleDepartmentFilter}
         >
-          <SelectTrigger className="w-[250px]">
+          <SelectTrigger className="w-62.5">
             <SelectValue placeholder="All Departments" />
           </SelectTrigger>
           <SelectContent>

@@ -8,8 +8,15 @@ import {
   FormLabel,
   FormMessage,
 } from "@/lib/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/lib/ui/select";
 import { Input } from "@/lib/ui/input";
-import { Field } from "@/lib/types/form/fields";
+import { Field, FieldsType } from "@/lib/types/form/fields";
 import { FileTypeMultiSelect } from "./FileTypeMultiSelect";
 import { UseFormReturn } from "react-hook-form";
 import { getValidationFieldsForType } from "@/utils/Form/ValidationFeildsConfig";
@@ -23,6 +30,7 @@ type Props = {
 
 const FieldValidation = ({ field, form, loading }: Props) => {
   const validationFields = getValidationFieldsForType(field.type);
+  const dateConstraint = form.watch("validation.dateConstraint");
 
   return (
     <div className="flex-1 space-y-4">
@@ -31,6 +39,17 @@ const FieldValidation = ({ field, form, loading }: Props) => {
           <h3 className="text-lg font-semibold">Validation Rules</h3>
 
           {validationFields.map((validationField) => {
+            // Hide min/max date fields when dateConstraint is not "any"
+            if (
+              field.type === FieldsType.DATE &&
+              (validationField.name === "validation.min" ||
+                validationField.name === "validation.max") &&
+              dateConstraint &&
+              dateConstraint !== "any"
+            ) {
+              return null;
+            }
+
             // Handle multi-select for allowedFileTypes
             if (validationField.name === "validation.allowedFileTypes") {
               return (
@@ -48,6 +67,46 @@ const FieldValidation = ({ field, form, loading }: Props) => {
                           disabled={loading}
                         />
                       </FormControl>
+                      {validationField.description && (
+                        <FormDescription>
+                          {validationField.description}
+                        </FormDescription>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              );
+            }
+
+            // Handle select type for dateConstraint
+            if (validationField.type === "select" && "options" in validationField) {
+              return (
+                <FormField
+                  key={validationField.name}
+                  control={form.control}
+                  name={validationField.name}
+                  render={({ field: formField }) => (
+                    <FormItem>
+                      <FormLabel>{validationField.label}</FormLabel>
+                      <Select
+                        onValueChange={formField.onChange}
+                        value={formField.value || "any"}
+                        disabled={loading}
+                      >
+                        <FormControl className="w-full">
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder={validationField.placeholder} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {validationField.options.map((option: { label: string; value: string }) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       {validationField.description && (
                         <FormDescription>
                           {validationField.description}

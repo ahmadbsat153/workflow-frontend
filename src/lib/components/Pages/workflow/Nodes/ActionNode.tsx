@@ -68,6 +68,7 @@ export const ActionNode = ({ data, selected }: NodeProps<WorkflowNodeData>) => {
   const colors = getCategoryColor(data.action?.category);
 
   const isConfigured = data.actionId && Object.keys(data.config).length > 0;
+  const isApprovalNode = data.action?.category === "approval";
 
   return (
     <div className="relative">
@@ -163,11 +164,38 @@ export const ActionNode = ({ data, selected }: NodeProps<WorkflowNodeData>) => {
           </div>
         </div>
 
-        <Handle
-          type="source"
-          position={Position.Bottom}
-          className="w-3 h-3 !bg-gray-400 border-2 border-white"
-        />
+        {/* Source Handles - Different for approval vs regular nodes */}
+        {isApprovalNode ? (
+          <>
+            {/* Approve Handle - Left */}
+            <Handle
+              type="source"
+              position={Position.Bottom}
+              id="approve"
+              style={{ left: "33%" }}
+              className="w-3 h-3 !bg-green-500 border-2 border-white"
+            />
+            {/* Reject Handle - Right */}
+            <Handle
+              type="source"
+              position={Position.Bottom}
+              id="reject"
+              style={{ left: "67%" }}
+              className="w-3 h-3 !bg-red-500 border-2 border-white"
+            />
+            {/* Handle Labels */}
+            <div className="absolute -bottom-5 left-0 right-0 flex justify-between px-8 text-[10px] font-medium">
+              <span className="text-green-600">Approve</span>
+              <span className="text-red-600">Reject</span>
+            </div>
+          </>
+        ) : (
+          <Handle
+            type="source"
+            position={Position.Bottom}
+            className="w-3 h-3 !bg-gray-400 border-2 border-white"
+          />
+        )}
       </div>
     </div>
   );

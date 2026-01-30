@@ -195,18 +195,18 @@ const SubmissionFormBuilder = () => {
   }
 
   return (
-    <PageContainer className="bg-cultured !p-0 flex justify-center overflow-hidden">
+    <PageContainer className="bg-cultured p-0! flex justify-center overflow-hidden">
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="w-full max-w-3xl flex items-center"
       >
         <Card className="w-full flex flex-col h-[90vh]">
-          <CardHeader className="flex-shrink-0">
+          <CardHeader className="shrink-0">
             <CardTitle>{form.name}</CardTitle>
             <CardDescription>{form.description}</CardDescription>
           </CardHeader>
 
-          <CardContent className="flex-1 overflow-y-auto min-h-0 py-2 [&_textarea]:resize-y [&_textarea]:max-h-[200px]">
+          <CardContent className="flex-1 overflow-y-auto min-h-0 py-2 [&_textarea]:resize-y [&_textarea]:max-h-50">
             <div className="flex flex-wrap gap-5">
               {form.fields.map((field) => {
                 const widthStyle = field.style?.width
@@ -224,7 +224,7 @@ const SubmissionFormBuilder = () => {
             </div>
           </CardContent>
 
-          <CardFooter className="border-t flex-shrink-0">
+          <CardFooter className="border-t shrink-0">
             <div className="w-full flex justify-end gap-5">
               <BackButton
                 handleGoBack={() => router.back()}

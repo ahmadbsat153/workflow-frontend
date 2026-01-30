@@ -1,21 +1,21 @@
 "use client";
 
+import { toast } from "sonner";
+import { Button } from "@/lib/ui/button";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { Role } from "@/lib/types/role/role";
+import { BranchOption } from "@/lib/types/branch/branch";
+import { Form, FormSettings } from "@/lib/types/form/form";
 import { API_FORM } from "@/lib/services/Form/form_service";
 import { API_ROLE } from "@/lib/services/Role/role_service";
-import { API_DEPARTMENT } from "@/lib/services/Department/department_service";
-import { API_POSITION } from "@/lib/services/Position/position_service";
-import { API_BRANCH } from "@/lib/services/Branch/branch_service";
-import { Form, FormSettings } from "@/lib/types/form/form";
-import { Role } from "@/lib/types/role/role";
-import { DepartmentOption } from "@/lib/types/department/department";
 import { PositionOption } from "@/lib/types/position/position";
-import { BranchOption } from "@/lib/types/branch/branch";
-import { MultiSelect, MultiSelectOption } from "../../Common/MultiSelect";
-import { Button } from "@/lib/ui/button";
+import { API_BRANCH } from "@/lib/services/Branch/branch_service";
+import { DepartmentOption } from "@/lib/types/department/department";
+import { API_POSITION } from "@/lib/services/Position/position_service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/lib/ui/card";
-import { toast } from "sonner";
+import { MultiSelect, MultiSelectOption } from "../../Common/MultiSelect";
+import { API_DEPARTMENT } from "@/lib/services/Department/department_service";
 import { Loader2, Eye, Edit, Users, Building2, MapPin, Briefcase } from "lucide-react";
 
 const FormSettingsTab = () => {
@@ -28,15 +28,15 @@ const FormSettingsTab = () => {
 
   // Options for dropdowns
   const [roleOptions, setRoleOptions] = useState<MultiSelectOption[]>([]);
-  const [departmentOptions, setDepartmentOptions] = useState<MultiSelectOption[]>([]);
-  const [positionOptions, setPositionOptions] = useState<MultiSelectOption[]>([]);
   const [branchOptions, setBranchOptions] = useState<MultiSelectOption[]>([]);
+  const [positionOptions, setPositionOptions] = useState<MultiSelectOption[]>([]);
+  const [departmentOptions, setDepartmentOptions] = useState<MultiSelectOption[]>([]);
 
   // Selected values for visibility
   const [visibilityRoles, setVisibilityRoles] = useState<string[]>([]);
-  const [visibilityDepartments, setVisibilityDepartments] = useState<string[]>([]);
   const [visibilityBranches, setVisibilityBranches] = useState<string[]>([]);
   const [visibilityPositions, setVisibilityPositions] = useState<string[]>([]);
+  const [visibilityDepartments, setVisibilityDepartments] = useState<string[]>([]);
 
   // Selected values for canEdit
   const [canEditRoles, setCanEditRoles] = useState<string[]>([]);
