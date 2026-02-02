@@ -58,7 +58,9 @@ const UserDetails = ({ userId }: { userId: string }) => {
   return (
     <div className="h-full flex items-start">
       {loading ? (
-        <DotsLoader />
+        <div className="h-[90vh] w-full flex items-center justify-center">
+          <DotsLoader />
+        </div>
       ) : (
         <FixedHeaderFooterLayout
           title={""}

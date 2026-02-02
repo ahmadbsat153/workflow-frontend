@@ -41,7 +41,7 @@ const UserOverviewDetails = ({ data }: { data: UserOverview | null }) => {
                     Active
                   </span>
                 ) : (
-                  <span className="text-xs text-destructive items-center gap-1">
+                  <span className="text-xs text-destructive flex items-center gap-1">
                     <CircleXIcon className="size-3" />
                     Inactive
                   </span>
@@ -67,7 +67,7 @@ const UserOverviewDetails = ({ data }: { data: UserOverview | null }) => {
         <div className="flex items-center gap-3 text-sm">
           <MailIcon className="size-4" />
           <span className="font-semibold">Email</span>
-          {data.email || "N/A"}
+          <span className="truncate ">{data.email || "N/A"}</span>
         </div>
         <div className="flex items-center gap-3 text-sm">
           <SquareUser className="size-4" />
