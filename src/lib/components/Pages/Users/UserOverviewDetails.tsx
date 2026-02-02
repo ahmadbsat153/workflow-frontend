@@ -2,19 +2,18 @@
 
 import {
   MailIcon,
-  LockIcon,
   Briefcase,
   CheckCircle,
-  ArchiveIcon,
   CircleXIcon,
   PhoneCallIcon,
+  SquareUser,
   CircleUserRound,
 } from "lucide-react";
 
+import { UserOverview } from "@/lib/types/user/user";
 import { formatDatesWithYear } from "@/utils/common";
-import { User } from "@/lib/types/user/user";
 
-const UserOverview = ({ data }: { data: User | null }) => {
+const UserOverviewDetails = ({ data }: { data: UserOverview | null }) => {
   if (!data) {
     return (
       <div className="text-center py-8 text-gray-500">
@@ -32,53 +31,48 @@ const UserOverview = ({ data }: { data: User | null }) => {
           <span>{data.lastname?.slice(0, 1) || ""}</span>
         </div>
         <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-5">
-            <span className=" text-2xl font-bold">
+          <div className="flex flex-col">
+            <div className="flex gap-2 items-center justify-center text-2xl font-bold">
               {data.firstname} {data.lastname}
-            </span>
-            {data.is_archived ? (
-              <span className="flex items-center gap-1 bg-archived-foreground text-archived px-2 py-1 rounded-md text-xs">
-                <ArchiveIcon className="size-3" />
-                Archived
-              </span>
-            ) : (
-              <span className="flex items-center gap-1 bg-unarchived-foreground text-unarchived px-2 py-1 rounded-md text-xs">
-                <LockIcon className="size-[9px]" />
-                Not Archived
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-5">
-            {data.is_active ? (
-              <span className="text-xs text-active flex items-center gap-1">
-                <CheckCircle className="size-3" />
-                Active
-              </span>
-            ) : (
-              <span className="text-xs text-destructive items-center gap-1">
-                <CircleXIcon className="size-3" />
-                Inactive
-              </span>
-            )}
+              <div className="flex items-center gap-5">
+                {data.is_active ? (
+                  <span className="text-xs text-active flex items-center gap-1">
+                    <CheckCircle className="size-3" />
+                    Active
+                  </span>
+                ) : (
+                  <span className="text-xs text-destructive items-center gap-1">
+                    <CircleXIcon className="size-3" />
+                    Inactive
+                  </span>
+                )}
+              </div>
+            </div>
+            <span className="text-sm">{data.role?.name}</span>
           </div>
         </div>
       </div>
       {/* GENERAL INFO SECTION */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 text-dark border-b-2 border-b-gray-100 pb-5">
         <div className="flex items-center gap-3 text-sm">
-          <CircleUserRound className="size-3" />
+          <CircleUserRound className="size-4" />
           <span className="font-semibold">Username</span>
           {data.firstname} {data.lastname}
         </div>
         <div className="flex items-center gap-3 text-sm">
-          <PhoneCallIcon className="size-3" />
+          <PhoneCallIcon className="size-4" />
           <span className="font-semibold">Phone</span>
           {data.phone || "N/A"}
         </div>
         <div className="flex items-center gap-3 text-sm">
-          <MailIcon className="size-3" />
+          <MailIcon className="size-4" />
           <span className="font-semibold">Email</span>
           {data.email || "N/A"}
+        </div>
+        <div className="flex items-center gap-3 text-sm">
+          <SquareUser className="size-4" />
+          <span className="font-semibold">Report to</span>
+          {data.managerName || "N/A"}
         </div>
       </div>
       {/* ORGANIZATION INFO SECTION */}
@@ -92,11 +86,8 @@ const UserOverview = ({ data }: { data: User | null }) => {
               Gold Tiger Logistics Solutions
             </span>
             <span className="text-xs font-normal">
-              {typeof data.role === "object" && data.role?.name
-                ? data.role.name
-                : typeof data.role === "string"
-                ? data.role
-                : "N/A"}
+              {data.branchId?.name} - {data.departmentId?.name} -{" "}
+              {data.positionId?.name}
             </span>
           </div>
           <div className="absolute right-0 text-xs font-medium">
@@ -110,4 +101,4 @@ const UserOverview = ({ data }: { data: User | null }) => {
   );
 };
 
-export default UserOverview;
+export default UserOverviewDetails;

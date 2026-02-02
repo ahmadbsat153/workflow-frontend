@@ -132,9 +132,11 @@ const DepartmentsTable = () => {
         {value as string}
       </span>
     ),
-    parent: (value, row) => (
+    branch: (value, row) => (
       <span className="text-sm text-muted-foreground">
-        {row.parent?.name || "-"}
+        {typeof row.branchId === "object" && row.branchId?.name
+          ? row.branchId.name
+          : "-"}
       </span>
     ),
     createdAt: (value) => <span>{formatDatesWithYear(value as string)}</span>,

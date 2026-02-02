@@ -1,12 +1,12 @@
 import { Meta } from "../common";
+import { BranchOption } from "../branch/branch";
 
 export type Department = {
   _id: string;
   name: string;
   description?: string;
   code: string;
-  parentId?: string | null;
-  parent?: Department | null;
+  branchId?: string | BranchOption | null;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;

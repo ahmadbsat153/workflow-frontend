@@ -519,14 +519,18 @@ export const FormFieldSubmission: React.FC<FormFieldSubmissionProps> = ({
           name={field.name}
           control={control}
           render={({ field: formField }) => {
-            const defaultCountry = (field.phoneSettings?.country as CountryCode) || "AU";
-            const allowAnyCountry = field.phoneSettings?.allowAnyCountry ?? true;
+            const defaultCountry =
+              (field.phoneSettings?.country as CountryCode) || "AU";
+            const allowAnyCountry =
+              field.phoneSettings?.allowAnyCountry ?? true;
 
             return (
               <div>
                 <label className="text-sm font-medium mb-2 block">
                   {field.label}
-                  {field.required && <span className="text-red-500 ml-1">*</span>}
+                  {field.required && (
+                    <span className="text-red-500 ml-1">*</span>
+                  )}
                 </label>
 
                 <PhoneInput
@@ -594,10 +598,10 @@ export const FormFieldSubmission: React.FC<FormFieldSubmissionProps> = ({
     case FieldsType.BRANCH:
       return (
         <OrganizationalFieldController
-          field={field}
-          control={control}
-          error={error}
           user={user}
+          field={field}
+          error={error}
+          control={control}
         />
       );
     case FieldsType.FILE:
@@ -612,7 +616,14 @@ export const FormFieldSubmission: React.FC<FormFieldSubmissionProps> = ({
                 {field.required && <span className="text-red-500 ml-1">*</span>}
               </label>
               <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col gap-1">
+                  {field.validation?.allowedFileTypes &&
+                    field.validation.allowedFileTypes.length > 0 && (
+                      <p className="text-[10px] text-gray-500">
+                        Allowed types:{" "}
+                        <span className="capitalize">{field.validation.allowedFileTypes.join(", ")}</span>
+                      </p>
+                    )}
                   <Input
                     type="file"
                     multiple={
@@ -638,13 +649,6 @@ export const FormFieldSubmission: React.FC<FormFieldSubmissionProps> = ({
                     {Math.round(field.validation.maxFileSize / 1024 / 1024)}MB
                   </p>
                 )}
-                {field.validation?.allowedFileTypes &&
-                  field.validation.allowedFileTypes.length > 0 && (
-                    <p className="text-xs text-gray-500">
-                      Allowed types:
-                      {field.validation.allowedFileTypes.join(", ")}
-                    </p>
-                  )}
               </div>
               {error && (
                 <p className="text-red-500 text-sm mt-1">
@@ -1426,10 +1430,7 @@ export const renderSubmittedFieldValue = (
               d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
             />
           </svg>
-          <a
-            href={`tel:${valueToString(value)}`}
-            className="hover:underline"
-          >
+          <a href={`tel:${valueToString(value)}`} className="hover:underline">
             {valueToString(value)}
           </a>
         </div>

@@ -78,7 +78,7 @@ export namespace API_PERMISSION {
    */
   export async function updateUserRole(userId: string, roleId: string) {
     try {
-      const response = await _axios.patch(
+      const response = await _axios.put(
         build_path(PERMISSION_ENDPOINTS.UPDATE_USER_ROLE, { id: userId }),
         { roleId }
       );

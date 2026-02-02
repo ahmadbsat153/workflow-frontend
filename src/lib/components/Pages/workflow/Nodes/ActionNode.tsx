@@ -100,19 +100,19 @@ export const ActionNode = ({ data, selected }: NodeProps<WorkflowNodeData>) => {
           selected
             ? colors.border + " ring-2 ring-offset-2 ring-primary/20"
             : "border-gray-300"
-        } min-w-[220px] max-w-[280px] transition-all hover:shadow-xl group`}
+        } min-w-55 transition-all hover:shadow-xl group`}
       >
         <Handle
           type="target"
           position={Position.Top}
-          className="w-3 h-3 !bg-gray-400 border-2 border-white"
+          className="w-3 h-3 bg-gray-400! border-2 border-white"
         />
 
         {/* Header with Icon and Status */}
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <div
-              className={`p-2 rounded-lg ${colors.iconBg} border ${colors.border} flex-shrink-0`}
+              className={`p-2 rounded-lg ${colors.iconBg} border ${colors.border} shrink-0`}
             >
               <IconComponent className={`h-5 w-5 ${colors.text}`} />
             </div>
@@ -132,7 +132,7 @@ export const ActionNode = ({ data, selected }: NodeProps<WorkflowNodeData>) => {
           </div>
 
           {/* Status Indicator */}
-          <div className="flex-shrink-0 ml-2">
+          <div className="shrink-0 ml-2">
             {isConfigured ? (
               <div className="relative group/status">
                 <div
@@ -173,7 +173,7 @@ export const ActionNode = ({ data, selected }: NodeProps<WorkflowNodeData>) => {
               position={Position.Bottom}
               id="approve"
               style={{ left: "33%" }}
-              className="w-3 h-3 !bg-green-500 border-2 border-white"
+              className="w-3 h-3 bg-green-500! border-2 border-white"
             />
             {/* Reject Handle - Right */}
             <Handle
@@ -181,7 +181,7 @@ export const ActionNode = ({ data, selected }: NodeProps<WorkflowNodeData>) => {
               position={Position.Bottom}
               id="reject"
               style={{ left: "67%" }}
-              className="w-3 h-3 !bg-red-500 border-2 border-white"
+              className="w-3 h-3 bg-red-500! border-2 border-white"
             />
             {/* Handle Labels */}
             <div className="absolute -bottom-5 left-0 right-0 flex justify-between px-8 text-[10px] font-medium">
@@ -193,7 +193,7 @@ export const ActionNode = ({ data, selected }: NodeProps<WorkflowNodeData>) => {
           <Handle
             type="source"
             position={Position.Bottom}
-            className="w-3 h-3 !bg-gray-400 border-2 border-white"
+            className="w-3 h-3 bg-gray-400! border-2 border-white"
           />
         )}
       </div>

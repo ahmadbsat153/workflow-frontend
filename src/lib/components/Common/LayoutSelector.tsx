@@ -22,6 +22,7 @@ export type LayoutOption<T = string> = {
 type LayoutSelectorProps<T = string> = {
   options: LayoutOption<T>[];
   defaultValue?: T;
+  value?: T; // Controlled value - when provided, overrides internal state
   onLayoutChange: (value: T) => void;
   triggerSize?: "sm" | "default" | "lg";
   triggerVariant?: "default" | "outline" | "secondary" | "ghost";
@@ -32,19 +33,26 @@ type LayoutSelectorProps<T = string> = {
 export function LayoutSelector<T extends string = string>({
   options,
   defaultValue,
+  value,
   onLayoutChange,
   triggerSize = "sm",
   triggerVariant = "outline",
   showLabelOnMobile = false,
   displayMode = "dropdown",
 }: LayoutSelectorProps<T>) {
-  const [currentLayout, setCurrentLayout] = useState<T>(
+  const [internalLayout, setInternalLayout] = useState<T>(
     defaultValue || options[0]?.value,
   );
 
-  const handleLayoutChange = (value: T) => {
-    setCurrentLayout(value);
-    onLayoutChange(value);
+  // Use controlled value if provided, otherwise use internal state
+  const currentLayout = value !== undefined ? value : internalLayout;
+
+  const handleLayoutChange = (newValue: T) => {
+    // Only update internal state if not controlled
+    if (value === undefined) {
+      setInternalLayout(newValue);
+    }
+    onLayoutChange(newValue);
   };
 
   const currentOption = options.find(

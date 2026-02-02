@@ -32,7 +32,8 @@ import {
 import { handleServerError } from "@/lib/api/_axios";
 import { ErrorResponse } from "@/lib/types/common";
 import { API_DEPARTMENT } from "@/lib/services/Department/department_service";
-import { DepartmentOption } from "@/lib/types/department/department";
+import { API_BRANCH } from "@/lib/services/Branch/branch_service";
+import { BranchOption } from "@/lib/types/branch/branch";
 import { URLs } from "@/lib/constants/urls";
 import FixedHeaderFooterLayout from "../../Layout/FixedHeaderFooterLayout";
 
@@ -56,7 +57,7 @@ const departmentSchema = z.object({
       "Code must be uppercase letters, numbers, or underscores"
     ),
   description: z.string().optional(),
-  parentId: z.string().nullable().optional(),
+  branchId: z.string().nullable().optional(),
   isActive: z.boolean(),
 });
 
@@ -71,7 +72,7 @@ const DepartmentForm = ({
   const params = useParams();
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEdit);
-  const [departments, setDepartments] = useState<DepartmentOption[]>([]);
+  const [branches, setBranches] = useState<BranchOption[]>([]);
 
   const form = useForm<DepartmentFormValues>({
     resolver: zodResolver(departmentSchema),
@@ -80,30 +81,25 @@ const DepartmentForm = ({
       name: "",
       code: "",
       description: "",
-      parentId: null,
+      branchId: null,
       isActive: true,
     },
   });
 
-  // Load departments for parent selection
+  // Load branches for branch selection
   useEffect(() => {
-    const loadDepartments = async () => {
+    const loadBranches = async () => {
       try {
-        const res = await API_DEPARTMENT.getActiveDepartments();
-        // Filter out current department if editing to prevent circular reference
-        const filteredDepts =
-          isEdit && params.id
-            ? res.data.filter((dept) => dept._id !== params.id)
-            : res.data;
-        setDepartments(filteredDepts);
+        const res = await API_BRANCH.getActiveBranches();
+        setBranches(res.data);
       } catch (error) {
         handleServerError(error as ErrorResponse, (msg) => {
-          toast.error(`Failed to load departments: ${msg}`);
+          toast.error(`Failed to load branches: ${msg}`);
         });
       }
     };
-    loadDepartments();
-  }, [isEdit, params.id]);
+    loadBranches();
+  }, []);
 
   // Load existing department if editing
   useEffect(() => {
@@ -113,11 +109,17 @@ const DepartmentForm = ({
           const res = await API_DEPARTMENT.getDepartmentById(
             params.id as string
           );
+          const branchIdValue =
+            typeof res.branchId === "object" && res.branchId?._id
+              ? res.branchId._id
+              : typeof res.branchId === "string"
+                ? res.branchId
+                : null;
           form.reset({
             name: res.name,
             code: res.code,
             description: res.description || "",
-            parentId: res.parentId || null,
+            branchId: branchIdValue,
             isActive: res.isActive,
           });
         } catch (error) {
@@ -139,10 +141,10 @@ const DepartmentForm = ({
     try {
       setLoading(true);
 
-      // Convert empty parentId to null
+      // Convert empty branchId to null
       const submitData = {
         ...values,
-        parentId: values.parentId || null,
+        branchId: values.branchId || null,
       };
 
       if (isEdit && params.id) {
@@ -270,10 +272,10 @@ const DepartmentForm = ({
 
           <FormField
             control={form.control}
-            name="parentId"
+            name="branchId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Parent Department (Optional)</FormLabel>
+                <FormLabel>Branch (Optional)</FormLabel>
                 <Select
                   onValueChange={(value) => {
                     field.onChange(value === "none" ? null : value);
@@ -283,20 +285,20 @@ const DepartmentForm = ({
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select parent department (if any)" />
+                      <SelectValue placeholder="Select branch (if any)" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="none">None</SelectItem>
-                    {departments.map((dept) => (
-                      <SelectItem key={dept._id} value={dept._id}>
-                        {dept.name} ({dept.code})
+                    {branches.map((branch) => (
+                      <SelectItem key={branch._id} value={branch._id}>
+                        {branch.name} ({branch.code})
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <FormDescription>
-                  For creating a department hierarchy
+                  Associate this department with a branch
                 </FormDescription>
                 <FormMessage />
               </FormItem>

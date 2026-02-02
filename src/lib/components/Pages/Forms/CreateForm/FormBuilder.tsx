@@ -19,28 +19,30 @@ import FormInformation, {
   FormInformationData,
   formInformationSchema,
 } from "./FormInformation";
-import { toast } from "sonner";
-import { Button } from "@/lib/ui/button";
-import DnDContainer from "./DnDContainer";
-import FieldsSidebar from "./FieldsSidebar";
-import { useEffect, useState, useRef } from "react";
-import { arrayMove } from "@dnd-kit/sortable";
-import FieldSidebarItem from "./FieldSidebarItem";
-import { ErrorResponse } from "@/lib/types/common";
-import { getUrl, URLs } from "@/lib/constants/urls";
-import { handleServerError } from "@/lib/api/_axios";
-import { useParams, useRouter } from "next/navigation";
-import DotsLoader from "@/lib/components/Loader/DotsLoader";
-import { API_FORM } from "@/lib/services/Form/form_service";
-import { Field, FieldsType, FieldWidth } from "@/lib/types/form/fields";
+
 import {
   createFieldFromType,
   getFieldTypeIcon,
   isDisplayElement,
 } from "@/lib/constants/formFields";
+
+import { toast } from "sonner";
+import { Button } from "@/lib/ui/button";
+import DnDContainer from "./DnDContainer";
+import FieldsSidebar from "./FieldsSidebar";
+import { arrayMove } from "@dnd-kit/sortable";
+import FieldSidebarItem from "./FieldSidebarItem";
+import { ErrorResponse } from "@/lib/types/common";
+import { useEffect, useState, useRef } from "react";
+import { getUrl, URLs } from "@/lib/constants/urls";
+import { handleServerError } from "@/lib/api/_axios";
+import { useParams, useRouter } from "next/navigation";
 import { ChevronLeftIcon, Trash2Icon } from "lucide-react";
 import AlertModal from "@/lib/components/Alert/AlertModal";
+import DotsLoader from "@/lib/components/Loader/DotsLoader";
+import { API_FORM } from "@/lib/services/Form/form_service";
 import { useFormEditContext } from "@/lib/context/FormEditContext";
+import { Field, FieldsType, FieldWidth } from "@/lib/types/form/fields";
 
 const FormBuilder = () => {
   const router = useRouter();
@@ -588,7 +590,7 @@ const FormBuilder = () => {
       // Reset dirty state after successful save
       setFormDirty?.(false);
       toast.success("Form Updated Successfully", { id });
-      router.push(getUrl(URLs.admin.forms.index));
+      // router.push(getUrl(URLs.admin.forms.index));
     } catch (error) {
       handleServerError(error as ErrorResponse, (msg) => {
         toast.error(`${msg}`, { id });
@@ -616,7 +618,7 @@ const FormBuilder = () => {
       onDragCancel={handleDragCancel}
     >
       <div className="flex flex-col overflow-hidden  bg-gray-50">
-        <div className="py-5 px-4 flex-shrink-0">
+        <div className="py-5 px-4 shrink-0">
           <Button
             variant={"secondary"}
             onClick={() => router.back()}
@@ -626,7 +628,7 @@ const FormBuilder = () => {
           </Button>
         </div>
         <div className="flex flex-1 overflow-hidden max-h-[80vh]">
-          <div className="w-64 flex-shrink-0 p-4 flex flex-col overflow-hidden">
+          <div className="w-64 shrink-0 p-4 flex flex-col overflow-hidden">
             <FieldsSidebar onDoubleClick={handleDoubleClickField} />
           </div>
           <div className="flex-1 px-5 flex flex-col overflow-hidden">
@@ -639,19 +641,19 @@ const FormBuilder = () => {
               />
             </div>
 
-            <div className="flex justify-end py-4 flex-shrink-0">
+            <div className="flex justify-end py-4 shrink-0">
               <AlertModal
                 title="Remove all fields"
                 description="Are you sure you want to remove all fields? This action cannot be undone."
                 handleAction={() => setDroppedFields([])}
               >
                 <div className="flex text-sm text-destructive items-center justify-center gap-2 cursor-pointer select-none">
-                  <Trash2Icon className="!size-5" /> Remove all fields
+                  <Trash2Icon className="size-5!" /> Remove all fields
                 </div>
               </AlertModal>
             </div>
           </div>
-          <div className="w-80 flex-shrink-0 overflow-y-auto scrollbar p-4">
+          <div className="w-80 shrink-0 overflow-y-auto scrollbar p-4">
             <FormInformation
               formInfo={formInfo}
               setFormInfo={setFormInfo}
@@ -693,7 +695,7 @@ const DragPreview = ({
   width: FieldWidth;
 }) => {
   return (
-    <div className="opacity-90 bg-white border-2 border-gray-200 rounded-lg p-3 shadow-xl max-w-[400px]">
+    <div className="opacity-90 bg-white border-2 border-gray-200 rounded-lg p-3 shadow-xl max-w-100">
       <FieldSidebarItem type={type} />
       <div className="mt-2 text-xs text-primary font-medium text-center">
         Will be placed at {width}% width
@@ -707,7 +709,7 @@ const DragPreviewField = ({ field }: { field: Field }) => {
   // const width = (field.style?.width as FieldWidth) ?? 100;
 
   return (
-    <div className="bg-white border-2 border-pumpkin rounded-lg p-4 shadow-xl opacity-90 max-w-[400px]">
+    <div className="bg-white border-2 border-pumpkin rounded-lg p-4 shadow-xl opacity-90 max-w-100">
       <div className="flex items-center gap-2 mb-2">
         <Icon className="size-5" />
         <label className="font-medium">

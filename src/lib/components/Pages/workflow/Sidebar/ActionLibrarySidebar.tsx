@@ -55,13 +55,13 @@ export const ActionLibrarySidebar = ({
             .includes(searchQuery.toLowerCase()) ||
           action.actionDescription
             .toLowerCase()
-            .includes(searchQuery.toLowerCase())
+            .includes(searchQuery.toLowerCase()),
       );
     }
 
     if (selectedCategory) {
       filtered = filtered.filter(
-        (action) => action.category === selectedCategory
+        (action) => action.category === selectedCategory,
       );
     }
 
@@ -70,10 +70,13 @@ export const ActionLibrarySidebar = ({
 
   const categories = Array.from(new Set(actions.map((a) => a.category)));
 
-  const groupedActions = categories.reduce((acc, category) => {
-    acc[category] = filteredActions.filter((a) => a.category === category);
-    return acc;
-  }, {} as Record<string, Action[]>);
+  const groupedActions = categories.reduce(
+    (acc, category) => {
+      acc[category] = filteredActions.filter((a) => a.category === category);
+      return acc;
+    },
+    {} as Record<string, Action[]>,
+  );
 
   if (isCollapsed) {
     return (
@@ -144,7 +147,7 @@ export const ActionLibrarySidebar = ({
       </div>
 
       {/* Actions List */}
-      <ScrollArea className="flex-1 p-4">
+      <ScrollArea className="flex-1 max-h-[30vh] 2xl:max-h-[55vh] 3xl:max-h-[70vh] p-2">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -174,7 +177,7 @@ export const ActionLibrarySidebar = ({
                       {categoryActions.map((action) => (
                         <div
                           key={action._id}
-                          onClick={() => onActionClick?.(action)}
+                          // onClick={() => onActionClick?.(action)}
                         >
                           <ActionCard
                             action={action}
@@ -184,7 +187,7 @@ export const ActionLibrarySidebar = ({
                       ))}
                     </div>
                   </div>
-                )
+                ),
             )}
           </div>
         )}
@@ -193,7 +196,7 @@ export const ActionLibrarySidebar = ({
       {/* Footer */}
       <div className="p-4 border-t">
         <p className="text-xs text-muted-foreground">
-          Drag actions onto the canvas or click to add
+          Drag actions onto the canvas
         </p>
       </div>
     </div>

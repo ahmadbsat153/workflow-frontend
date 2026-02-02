@@ -1,9 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { build_path } from "@/utils/common";
 import { handleErrors, _axios } from "../../api/_axios";
-import { ADUSER_ENDPOINTS, AUTH_ENDPOINTS, USER_ENDPOINTS } from "../../constants/endpoints";
+import {
+  ADUSER_ENDPOINTS,
+  AUTH_ENDPOINTS,
+  USER_ENDPOINTS,
+} from "../../constants/endpoints";
 import { SuccessResponse } from "../../types/common";
-import { ADUserTable, User, UserTable } from "../../types/user/user";
+import {
+  ADUserTable,
+  User,
+  UserOverview,
+  UserTable,
+} from "../../types/user/user";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace API_USER {
@@ -25,9 +34,20 @@ export namespace API_USER {
   export async function getUserById(id: string) {
     try {
       const response = await _axios.get(
-        build_path(USER_ENDPOINTS.GET_ID, { id })
+        build_path(USER_ENDPOINTS.GET_ID, { id }),
       );
       return response.data as User;
+    } catch (error: unknown) {
+      throw handleErrors(error);
+    }
+  }
+
+  export async function getUserOverviewById(id: string) {
+    try {
+      const response = await _axios.get(
+        build_path(USER_ENDPOINTS.GET_OVERVIEW, { id }),
+      );
+      return response.data as UserOverview;
     } catch (error: unknown) {
       throw handleErrors(error);
     }
@@ -46,7 +66,7 @@ export namespace API_USER {
     try {
       const response = await _axios.patch(
         build_path(USER_ENDPOINTS.ADMIN_UPDATE, { id }),
-        data
+        data,
       );
       return response.data as SuccessResponse;
     } catch (error: unknown) {
@@ -75,7 +95,7 @@ export namespace API_USER {
   export async function adminDeleteUser(id: string) {
     try {
       const response = await _axios.delete(
-        build_path(USER_ENDPOINTS.DELETE, { id })
+        build_path(USER_ENDPOINTS.DELETE, { id }),
       );
       return response.data as SuccessResponse;
     } catch (error: unknown) {
@@ -86,7 +106,7 @@ export namespace API_USER {
   export async function getUserAnalytics(id: string) {
     try {
       const response = await _axios.get(
-        build_path(USER_ENDPOINTS.GET_ANALYTICS, { id })
+        build_path(USER_ENDPOINTS.GET_ANALYTICS, { id }),
       );
       return response.data as User;
     } catch (error: unknown) {
@@ -136,7 +156,7 @@ export namespace API_USER {
    * Bulk sync AD users with their managers
    */
   export async function bulkSyncADUsersWithManager(
-    options?: BulkSyncOptions
+    options?: BulkSyncOptions,
   ): Promise<BulkSyncResult> {
     try {
       const response = await _axios.post(ADUSER_ENDPOINTS.BULK_SYNC, {

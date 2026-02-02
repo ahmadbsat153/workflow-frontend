@@ -41,7 +41,7 @@ interface UserAnalyticsData {
 
 const UserAnalytics = ({ data }: { data: UserAnalyticsData | null }) => {
   const [visibleColumns] = useState<Set<string>>(
-    new Set(USER_ACTIVITY_VISIBLE_COL)
+    new Set(USER_ACTIVITY_VISIBLE_COL),
   );
   const loading = false;
 
@@ -50,7 +50,7 @@ const UserAnalytics = ({ data }: { data: UserAnalyticsData | null }) => {
       return USER_ACTIVITY_COLUMNS;
 
     return USER_ACTIVITY_COLUMNS.filter((column) =>
-      Array.from(visibleColumns as unknown as Set<string>).includes(column.uid)
+      Array.from(visibleColumns as unknown as Set<string>).includes(column.uid),
     );
   }, [visibleColumns]);
 
@@ -118,6 +118,8 @@ const UserAnalytics = ({ data }: { data: UserAnalyticsData | null }) => {
     { category: "submissions", count: data.submissions || 0, fill: "#ff637e" },
   ];
 
+  console.log("User analytics data:", data);
+
   return (
     <div className="grid grid-cols-1 gap-4 py-4">
       {/* CHARTS */}
@@ -126,7 +128,7 @@ const UserAnalytics = ({ data }: { data: UserAnalyticsData | null }) => {
           data={data.barChartAnalytics || []}
           chartConfig={barChartConfig}
           footer={footer(
-            "Showing total forms and workflows created over last 6 months"
+            "Showing total forms and workflows created over last 6 months",
           )}
         />
         <ChartPieDonutText
@@ -136,7 +138,7 @@ const UserAnalytics = ({ data }: { data: UserAnalyticsData | null }) => {
           nameKey="category"
           dataKey="count"
           footer={footer(
-            "Showing forms created and submitted over last 6 months"
+            "Showing forms created and submitted over last 6 months",
           )}
         />
       </div>

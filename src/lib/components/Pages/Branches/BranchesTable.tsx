@@ -126,9 +126,6 @@ const BranchesTable = () => {
         {value as string}
       </span>
     ),
-    department: (value, row) => (
-      <span className="text-sm">{row.department?.name || "-"}</span>
-    ),
     city: (value, row) => (
       <span className="text-sm">{row.location?.city || "-"}</span>
     ),

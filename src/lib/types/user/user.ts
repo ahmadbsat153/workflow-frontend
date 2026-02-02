@@ -35,6 +35,9 @@ export type User = {
   departmentId?: Department | null;
   positionId?: Position | null;
   branchId?: Branch | null;
+  managerEmail: string;
+  managerName: string;
+  managerId: string;
   // Business information
   businessInformation?: {
     payrollNo: string;
@@ -46,6 +49,27 @@ export type User = {
   updatedAt: string;
   __v: number;
 };
+
+export type UserOverview = Pick<
+  User,
+  | "_id"
+  | "firstname"
+  | "lastname"
+  | "email"
+  | "phone"
+  | "is_archived"
+  | "is_active"
+  | "is_super_admin"
+  | "role"
+  | "branchId"
+  | "departmentId"
+  | "positionId"
+  | "managerEmail"
+  | "managerName"
+  | "businessInformation"
+  | "createdAt"
+  | "updatedAt"
+>;
 
 export type UserAuthenticated = Omit<
   User,

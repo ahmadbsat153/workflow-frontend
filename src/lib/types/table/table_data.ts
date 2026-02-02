@@ -54,6 +54,7 @@ export interface DataTableProps<TData> {
 
   pageSize?: number;
   searchPlaceholder?: string;
+  defaultSearchValue?: string;
   emptyStateMessage?: string;
 
   onAddNew?: () => void;

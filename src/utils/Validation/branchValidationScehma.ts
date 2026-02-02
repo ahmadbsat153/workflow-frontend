@@ -14,7 +14,6 @@ export const branchSchema = z.object({
       "Code must be uppercase letters, numbers, or underscores"
     ),
   description: z.string(),
-  departmentId: z.string().nullable().optional(),
   location: z.object({
     address: z.string(),
     city: z.string(),

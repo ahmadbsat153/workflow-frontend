@@ -277,6 +277,8 @@ const UsersTable = () => {
           onPageSizeChange={handlePageSizeChange}
           onSearch={handleSearch}
           onSort={handleSort}
+          currentSortField={query.sortField ?? ""}
+          currentSortOrder={query.sortOrder as "asc" | "desc"}
           // Features
           enableSelection={false}
           enablePagination={true}

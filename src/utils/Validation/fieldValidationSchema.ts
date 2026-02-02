@@ -326,6 +326,7 @@ export const buildValidationSchema = (fields: Field[]) => {
             z.instanceof(FileList),
             z.array(z.instanceof(File)),
             z.array(z.string()),
+            z.literal(""), // Allow empty string for optional file fields
           ])
           .refine(
             (files) => {

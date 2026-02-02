@@ -63,7 +63,7 @@ export namespace API_BRANCH {
 
   export async function updateBranch(id: string, data: BranchFormValues) {
     try {
-      const response = await _axios.patch(
+      const response = await _axios.put(
         build_path(BRANCH_ENDPOINTS.UPDATE, { id }),
         data
       );

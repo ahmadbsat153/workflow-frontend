@@ -64,7 +64,7 @@ export namespace API_DEPARTMENT {
 
   export async function updateDepartment(id: string, data: DepartmentFormValues) {
     try {
-      const response = await _axios.patch(
+      const response = await _axios.put(
         build_path(DEPARTMENT_ENDPOINTS.UPDATE, { id }),
         data
       );

@@ -70,6 +70,7 @@ export type CellRenderer<TData = Record<string, unknown>> = (
 
 import { DataTableProps, AdditionalButton } from "@/lib/types/table/table_data";
 import { usePermissions } from "@/lib/hooks/usePermissions";
+import { useSearchParams } from "next/navigation";
 import { Column } from "@tanstack/react-table";
 
 interface SortableHeaderProps<TData> {
@@ -102,22 +103,27 @@ function SortableHeader<TData>({
   const handleSort = () => {
     if (serverSide && onSort && field) {
       // Check if we're currently sorting by this field
-      const isCurrentlySorted = currentSortField === field && currentSortOrder;
-
-      if (isCurrentlySorted) {
+      if (currentSortField === field) {
         if (currentSortOrder === "asc") {
-          // First click: asc -> desc
           onSort(field, "desc");
         } else if (currentSortOrder === "desc") {
-          // Second click: desc -> remove sort
           onSort("", "asc");
+        } else {
+          onSort(field, "asc");
         }
       } else {
-        // Not currently sorted by this field, start with asc
         onSort(field, "asc");
       }
     } else {
-      column.toggleSorting(column.getIsSorted() === "asc");
+      // Client-side sorting with explicit three-state cycle
+      const currentSort = column.getIsSorted();
+      if (currentSort === "asc") {
+        column.toggleSorting(true); // Go to desc
+      } else if (currentSort === "desc") {
+        column.clearSorting(); // Clear sort
+      } else {
+        column.toggleSorting(false); // Go to asc
+      }
     }
   };
 
@@ -178,6 +184,7 @@ export function DataTable<TData>({
   enableGlobalSearch = true,
   pageSize = 10,
   searchPlaceholder = "Search...",
+  defaultSearchValue = "",
   emptyStateMessage = "No results found.",
   onAddNew,
   addButtonWrapper,
@@ -193,6 +200,8 @@ export function DataTable<TData>({
   maxHeight = "400px",
 }: DataTableProps<TData>) {
   const { hasPermission } = usePermissions();
+  const searchParams = useSearchParams();
+  const urlSearchValue = searchParams.get("search") || "";
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>(() => {
@@ -212,7 +221,7 @@ export function DataTable<TData>({
     pageIndex: 0,
     pageSize: pageSize,
   });
-  const [globalFilter, setGlobalFilter] = React.useState("");
+  const [globalFilter, setGlobalFilter] = React.useState(urlSearchValue || defaultSearchValue);
 
   const searchTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const handleSearchChange = (value: string) => {
@@ -388,8 +397,8 @@ export function DataTable<TData>({
               placeholder={searchPlaceholder}
               value={globalFilter}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="h-8 w-full lg:w-[250px]"
-              disabled={loading}
+              className="h-8 w-full lg:w-62.5"
+              autoFocus={!!globalFilter}
             />
           )}
 

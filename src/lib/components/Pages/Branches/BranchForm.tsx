@@ -12,13 +12,6 @@ import { Button } from "@/lib/ui/button";
 import { Switch } from "@/lib/ui/switch";
 import { Textarea } from "@/lib/ui/textarea";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/lib/ui/select";
-import {
   Form,
   FormControl,
   FormDescription,
@@ -31,8 +24,6 @@ import {
 import { ErrorResponse } from "@/lib/types/common";
 import { handleServerError } from "@/lib/api/_axios";
 import { API_BRANCH } from "@/lib/services/Branch/branch_service";
-import { DepartmentOption } from "@/lib/types/department/department";
-import { API_DEPARTMENT } from "@/lib/services/Department/department_service";
 import {
   BranchFormValues,
   branchSchema,
@@ -55,7 +46,6 @@ const BranchForm = ({
   const params = useParams();
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEdit);
-  const [departments, setDepartments] = useState<DepartmentOption[]>([]);
 
   const form = useForm<BranchFormValues>({
     resolver: zodResolver(branchSchema),
@@ -64,7 +54,6 @@ const BranchForm = ({
       name: "",
       code: "",
       description: "",
-      departmentId: null,
       location: {
         address: "",
         city: "",
@@ -80,21 +69,6 @@ const BranchForm = ({
     },
   });
 
-  // Load departments
-  useEffect(() => {
-    const loadDepartments = async () => {
-      try {
-        const res = await API_DEPARTMENT.getActiveDepartments();
-        setDepartments(res.data);
-      } catch (error) {
-        handleServerError(error as ErrorResponse, (msg) => {
-          toast.error(`Failed to load departments: ${msg}`);
-        });
-      }
-    };
-    loadDepartments();
-  }, []);
-
   // Load existing branch if editing
   useEffect(() => {
     if (isEdit && params.id) {
@@ -105,7 +79,6 @@ const BranchForm = ({
             name: res.name,
             code: res.code,
             description: res.description || "",
-            departmentId: res.departmentId || null,
             location: {
               address: res.location?.address || "",
               city: res.location?.city || "",
@@ -138,10 +111,8 @@ const BranchForm = ({
     try {
       setLoading(true);
 
-      // Clean up empty coordinates
       const submitData = {
         ...values,
-        departmentId: values.departmentId || null,
         managerId: values.managerId || null,
         location: {
           ...values.location,
@@ -276,40 +247,6 @@ const BranchForm = ({
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="departmentId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Department (Optional)</FormLabel>
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(value === "none" ? null : value);
-                      }}
-                      value={field.value || "none"}
-                      disabled={loading}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select department (if any)" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="none">None</SelectItem>
-                        {departments.map((dept) => (
-                          <SelectItem key={dept._id} value={dept._id}>
-                            {dept.name} ({dept.code})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      Associate this branch with a department
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
 
             {/* Location Information */}

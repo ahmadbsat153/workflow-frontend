@@ -85,6 +85,7 @@ const WorkflowBuilderInner = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [pendingNodeId, setPendingNodeId] = useState<string | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [configPanelNodeId, setConfigPanelNodeId] = useState<string | null>(null);
 
   // Track initial state for dirty detection
   const initialStateRef = useRef<{ nodes: string; edges: string } | null>(null);
@@ -251,6 +252,20 @@ const WorkflowBuilderInner = () => {
     return nodes.find((node) => node.id === selectedNodeId) || null;
   }, [selectedNodeId, nodes]);
 
+  // Node for config panel (only opened on double-click)
+  const configPanelNode = useMemo(() => {
+    if (!configPanelNodeId) return null;
+    return nodes.find((node) => node.id === configPanelNodeId) || null;
+  }, [configPanelNodeId, nodes]);
+
+  // Handle double-click to open config panel
+  const onNodeDoubleClick = useCallback(
+    (_event: React.MouseEvent, node: WorkflowNode) => {
+      setConfigPanelNodeId(node.id);
+    },
+    []
+  );
+
   const onSelectionChange = useCallback((params: OnSelectionChangeParams) => {
     const selectedNodes = params.nodes as WorkflowNode[];
     if (selectedNodes.length === 1) {
@@ -336,7 +351,7 @@ const WorkflowBuilderInner = () => {
       // Account for sidebars when calculating the actual canvas center
       const viewport = getViewport();
       const leftSidebarWidth = isSidebarCollapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED;
-      const rightPanelWidth = selectedNodeId ? CONFIG_PANEL_WIDTH : 0;
+      const rightPanelWidth = configPanelNodeId ? CONFIG_PANEL_WIDTH : 0;
       const actualCanvasWidth = window.innerWidth - leftSidebarWidth - rightPanelWidth;
 
       const viewportCenter = {
@@ -371,7 +386,7 @@ const WorkflowBuilderInner = () => {
       setSelectedNodeId(nodeId);
       toast.success(`Added ${action.displayName}`);
     },
-    [setNodes, nodes, snapToGridEnabled, getViewport, isSidebarCollapsed, selectedNodeId]
+    [setNodes, nodes, snapToGridEnabled, getViewport, isSidebarCollapsed, configPanelNodeId]
   );
 
   const addActionNode = () => {
@@ -414,7 +429,7 @@ const WorkflowBuilderInner = () => {
         // Account for sidebars when calculating the actual canvas center
         const viewport = getViewport();
         const leftSidebarWidth = isSidebarCollapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED;
-        const rightPanelWidth = selectedNodeId ? CONFIG_PANEL_WIDTH : 0;
+        const rightPanelWidth = configPanelNodeId ? CONFIG_PANEL_WIDTH : 0;
         const actualCanvasWidth = window.innerWidth - leftSidebarWidth - rightPanelWidth;
 
         viewportCenter = {
@@ -461,7 +476,7 @@ const WorkflowBuilderInner = () => {
       // Account for sidebars when calculating the actual canvas center
       const viewport = getViewport();
       const leftSidebarWidth = isSidebarCollapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED;
-      const rightPanelWidth = selectedNodeId ? CONFIG_PANEL_WIDTH : 0;
+      const rightPanelWidth = configPanelNodeId ? CONFIG_PANEL_WIDTH : 0;
       const actualCanvasWidth = window.innerWidth - leftSidebarWidth - rightPanelWidth;
 
       viewportCenter = {
@@ -520,12 +535,17 @@ const WorkflowBuilderInner = () => {
       setSelectedNodeId(null);
     }
 
+    // Close config panel if the deleted node was being configured
+    if (configPanelNodeId && selectedNodeIds.includes(configPanelNodeId)) {
+      setConfigPanelNodeId(null);
+    }
+
     toast.success(
       `Deleted ${selectedNodes.length} node${
         selectedNodes.length > 1 ? "s" : ""
       }`
     );
-  }, [getNodes, setNodes, setEdges, selectedNodeId]);
+  }, [getNodes, setNodes, setEdges, selectedNodeId, configPanelNodeId]);
 
   const duplicateNode = useCallback(
     (nodeId: string) => {
@@ -592,9 +612,14 @@ const WorkflowBuilderInner = () => {
         setSelectedNodeId(null);
       }
 
+      // Close config panel if this node was being configured
+      if (configPanelNodeId === nodeId) {
+        setConfigPanelNodeId(null);
+      }
+
       toast.success("Node deleted");
     },
-    [setNodes, setEdges, selectedNodeId]
+    [setNodes, setEdges, selectedNodeId, configPanelNodeId]
   );
 
   const handleUpdateBranches = useCallback(
@@ -612,16 +637,9 @@ const WorkflowBuilderInner = () => {
   );
 
   const handleCloseConfigPanel = useCallback(() => {
-    // Deselect node in our state
-    setSelectedNodeId(null);
-    // Also deselect node in ReactFlow (remove selected state from all nodes)
-    setNodes((nds) =>
-      nds.map((node) => ({
-        ...node,
-        selected: false,
-      }))
-    );
-  }, [setNodes]);
+    // Close the config panel
+    setConfigPanelNodeId(null);
+  }, []);
 
   // Auto-arrange nodes
   const handleAutoArrange = useCallback(() => {
@@ -873,6 +891,7 @@ const WorkflowBuilderInner = () => {
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
               onSelectionChange={onSelectionChange}
+              onNodeDoubleClick={onNodeDoubleClick}
               onDrop={onDrop}
               onDragOver={onDragOver}
               nodeTypes={nodeTypes}
@@ -936,9 +955,9 @@ const WorkflowBuilderInner = () => {
           </div>
         </div>
 
-        {selectedNode && (
+        {configPanelNode && (
           <NodeConfigPanel
-            node={selectedNode}
+            node={configPanelNode}
             onClose={handleCloseConfigPanel}
             onUpdateConfig={handleUpdateConfig}
             onChangeAction={handleChangeAction}

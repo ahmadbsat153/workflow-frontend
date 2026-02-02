@@ -99,7 +99,7 @@ const FormEditContentInner = () => {
         <div className="flex justify-start pl-2">
           <LayoutSelector
             options={layoutOptions}
-            defaultValue="details"
+            value={currentLayout}
             onLayoutChange={handleLayoutChange}
             displayMode="tabs"
           />
