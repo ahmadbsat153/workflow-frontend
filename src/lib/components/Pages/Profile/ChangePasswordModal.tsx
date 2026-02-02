@@ -1,17 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/lib/ui/alert-dialog";
 import { toast } from "sonner";
-import { API_PROFILE } from "@/lib/services/profile_service";
-
-import { Button } from "@/lib/ui/button";
+import { useState } from "react";
 import { Input } from "@/lib/ui/input";
 import { Label } from "@/lib/ui/label";
+import { Button } from "@/lib/ui/button";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { handleServerError } from "@/lib/api/_axios";
 import { ErrorResponse } from "@/lib/types/common";
+import { useAuth } from "@/lib/context/AuthContext";
+import { handleServerError } from "@/lib/api/_axios";
 import { ChangePasswordData } from "@/lib/types/profile";
-import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/lib/ui/alert-dialog";
+import { API_PROFILE } from "@/lib/services/profile_service";
 
 interface ChangePasswordModalProps {
   open: boolean;
@@ -20,6 +27,7 @@ interface ChangePasswordModalProps {
 
 const ChangePasswordModal = ({ open, onClose }: ChangePasswordModalProps) => {
   const [loading, setLoading] = useState(false);
+  const { logout } = useAuth();
   const [formData, setFormData] = useState<ChangePasswordData>({
     currentPassword: "",
     newPassword: "",
@@ -72,6 +80,7 @@ const ChangePasswordModal = ({ open, onClose }: ChangePasswordModalProps) => {
       const response = await API_PROFILE.changePassword(formData);
       toast.success(response.message || "Password changed successfully");
       handleClose();
+      logout();
     } catch (error) {
       handleServerError(error as ErrorResponse, (err_msg) => {
         toast.error(err_msg || "Failed to change password");
@@ -117,7 +126,10 @@ const ChangePasswordModal = ({ open, onClose }: ChangePasswordModalProps) => {
                   type={passwordVisibility.current ? "text" : "password"}
                   value={formData.currentPassword}
                   onChange={(e) =>
-                    setFormData({ ...formData, currentPassword: e.target.value })
+                    setFormData({
+                      ...formData,
+                      currentPassword: e.target.value,
+                    })
                   }
                   placeholder="Enter current password"
                   required
@@ -182,7 +194,10 @@ const ChangePasswordModal = ({ open, onClose }: ChangePasswordModalProps) => {
                   type={passwordVisibility.confirm ? "text" : "password"}
                   value={formData.confirmPassword}
                   onChange={(e) =>
-                    setFormData({ ...formData, confirmPassword: e.target.value })
+                    setFormData({
+                      ...formData,
+                      confirmPassword: e.target.value,
+                    })
                   }
                   placeholder="Confirm new password"
                   required

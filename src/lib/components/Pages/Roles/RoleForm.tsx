@@ -397,11 +397,15 @@ const RoleForm = ({ roleId, title, description }: RoleFormProps) => {
                                         <span className="font-semibold">
                                           {moduleName}
                                         </span>
+                                        
                                         <Badge
                                           variant="outline"
                                           className="text-xs"
                                         >
-                                          {permissions.length}
+                                          {modulePermissionKeys.filter((key) =>
+                                            watchedPermissions.includes(key)
+                                          ).length}{" "}
+                                          / {permissions.length}
                                         </Badge>
                                       </div>
                                     </AccordionTrigger>

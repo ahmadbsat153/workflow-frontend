@@ -1,21 +1,21 @@
 "use client";
 
-import { FormEvent, useState, useEffect } from "react";
-import { Button } from "@/lib/ui/button";
+import { toast } from "sonner";
+import Image from "next/image";
 import { Input } from "@/lib/ui/input";
-import { FadeIn, FadeInStagger } from "@/lib/components/Motion/FadeIn";
-import { useRouter, useParams } from "next/navigation";
-import { FileLock2Icon, Loader2 } from "lucide-react";
+import { Button } from "@/lib/ui/button";
 import { MoveLeftIcon } from "lucide-react";
-import { API_AUTH } from "@/lib/services/auth_service";
 import { URLs } from "@/lib/constants/urls";
-import { handleServerError } from "@/lib/api/_axios";
 import { ErrorResponse } from "@/lib/types/common";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { toast } from "sonner";
+import { handleServerError } from "@/lib/api/_axios";
+import { FileLock2Icon, Loader2 } from "lucide-react";
+import { FormEvent, useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { API_AUTH } from "@/lib/services/auth_service";
 import { authImages } from "@/lib/constants/authImages";
+import { FadeIn, FadeInStagger } from "@/lib/components/Motion/FadeIn";
 import { API_SETTINGS } from "@/lib/services/Settings/settings_service";
-import Image from "next/image";
 
 const ResetPasswordPage = () => {
   const router = useRouter();
@@ -79,25 +79,6 @@ const ResetPasswordPage = () => {
     }
   };
 
-  const validateToken = async () => {
-    try {
-      setValidating(true);
-      const data = {
-        recovery_token: token,
-      };
-      const res = await API_AUTH.validateRecoveryToken(data);
-      return res.status === 200;
-    } catch (e) {
-      handleServerError(e as ErrorResponse, (err_msg) => {
-        toast.error(err_msg || "Invalid or expired reset token");
-        return false;
-      });
-      return false;
-    } finally {
-      setValidating(false);
-    }
-  };
-
   const GoBack = () => router.push(URLs.auth.login);
 
   useEffect(() => {
@@ -113,18 +94,33 @@ const ResetPasswordPage = () => {
   }, [password, confirmPassword]);
 
   useEffect(() => {
-    // Check if the token is valid
-    const checkToken = async () => {
-      const isValid = await validateToken();
-      if (!isValid) {
-        toast.error("Invalid or expired reset token. Redirecting to login...");
+    const validateToken = async () => {
+      try {
+        setValidating(true);
+        const data = {
+          recovery_token: token,
+        };
+        const res = await API_AUTH.validateRecoveryToken(data);
+        if (res.status !== 200) {
+          toast.error("Invalid or expired reset token. Redirecting to login...");
+          setTimeout(() => {
+            router.push(URLs.auth.login);
+          }, 2000);
+        }
+      } catch (e) {
+        handleServerError(e as ErrorResponse, (err_msg) => {
+          toast.error(err_msg || "Invalid or expired reset token");
+        });
         setTimeout(() => {
           router.push(URLs.auth.login);
         }, 2000);
+      } finally {
+        setValidating(false);
       }
     };
-    checkToken();
-  });
+
+    validateToken();
+  }, [token, router]);
 
   useEffect(() => {
     // Fetch the reset password image from backend

@@ -1,19 +1,20 @@
 "use client";
 
-import { FormEvent, useState, useEffect } from "react";
-import { Button } from "@/lib/ui/button";
-import { Input } from "@/lib/ui/input";
-import { FadeIn, FadeInStagger } from "@/lib/components/Motion/FadeIn";
-import { useRouter, useParams } from "next/navigation";
-import { UserCheck2Icon, Loader2 } from "lucide-react";
-import { MoveLeftIcon } from "lucide-react";
-import { API_AUTH } from "@/lib/services/auth_service";
-import { URLs } from "@/lib/constants/urls";
-import { handleServerError } from "@/lib/api/_axios";
-import { ErrorResponse } from "@/lib/types/common";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
+
 import { toast } from "sonner";
 import Image from "next/image";
+import { Input } from "@/lib/ui/input";
+import { Button } from "@/lib/ui/button";
+import { MoveLeftIcon } from "lucide-react";
+import { URLs } from "@/lib/constants/urls";
+import { ErrorResponse } from "@/lib/types/common";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { handleServerError } from "@/lib/api/_axios";
+import { FormEvent, useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { UserCheck2Icon, Loader2 } from "lucide-react";
+import { API_AUTH } from "@/lib/services/auth_service";
+import { FadeIn, FadeInStagger } from "@/lib/components/Motion/FadeIn";
 
 const AcceptInvitationPage = () => {
   const router = useRouter();
@@ -76,27 +77,6 @@ const AcceptInvitationPage = () => {
     }
   };
 
-  const validateToken = async () => {
-    try {
-      setValidating(true);
-      const res = await API_AUTH.validateInvitation({ token });
-
-      if (res.valid && res.data) {
-        setUserInfo(res.data);
-        return true;
-      }
-      return false;
-    } catch (e) {
-      handleServerError(e as ErrorResponse, (err_msg) => {
-        toast.error(err_msg);
-        return false;
-      });
-      return false;
-    } finally {
-      setValidating(false);
-    }
-  };
-
   const GoBack = () => router.push(URLs.auth.login);
 
   useEffect(() => {
@@ -112,16 +92,29 @@ const AcceptInvitationPage = () => {
   }, [password, confirmPassword]);
 
   useEffect(() => {
-    // Check if the token is valid
-    const checkToken = async () => {
-      const isValid = await validateToken();
-      if (!isValid) {
-        toast.error("Invalid or expired invitation link");
+    const validateToken = async () => {
+      try {
+        setValidating(true);
+        const res = await API_AUTH.validateInvitation({ token });
+
+        if (res.valid && res.data) {
+          setUserInfo(res.data);
+        } else {
+          toast.error("Invalid or expired invitation link");
+          router.push(URLs.auth.login);
+        }
+      } catch (e) {
+        handleServerError(e as ErrorResponse, (err_msg) => {
+          toast.error(err_msg);
+        });
         router.push(URLs.auth.login);
+      } finally {
+        setValidating(false);
       }
     };
-    checkToken();
-  }, [router, validateToken]);
+
+    validateToken();
+  }, [token, router]);
 
   if (validating) {
     return (
