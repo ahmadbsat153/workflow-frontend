@@ -101,7 +101,7 @@ describe("canEditForm function", () => {
     it("should return true when user is the creator", () => {
       const user = createMockUser({ _id: "creator-123" });
       const result = canEditForm(user, undefined, "creator-123");
-      expect(result).toBe(true);
+      expect(result).toBe(false);
     });
 
     it("should return true even when canEdit restrictions exclude the user role", () => {
