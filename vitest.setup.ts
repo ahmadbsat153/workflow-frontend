@@ -26,7 +26,6 @@ vi.mock("next/navigation", () => ({
 // Mock Next.js Image component
 vi.mock("next/image", () => ({
   default: (props: React.ComponentProps<"img">) => {
-    // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
     return React.createElement("img", props);
   },
 }));
@@ -46,7 +45,7 @@ vi.mock("next/link", () => ({
 // Mock Framer Motion to avoid animation issues in tests
 vi.mock("framer-motion", () => {
   const createMotionComponent = (tag: string) => {
-    return React.forwardRef((props: Record<string, unknown>, ref) => {
+    const Component = React.forwardRef((props: Record<string, unknown>, ref) => {
       const { children, ...rest } = props;
       // Filter out framer-motion specific props
       const filteredProps = Object.keys(rest).reduce(
@@ -75,6 +74,8 @@ vi.mock("framer-motion", () => {
       );
       return React.createElement(tag, { ...filteredProps, ref }, children as React.ReactNode);
     });
+    Component.displayName = `motion.${tag}`;
+    return Component;
   };
 
   return {
