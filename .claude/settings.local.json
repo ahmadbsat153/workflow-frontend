@@ -11,7 +11,9 @@
       "Bash(timeout 20 npm run dev:*)",
       "Bash(ls:*)",
       "Bash(npx tsc:*)",
-      "Bash(pnpm add:*)"
+      "Bash(pnpm add:*)",
+      "Bash(dir:*)",
+      "Bash(pnpm test:*)"
     ]
   }
 }
