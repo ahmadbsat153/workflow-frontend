@@ -1,5 +1,10 @@
 import { Badge } from "@/lib/ui/badge";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/lib/ui/tooltip";
+import {
   Clock,
   CheckCircle,
   XCircle,
@@ -7,6 +12,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import type { WorkflowStatus } from "@/lib/types/approval";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type WorkflowStatusBadgeProps = {
   status: WorkflowStatus;
@@ -72,16 +78,28 @@ export function WorkflowStatusBadge({
   className = "",
 }: WorkflowStatusBadgeProps) {
   const config = statusConfig[status];
+  const isMobile = useIsMobile();
 
-  return (
+  const badge = (
     <Badge
       variant={status === "no_workflow" ? "ghost" : "outline"}
       className={`${config.color} ${config.bgColor} ${config.borderColor} ${className}`}
     >
       {config.icon}
-      <span className="ml-1">{config.label}</span>
+      {!isMobile && <span className="ml-1">{config.label}</span>}
     </Badge>
   );
+
+  if (isMobile && config.label) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{badge}</TooltipTrigger>
+        <TooltipContent>{config.label}</TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return badge;
 }
 
 type ApprovalProgressProps = {

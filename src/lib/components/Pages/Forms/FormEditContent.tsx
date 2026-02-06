@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
 } from "@/lib/ui/alert-dialog";
 import { Button } from "@/lib/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type LayoutType = "details" | "forms" | "workflow" | "settings";
 
@@ -34,12 +35,20 @@ const layoutOptions: LayoutOption<LayoutType>[] = [
 ];
 
 const FormEditContentInner = () => {
+  const isMobile = useIsMobile();
   const [currentLayout, setCurrentLayout] =
     useLayoutState<LayoutType>("details");
   const { isFormDirty, isWorkflowDirty, setFormDirty, setWorkflowDirty } =
     useFormEditContext();
   const [pendingLayout, setPendingLayout] = useState<LayoutType | null>(null);
   const [showDirtyAlert, setShowDirtyAlert] = useState(false);
+
+  // Filter out form and workflow edit options on mobile
+  const filteredLayoutOptions = isMobile
+    ? layoutOptions.filter(
+        (option) => option.value !== "forms" && option.value !== "workflow"
+      )
+    : layoutOptions;
 
   const handleLayoutChange = useCallback(
     (newLayout: LayoutType) => {
@@ -56,7 +65,7 @@ const FormEditContentInner = () => {
 
       setCurrentLayout(newLayout);
     },
-    [currentLayout, isFormDirty, isWorkflowDirty, setCurrentLayout]
+    [currentLayout, isFormDirty, isWorkflowDirty, setCurrentLayout],
   );
 
   const handleConfirmNavigation = useCallback(() => {
@@ -71,7 +80,13 @@ const FormEditContentInner = () => {
       setPendingLayout(null);
     }
     setShowDirtyAlert(false);
-  }, [pendingLayout, currentLayout, setFormDirty, setWorkflowDirty, setCurrentLayout]);
+  }, [
+    pendingLayout,
+    currentLayout,
+    setFormDirty,
+    setWorkflowDirty,
+    setCurrentLayout,
+  ]);
 
   const handleCancelNavigation = useCallback(() => {
     setPendingLayout(null);
@@ -92,20 +107,19 @@ const FormEditContentInner = () => {
         return <FormDetailsTab />;
     }
   };
-
   return (
     <>
-      <div className="bg-gray-50 w-full h-full flex flex-col">
-        <div className="flex justify-start pl-2">
+      <div className="bg-gray-50 w-full h-full flex flex-col overflow-hidden">
+        <div className="flex justify-start pl-2 shrink-0">
           <LayoutSelector
-            options={layoutOptions}
+            options={filteredLayoutOptions}
             value={currentLayout}
             onLayoutChange={handleLayoutChange}
             displayMode="tabs"
           />
         </div>
 
-        <div className="flex-1 h-full">{renderContent()}</div>
+        <div className="flex-1 min-h-0 overflow-auto">{renderContent()}</div>
       </div>
 
       <AlertDialog open={showDirtyAlert} onOpenChange={setShowDirtyAlert}>
@@ -122,9 +136,7 @@ const FormEditContentInner = () => {
             <AlertDialogCancel onClick={handleCancelNavigation}>
               Stay
             </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmNavigation}
-            >
+            <AlertDialogAction onClick={handleConfirmNavigation}>
               <Button variant="destructive">Discard changes</Button>
             </AlertDialogAction>
           </AlertDialogFooter>

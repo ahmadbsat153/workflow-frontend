@@ -1,9 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { toast } from "sonner";
-import { API_NOTIFICATION } from "@/lib/services/notification_service";
-import { Button } from "@/lib/ui/button";
 import {
   Card,
   CardContent,
@@ -11,16 +7,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/lib/ui/card";
-import { Switch } from "@/lib/ui/switch";
-import { Label } from "@/lib/ui/label";
-import { Separator } from "@/lib/ui/separator";
-import { Skeleton } from "@/lib/ui/skeleton";
 import {
   BellIcon,
   EnvelopeIcon,
   DevicePhoneMobileIcon,
   CheckCircleIcon,
 } from "@heroicons/react/24/outline";
+import { toast } from "sonner";
+import { Label } from "@/lib/ui/label";
+import { Button } from "@/lib/ui/button";
+import { Switch } from "@/lib/ui/switch";
+import { useState, useEffect } from "react";
+import { Skeleton } from "@/lib/ui/skeleton";
+import { Separator } from "@/lib/ui/separator";
+import { API_NOTIFICATION } from "@/lib/services/notification_service";
 import type { NotificationPreferences } from "@/lib/types/notification";
 import FixedHeaderFooterLayout from "@/lib/components/Layout/FixedHeaderFooterLayout";
 
@@ -92,8 +92,8 @@ const PreferenceRow = ({
 }) => {
   return (
     <div className="py-4">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-start gap-3 flex-1">
+      <div className="flex max-md:flex-col items-start justify-between gap-4">
+        <div className="flex max-md:flex-col items-start gap-3 flex-1">
           <div className="text-muted-foreground mt-1">{icon}</div>
           <div className="flex-1">
             <h4 className="text-sm font-medium mb-1">{title}</h4>
@@ -101,7 +101,7 @@ const PreferenceRow = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-6">
+        <div className="flex max-md:flex-col items-center gap-6">
           <div className="flex items-center gap-2">
             <DevicePhoneMobileIcon className="size-4 text-muted-foreground" />
             <Switch
@@ -279,7 +279,7 @@ export default function NotificationPreferencesPage({
 
                 <Separator className="my-6" />
 
-                <div className="flex items-center justify-between">
+                <div className="flex max-md:flex-col max-md:items-start gap-5 items-center justify-between">
                   <p className="text-sm text-muted-foreground">
                     Changes will be applied immediately after saving
                   </p>

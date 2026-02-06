@@ -1,9 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { toast } from "sonner";
-import { API_PROFILE } from "@/lib/services/profile_service";
-import { Button } from "@/lib/ui/button";
 import {
   Card,
   CardContent,
@@ -11,10 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/lib/ui/card";
-import { Input } from "@/lib/ui/input";
-import { Label } from "@/lib/ui/label";
-import { Separator } from "@/lib/ui/separator";
-import { Skeleton } from "@/lib/ui/skeleton";
 import {
   UserCircleIcon,
   KeyIcon,
@@ -25,11 +17,19 @@ import {
   BriefcaseIcon,
   MapPinIcon,
 } from "@heroicons/react/24/outline";
-import type { Profile, ProfileUpdateData } from "@/lib/types/profile";
-import FixedHeaderFooterLayout from "@/lib/components/Layout/FixedHeaderFooterLayout";
-import { handleServerError } from "@/lib/api/_axios";
+import { toast } from "sonner";
+import { Input } from "@/lib/ui/input";
+import { Label } from "@/lib/ui/label";
+import { Button } from "@/lib/ui/button";
+import { useState, useEffect } from "react";
+import { Skeleton } from "@/lib/ui/skeleton";
+import { Separator } from "@/lib/ui/separator";
 import { ErrorResponse } from "@/lib/types/common";
+import { handleServerError } from "@/lib/api/_axios";
+import { API_PROFILE } from "@/lib/services/profile_service";
+import type { Profile, ProfileUpdateData } from "@/lib/types/profile";
 import ChangePasswordModal from "@/lib/components/Pages/Profile/ChangePasswordModal";
+import FixedHeaderFooterLayout from "@/lib/components/Layout/FixedHeaderFooterLayout";
 
 const ProfilePage = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -152,41 +152,46 @@ const ProfilePage = () => {
 
   return (
     <FixedHeaderFooterLayout title="My Profile">
-      <div className="container mx-auto px-4 py-8 max-w-4xl space-y-6">
+      <div className="container mx-auto max-w-4xl space-y-6">
         {/* Personal Information Card */}
-        <Card >
-          <CardHeader>
-            <div className="flex items-center justify-between">
+        <Card className="">
+          <CardHeader className="max-md:px-2">
+            <div className="flex max-md:flex-col max-md:items-start gap-4 items-center justify-between">
               <div>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex  max-md:flex-col max-md:items-start items-center gap-2">
                   <UserCircleIcon className="h-5 w-5" />
                   Personal Information
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="mt-5">
                   Manage your personal details and contact information
                 </CardDescription>
               </div>
               {!isEditing ? (
-                <Button onClick={() => setIsEditing(true)} variant="outline">
+                <Button onClick={() => setIsEditing(true)} variant="outline" className="max-md:w-full">
                   Edit Profile
                 </Button>
               ) : (
-                <div className="flex gap-2">
+                <div className="flex  max-md:flex-col max-md:items-start gap-2 max-md:w-full">
                   <Button
                     onClick={handleCancel}
                     variant="outline"
                     disabled={isSaving}
+                    className="max-md:w-full"
                   >
                     Cancel
                   </Button>
-                  <Button onClick={handleSave} disabled={isSaving}>
+                  <Button
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="max-md:w-full"
+                  >
                     {isSaving ? "Saving..." : "Save Changes"}
                   </Button>
                 </div>
               )}
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 max-md:px-2">
             {isEditing ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -278,14 +283,16 @@ const ProfilePage = () => {
 
         {/* Organization Information Card */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+          <CardHeader className="max-md:px-2">
+            <CardTitle className="flex max-md:flex-col max-md:items-start items-center gap-2">
               <BuildingOfficeIcon className="h-5 w-5" />
               Organization Details
             </CardTitle>
-            <CardDescription>Your role and organizational information</CardDescription>
+            <CardDescription>
+              Your role and organizational information
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 max-md:px-2">
             <div className="flex items-center gap-3">
               <BriefcaseIcon className="h-5 w-5 text-muted-foreground" />
               <div>
@@ -343,7 +350,7 @@ const ProfilePage = () => {
         {/* Security Card */}
         {profile.authentication?.provider === "local" && (
           <Card>
-            <CardHeader>
+            <CardHeader className="max-md:px-2">
               <CardTitle className="flex items-center gap-2">
                 <KeyIcon className="h-5 w-5" />
                 Security
@@ -352,8 +359,8 @@ const ProfilePage = () => {
                 Manage your password and security settings
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
+            <CardContent className="max-md:px-2">
+              <div className="flex  max-md:flex-col max-md:items-start gap-2 items-center justify-between">
                 <div>
                   <p className="font-medium">Password</p>
                   <p className="text-sm text-muted-foreground">
@@ -363,6 +370,7 @@ const ProfilePage = () => {
                 <Button
                   onClick={() => setShowChangePassword(true)}
                   variant="outline"
+                  className="max-md:w-full"
                 >
                   Change Password
                 </Button>
@@ -373,10 +381,10 @@ const ProfilePage = () => {
 
         {/* Account Status */}
         <Card>
-          <CardHeader>
+          <CardHeader className="max-md:px-2">
             <CardTitle>Account Status</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 max-md:px-2">
             <div className="flex items-center justify-between">
               <span className="text-sm">Account Status</span>
               <span

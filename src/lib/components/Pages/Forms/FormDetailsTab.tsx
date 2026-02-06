@@ -309,7 +309,7 @@ const FormDetailsTab = () => {
     <div className="w-full h-full overflow-y-auto p-4">
       <div className="space-y-6">
         {/* Analytics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {analyticsCards.map((item, index) => (
             <FormAnalyticsCard
               key={index}

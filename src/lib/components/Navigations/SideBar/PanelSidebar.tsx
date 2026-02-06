@@ -94,11 +94,15 @@ export function PanelSidebar({
         </Sidebar>
       )}
 
-      <SidebarInset className="overflow-hidden bg-gray-50">
-        <header className="flex h-12 shrink-0 items-center justify-end gap-2 border-b w-full px-2 xl:px-8 2xl:px-16">
+      <SidebarInset className="flex flex-col h-dvh overflow-hidden bg-gray-50">
+        <header className="flex h-12 shrink-0 items-center gap-2 border-b w-full px-2 xl:px-8 2xl:px-16 bg-gray-50">
+          <SidebarTrigger className="md:hidden" iconClassName="!size-5" />
+          <div className="flex-1" />
           <NotificationBell />
         </header>
-        {children}
+        <div className="flex-1 overflow-auto min-h-0">
+          {children}
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

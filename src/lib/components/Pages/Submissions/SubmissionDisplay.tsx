@@ -20,6 +20,7 @@ import { WorkflowStatus } from "@/lib/types/approval";
 import { WorkflowStatusBadge } from "../../Workflow/WorkflowStatusBadge";
 import BackButton from "../../Common/BackButton";
 import { URLs } from "@/lib/constants/urls";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export type SubmissionData = {
   [key: string]: string;
@@ -50,19 +51,17 @@ const SubmissionDisplay = ({
   workflowStatus,
   currentStage,
 }: SubmissionDisplayProps) => {
-  const router = useRouter();
+  const isMobile = useIsMobile();
   const sortedFields = [...fields].sort(
     (a, b) => (a.order ?? 0) - (b.order ?? 0),
   );
-
-  console.log(workflowStatus);
 
   return (
     <PageContainer className="bg-cultured p-0! flex justify-center overflow-hidden">
       <div className="w-full max-w-3xl flex items-center">
         <Card className="w-full flex flex-col max-h-[90vh]">
           {/* Header Section */}
-          <CardHeader className="shrink-0">
+          <CardHeader className="shrink-0 max-md:px-2">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <CardTitle>{formName}</CardTitle>
@@ -99,23 +98,25 @@ const SubmissionDisplay = ({
           </CardHeader>
 
           {/* Submission Data */}
-          <CardContent className="flex-1 overflow-y-auto min-h-0 py-2">
+          <CardContent className="flex-1 overflow-y-auto min-h-0 py-2 max-md:px-2">
             <div className="flex flex-wrap gap-2">
               {sortedFields.map((field) => {
-                const widthStyle = field.style?.width
-                  ? {
-                      flexBasis:
-                        field.style.width === 100
-                          ? "100%"
-                          : `calc(${field.style.width}% - 1.25rem)`,
-                      flexGrow: 0,
-                      flexShrink: 0,
-                      maxWidth:
-                        field.style.width === 100
-                          ? "100%"
-                          : `calc(${field.style.width}% - 1.25rem)`,
-                    }
-                  : { width: "100%" };
+                const widthStyle = isMobile
+                  ? { width: "100%" }
+                  : field.style?.width
+                    ? {
+                        flexBasis:
+                          field.style.width === 100
+                            ? "100%"
+                            : `calc(${field.style.width}% - 1.25rem)`,
+                        flexGrow: 0,
+                        flexShrink: 0,
+                        maxWidth:
+                          field.style.width === 100
+                            ? "100%"
+                            : `calc(${field.style.width}% - 1.25rem)`,
+                      }
+                    : { width: "100%" };
 
                 const value = submissionData[field.name];
 
@@ -148,9 +149,9 @@ const SubmissionDisplay = ({
             </div>
           </CardContent>
 
-          <CardFooter className="border-t shrink-0">
+          <CardFooter className="border-t shrink-0 max-md:px-2 max-md:pt-2! ">
             <div className="w-full flex justify-end">
-              <BackButton text="Go Back" fallbackUrl={URLs.admin.forms.index}/>
+              <BackButton text="Go Back" fallbackUrl={URLs.admin.forms.index} />
             </div>
           </CardFooter>
         </Card>

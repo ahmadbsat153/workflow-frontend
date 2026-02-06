@@ -106,20 +106,19 @@ const ChangePasswordModal = ({ open, onClose }: ChangePasswordModalProps) => {
 
   return (
     <AlertDialog open={open} onOpenChange={handleClose}>
-      <AlertDialogContent className="sm:max-w-[425px]">
+      <AlertDialogContent className="sm:max-w-106 max-md:px-2 ">
         <form onSubmit={handleSubmit}>
           <AlertDialogHeader>
-            <AlertDialogTitle>Change Password</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="">
+              Change Password
+            </AlertDialogTitle>
+            <AlertDialogDescription className="max-md:text-xs">
               Update your password to keep your account secure. Password must be
               at least 8 characters long.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="currentPassword">
-                Current Password <span className="text-red-500">*</span>
-              </Label>
               <div className="relative">
                 <Input
                   id="currentPassword"
@@ -131,6 +130,7 @@ const ChangePasswordModal = ({ open, onClose }: ChangePasswordModalProps) => {
                       currentPassword: e.target.value,
                     })
                   }
+                  label="Current Password"
                   placeholder="Enter current password"
                   required
                   disabled={loading}
@@ -138,7 +138,7 @@ const ChangePasswordModal = ({ open, onClose }: ChangePasswordModalProps) => {
                 <button
                   type="button"
                   onClick={() => togglePasswordVisibility("current")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-3 top-1/2 text-muted-foreground hover:text-foreground"
                   tabIndex={-1}
                 >
                   {passwordVisibility.current ? (
@@ -151,9 +151,6 @@ const ChangePasswordModal = ({ open, onClose }: ChangePasswordModalProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="newPassword">
-                New Password <span className="text-red-500">*</span>
-              </Label>
               <div className="relative">
                 <Input
                   id="newPassword"
@@ -163,13 +160,14 @@ const ChangePasswordModal = ({ open, onClose }: ChangePasswordModalProps) => {
                     setFormData({ ...formData, newPassword: e.target.value })
                   }
                   placeholder="Enter new password"
+                  label="New Password"
                   required
                   disabled={loading}
                 />
                 <button
                   type="button"
                   onClick={() => togglePasswordVisibility("new")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-3 top-1/2  text-muted-foreground hover:text-foreground"
                   tabIndex={-1}
                 >
                   {passwordVisibility.new ? (
@@ -185,9 +183,6 @@ const ChangePasswordModal = ({ open, onClose }: ChangePasswordModalProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">
-                Confirm New Password <span className="text-red-500">*</span>
-              </Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
@@ -200,13 +195,14 @@ const ChangePasswordModal = ({ open, onClose }: ChangePasswordModalProps) => {
                     })
                   }
                   placeholder="Confirm new password"
+                  label="Confirm New Password"
                   required
                   disabled={loading}
                 />
                 <button
                   type="button"
                   onClick={() => togglePasswordVisibility("confirm")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-3 top-1/2 text-muted-foreground hover:text-foreground"
                   tabIndex={-1}
                 >
                   {passwordVisibility.confirm ? (

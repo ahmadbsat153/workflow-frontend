@@ -149,7 +149,7 @@ function LoginForm() {
             className="absolute inset-0 h-full w-full object-cover"
           />
         </div>
-        <div className="w-1/2 h-full flex items-center">
+        <div className="w-full lg:w-1/2 h-full flex items-center">
           <FadeInStagger className="w-full sm:max-w-md xl:mx-auto ">
             <FadeIn>
               {logo && (
@@ -157,20 +157,17 @@ function LoginForm() {
                   <Image
                     src={logo}
                     alt="Logo"
-                    width={64}
-                    height={64}
-                    className="h-16 w-auto object-contain"
+                    width={90}
+                    height={90}
+                    className=" w-auto object-contain"
                   />
                 </div>
               )}
-              <h1 className="font-bold leading-tight text-2xl text-center">
-                Log In
-              </h1>
             </FadeIn>
 
             <FadeIn>
-              <form className="mt-8" onSubmit={(e) => handleSignIn(e)}>
-                <div className="">
+              <form className="mt-8 p-2" onSubmit={(e) => handleSignIn(e)}>
+                <div className="flex flex-col max-md:gap-4">
                   <div className="space-y-2 relative sm:mt-2.5">
                     <Input
                       id="email"
@@ -241,8 +238,8 @@ function LoginForm() {
 
                       {/* Microsoft Login */}
                       <div>
-                        <div className="my-[3vh] w-full flex justify-center items-center h-[1px] bg-gray-400 relative">
-                          <span className="text-gray-400 text-sm bg-white px-4">
+                        <div className="my-[3vh] w-full flex justify-center items-center h-px bg-gray-400 relative">
+                          <span className="text-gray-400 text-xs bg-white px-4">
                             OR CONTINUE WITH
                           </span>
                         </div>

@@ -210,7 +210,7 @@ const PositionsTable = () => {
   return (
     <div className="flex flex-col gap-4 w-full">
       {/* Department Filter */}
-      <div className="flex items-center gap-2">
+      <div className="flex max-md:flex-col max-md:items-start items-center gap-2">
         <label className="text-sm font-medium">Filter by Department:</label>
         <Select
           value={query.departmentId || "all"}

@@ -5,10 +5,10 @@ import { Button } from "@/lib/ui/button";
 import { useEffect, useState } from "react";
 import DotsLoader from "../../Loader/DotsLoader";
 import { ErrorResponse } from "@/lib/types/common";
-import SubmissionDisplay, { SubmissionData } from "./SubmissionDisplay";
 import { handleServerError } from "@/lib/api/_axios";
 import { useParams, useRouter } from "next/navigation";
 import { FormSubmission } from "@/lib/types/form/form_submission";
+import SubmissionDisplay, { SubmissionData } from "./SubmissionDisplay";
 import { API_FORM_SUBMISSION } from "@/lib/services/Form/form_submissions_service";
 
 const SubmissionDetails = () => {

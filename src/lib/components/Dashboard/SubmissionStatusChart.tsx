@@ -17,6 +17,7 @@ import {
   PieLabelRenderProps,
 } from "recharts";
 import { chartColors } from "@/lib/types/dashboard";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface SubmissionStatusChartProps {
   data: Array<{ status: string; count: number }>;
@@ -30,6 +31,7 @@ const formatStatus = (status: string): string => {
 };
 
 export function SubmissionStatusChart({ data }: SubmissionStatusChartProps) {
+  const isMobile = useIsMobile();
   const chartData = data.map((item) => ({
     name: formatStatus(item.status),
     value: item.count,
@@ -68,24 +70,32 @@ export function SubmissionStatusChart({ data }: SubmissionStatusChartProps) {
               dataKey="value"
               nameKey="name"
               cx="50%"
-              cy="50%"
-              outerRadius={80}
-              label={(props: PieLabelRenderProps) => {
-                const { name, percent } = props;
-                // Ensure percent exists before calling toFixed
-                const percentage =
-                  typeof percent === "number"
-                    ? `${(percent * 100).toFixed(0)}%`
-                    : "";
-
-                return `${name}: ${percentage}`;
-              }}
+              cy={isMobile ? "40%" : "50%"}
+              outerRadius={isMobile ? 60 : 80}
+              label={
+                isMobile
+                  ? false
+                  : (props: PieLabelRenderProps) => {
+                      const { name, percent } = props;
+                      const percentage =
+                        typeof percent === "number"
+                          ? `${(percent * 100).toFixed(0)}%`
+                          : "";
+                      return `${name}: ${percentage}`;
+                    }
+              }
             >
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "#F8F7F2",
+                border: "1px solid darkgray",
+                borderRadius: "6px",
+              }}
+            />
             <Legend />
           </PieChart>
         </ResponsiveContainer>

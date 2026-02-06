@@ -13,6 +13,7 @@ import { Button } from "@/lib/ui/button";
 import { Form } from "@/lib/types/form/form";
 import DotsLoader from "../../Loader/DotsLoader";
 import BackButton from "../../Common/BackButton";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { ErrorResponse } from "@/lib/types/common";
 import { handleServerError } from "@/lib/api/_axios";
 import { FieldsType } from "@/lib/types/form/fields";
@@ -28,6 +29,7 @@ import { buildValidationSchema } from "@/utils/Validation/fieldValidationSchema"
 const SubmissionFormBuilder = () => {
   const params = useParams();
   const router = useRouter();
+  const isMobile = useIsMobile();
   const form_slug = params.form_slug as string;
 
   const [loading, setLoading] = useState(true);
@@ -200,18 +202,20 @@ const SubmissionFormBuilder = () => {
         onSubmit={handleSubmit(onSubmit)}
         className="w-full max-w-3xl flex items-center"
       >
-        <Card className="w-full flex flex-col h-[90vh]">
-          <CardHeader className="shrink-0">
-            <CardTitle>{form.name}</CardTitle>
+        <Card className="w-full flex flex-col h-[90vh] max-md:pb-2">
+          <CardHeader className="shrink-0 max-md:px-2">
+            <CardTitle className="">{form.name}</CardTitle>
             <CardDescription>{form.description}</CardDescription>
           </CardHeader>
 
-          <CardContent className="flex-1 overflow-y-auto min-h-0 py-2 [&_textarea]:resize-y [&_textarea]:max-h-50">
+          <CardContent className="flex-1 overflow-y-auto min-h-0 py-2 [&_textarea]:resize-y [&_textarea]:max-h-50 max-md:px-2">
             <div className="flex flex-wrap gap-5">
               {form.fields.map((field) => {
-                const widthStyle = field.style?.width
-                  ? { width: `calc(${field.style.width}% - 1.25rem)` }
-                  : { width: "100%" };
+                const widthStyle = isMobile
+                  ? { width: "100%" }
+                  : field.style?.width
+                    ? { width: `calc(${field.style.width}% - 1.25rem)` }
+                    : { width: "100%" };
 
                 const fieldError = errors[field.name] as FieldError | undefined;
 
@@ -224,7 +228,7 @@ const SubmissionFormBuilder = () => {
             </div>
           </CardContent>
 
-          <CardFooter className="border-t shrink-0">
+          <CardFooter className="border-t shrink-0 max-md:pt-2!">
             <div className="w-full flex justify-end gap-5">
               <BackButton
                 handleGoBack={() => router.back()}

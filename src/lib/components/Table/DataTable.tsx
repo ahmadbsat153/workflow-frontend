@@ -259,7 +259,7 @@ export function DataTable<TData>({
           cellRenderers[col.uid as string] || ((val) => val?.toString() || "");
         return (
           <div
-            className={`truncate max-w-[250px] ${
+            className={`truncate max-w-62.5 ${
               col.align === "center"
                 ? "text-center"
                 : col.align === "right"
@@ -533,14 +533,14 @@ export function DataTable<TData>({
           style={{ maxHeight: maxHeight || undefined }}
         >
           <table className={`w-full caption-bottom text-sm ${tableClassName || ""}`}>
-            <TableHeader className="bg-cultured sticky top-0 z-[1]">
+            <TableHeader className="bg-cultured sticky top-0 z-1">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="border-b">
                   {headerGroup.headers.map((header) => (
                     <TableHead
                       key={header.id}
                       colSpan={header.colSpan}
-                      className="capitalize !text-secondary bg-cultured"
+                      className="capitalize text-secondary! bg-cultured"
                     >
                       {header.isPlaceholder
                         ? null
@@ -598,7 +598,7 @@ export function DataTable<TData>({
 
       {/* Pagination */}
       {enablePagination && totalPages > 1 && (
-        <div className="flex items-center justify-between px-4">
+        <div className="flex items-center justify-between px-4 max-md:pb-8">
           <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
             {enableSelection && (
               <>

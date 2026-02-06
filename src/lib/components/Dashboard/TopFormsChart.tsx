@@ -9,7 +9,9 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  LabelList,
 } from "recharts";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TopFormsChartProps {
   data: Array<{
@@ -20,11 +22,13 @@ interface TopFormsChartProps {
   }>;
 }
 
+
 export function TopFormsChart({ data }: TopFormsChartProps) {
+  const isMobile = useIsMobile();
+
   const chartData = data.slice(0, 5).map((item) => ({
-    name: item.formName.length > 20
-      ? item.formName.substring(0, 20) + "..."
-      : item.formName,
+    name: item.formName,
+    fullName: item.formName,
     submissions: item.count,
   }));
 
@@ -50,8 +54,8 @@ export function TopFormsChart({ data }: TopFormsChartProps) {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={chartData} layout="vertical">
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+          <BarChart data={chartData} layout="vertical" >
+            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" horizontal={false} />
             <XAxis
               type="number"
               className="text-xs"
@@ -60,18 +64,41 @@ export function TopFormsChart({ data }: TopFormsChartProps) {
             <YAxis
               type="category"
               dataKey="name"
-              className="text-xs"
-              tick={{ fill: "hsl(var(--muted-foreground))" }}
-              width={150}
+              hide
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "hsl(var(--background))",
-                border: "1px solid hsl(var(--border))",
+                backgroundColor: "#F8F7F2",
+                border: "1px solid darkgray",
                 borderRadius: "6px",
               }}
+              formatter={(value) => [value, "Submissions"]}
+              labelFormatter={(label, payload) => {
+                const item = payload?.[0]?.payload as { fullName?: string } | undefined;
+                return item?.fullName || label;
+              }}
             />
-            <Bar dataKey="submissions" fill="#3B82F6" radius={[0, 4, 4, 0]} />
+            <Bar dataKey="submissions" fill="#3B82F6" radius={[0, 4, 4, 0]}>
+              <LabelList
+                dataKey="name"
+                content={({ y, height, value }) => {
+                  const yPos = typeof y === "number" ? y : 0;
+                  const h = typeof height === "number" ? height : 0;
+                  return (
+                    <text
+                      x={20}
+                      y={yPos + h / 2}
+                      fill="#000"
+                      fontSize={isMobile ? 11 : 12}
+                      dominantBaseline="middle"
+                      textAnchor="start"
+                    >
+                      {value}
+                    </text>
+                  );
+                }}
+              />
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </CardContent>

@@ -62,7 +62,6 @@ function Button({
   const Comp = asChild ? Slot : "button";
 
   return (
-    <div>
       <Comp
         data-slot="button"
         className={cn(
@@ -79,7 +78,6 @@ function Button({
           props.children
         )}
       </Comp>
-    </div>
   );
 }
 

@@ -1,6 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/lib/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/lib/ui/card";
 import {
   AreaChart,
   Area,
@@ -11,6 +17,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { format, parseISO } from "date-fns";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TimelineChartProps {
   data: Array<{ date: string; count: number }>;
@@ -31,6 +38,7 @@ export function TimelineChart({
   title = "Submission Timeline",
   description = "Last 30 days",
 }: TimelineChartProps) {
+  const isMobile = useIsMobile();
   const chartData = data.map((item) => ({
     date: formatDate(item.date),
     submissions: item.count,
@@ -44,7 +52,10 @@ export function TimelineChart({
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <AreaChart data={chartData}>
+          <AreaChart
+            data={chartData}
+            margin={isMobile ? { left: -15, right: 5 } : undefined}
+          >
             <defs>
               <linearGradient id="colorSubmissions" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8} />
@@ -55,16 +66,27 @@ export function TimelineChart({
             <XAxis
               dataKey="date"
               className="text-xs"
-              tick={{ fill: "hsl(var(--muted-foreground))" }}
+              tick={{
+                fill: "hsl(var(--muted-foreground))",
+                fontSize: isMobile ? 10 : 12,
+              }}
+              interval={
+                isMobile ? "preserveStartEnd" : "equidistantPreserveStart"
+              }
             />
             <YAxis
               className="text-xs"
-              tick={{ fill: "hsl(var(--muted-foreground))" }}
+              tick={{
+                fill: "hsl(var(--muted-foreground))",
+                fontSize: isMobile ? 10 : 12,
+              }}
+              width={isMobile ? 30 : 40}
             />
+
             <Tooltip
               contentStyle={{
-                backgroundColor: "hsl(var(--background))",
-                border: "1px solid hsl(var(--border))",
+                backgroundColor: "#F8F7F2",
+                border: "1px solid darkgray",
                 borderRadius: "6px",
               }}
             />

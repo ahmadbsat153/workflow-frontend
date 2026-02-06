@@ -6,7 +6,7 @@ import { PERMISSIONS } from "@/lib/constants/permissions";
 const Page = () => {
   return (
     <ProtectedPage permission={PERMISSIONS.FORMS.EDIT}>
-      <PageContainer className="bg-gray-50 !pt-4 !xl:px-0 !px-0">
+      <PageContainer className="bg-gray-50 pt-4! !xl:px-0 px-0!">
         <FormEditContent />
       </PageContainer>
     </ProtectedPage>

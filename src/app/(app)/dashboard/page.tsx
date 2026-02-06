@@ -11,7 +11,13 @@ import { TopFormsChart } from "@/lib/components/Dashboard/TopFormsChart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/lib/ui/tabs";
 import { useDashboardAnalytics } from "@/lib/hooks/useDashboardAnalytics";
 import { ApprovalStatusChart } from "@/lib/components/Dashboard/ApprovalStatusChart";
-import { FileText, ClipboardList, CheckCircle, Clock, RefreshCw } from "lucide-react";
+import {
+  FileText,
+  ClipboardList,
+  CheckCircle,
+  Clock,
+  RefreshCw,
+} from "lucide-react";
 import { FormSubmissionsChart } from "@/lib/components/Dashboard/FormSubmissionsChart";
 import { SubmissionStatusChart } from "@/lib/components/Dashboard/SubmissionStatusChart";
 import { DashboardResponse } from "@/lib/types/dashboard";
@@ -61,7 +67,13 @@ function DashboardSkeleton() {
   );
 }
 
-function ErrorState({ error, onRetry }: { error: string; onRetry: () => void }) {
+function ErrorState({
+  error,
+  onRetry,
+}: {
+  error: string;
+  onRetry: () => void;
+}) {
   return (
     <div className="container mx-auto p-6">
       <Alert variant="destructive">
@@ -104,15 +116,16 @@ function UserSubmissionsContent({ data }: { data: UserSubmissionsData }) {
         <MetricCard
           title="Completed"
           value={
-            data.byWorkflowStatus.find((s) => s.status === "completed")?.count ||
-            0
+            data.byWorkflowStatus.find((s) => s.status === "completed")
+              ?.count || 0
           }
           icon={CheckCircle}
         />
         <MetricCard
           title="Pending"
           value={
-            data.byWorkflowStatus.find((s) => s.status === "pending")?.count || 0
+            data.byWorkflowStatus.find((s) => s.status === "pending")?.count ||
+            0
           }
           icon={ClipboardList}
         />
@@ -132,8 +145,8 @@ function UserSubmissionsContent({ data }: { data: UserSubmissionsData }) {
             <FileText className="h-16 w-16 text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">No submissions yet</h3>
             <p className="text-sm text-muted-foreground text-center max-w-md">
-              Start submitting forms to see your analytics and track your submissions
-              here.
+              Start submitting forms to see your analytics and track your
+              submissions here.
             </p>
           </CardContent>
         </Card>
@@ -147,7 +160,11 @@ function FormCreatorContent({ data }: { data: FormCreatorData }) {
     <div className="space-y-6">
       {/* Form Creator Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard title="Total Forms" value={data.forms.total} icon={FileText} />
+        <MetricCard
+          title="Total Forms"
+          value={data.forms.total}
+          icon={FileText}
+        />
         <MetricCard
           title="Active Forms"
           value={data.forms.active}
@@ -198,8 +215,8 @@ function FormCreatorContent({ data }: { data: FormCreatorData }) {
               No submissions received yet
             </h3>
             <p className="text-sm text-muted-foreground text-center max-w-md">
-              Your forms haven&apos;t received any submissions yet. Share your forms to
-              start collecting responses.
+              Your forms haven&apos;t received any submissions yet. Share your
+              forms to start collecting responses.
             </p>
           </CardContent>
         </Card>
@@ -220,17 +237,19 @@ export default function DashboardPage() {
   return (
     <div className="container mx-auto p-6 space-y-8 animate-in fade-in duration-500">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex max-md:flex-col-reverse md:items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
           <p className="text-muted-foreground mt-1">
             Overview of your submissions and analytics
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={refetch}>
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
-        </Button>
+        <div className="flex w-full justify-end">
+          <Button variant="outline" size="sm" onClick={refetch}>
+            <RefreshCw className="h-4 w-4 md:mr-2" />
+            <span className="max-md:hidden">Refresh</span>
+          </Button>
+        </div>
       </div>
 
       {/* Content with Tabs if form creator, otherwise just submissions */}

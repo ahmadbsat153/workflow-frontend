@@ -57,7 +57,7 @@ function Input({
         <div className="mb-2">
           <Label
             htmlFor={props.id}
-            className={`${errorMessage && "text-destructive"}`}
+            className={`${errorMessage && "text-destructive"} max-md:text-xs`}
           >
             {label}
             {required && <span className="text-red-500 ml-1">*</span>}
@@ -72,27 +72,29 @@ function Input({
           "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
           "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
           "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+          // Conditional placeholder text size
+          "placeholder:text-base max-md:placeholder:text-xs",
           `${
             labelPlacement === "inside" &&
             label != "" &&
-            "pt-[1.7rem] pb-[1rem] h-14"
+            "pt-[1.7rem] pb-4 h-14"
           }`,
           `${
             errorMessage != ""
               ? inputVariants.variant["destructive"]
               : inputVariants.variant[variant]
           }`,
-          `${preFixIcon && "!pl-9 !relative"} ${
-            postFixIcon && "!pr-9 !relative"
+          `${preFixIcon && "pl-9! relative!"} ${
+            postFixIcon && "pr-9! relative!"
           }`,
           `${
             labelPlacement === "inside"
               ? size === "lg"
-                ? "!h-[60px]"
+                ? "h-15!"
                 : size === "md"
-                ? "!h-[50px]"
+                ? "h-13!"
                 : size === "sm"
-                ? "!h-10"
+                ? "h-10!"
                 : ""
               : ""
           }`,

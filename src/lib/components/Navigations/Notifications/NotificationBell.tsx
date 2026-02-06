@@ -188,7 +188,7 @@ export const NotificationBell = () => {
           {unreadCount > 0 && (
             <Badge
               variant="destructive"
-              className="absolute -top-0 -right-1 h-4 w-4 flex items-center justify-center p-0 text-xs"
+              className="absolute top-1 max-md:right-0 -right-1 h-4 w-4 flex items-center justify-center p-0 text-xs"
             >
               {unreadCount > 9 ? "9+" : unreadCount}
             </Badge>
@@ -196,7 +196,7 @@ export const NotificationBell = () => {
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-[380px] p-0" align="end" sideOffset={8}>
+      <PopoverContent className="w-screen lg:w-95 p-0" align="end" sideOffset={8}>
         <div className="flex items-center justify-between p-4 border-b">
           <h3 className="font-semibold text-sm">Notifications</h3>
           <div className="flex items-center gap-2">
@@ -214,7 +214,7 @@ export const NotificationBell = () => {
           </div>
         </div>
 
-        <ScrollArea className="h-[400px]">
+        <ScrollArea className="h-100">
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <div className="text-sm text-muted-foreground">Loading...</div>

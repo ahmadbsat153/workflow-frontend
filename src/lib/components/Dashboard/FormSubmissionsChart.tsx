@@ -12,6 +12,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { chartColors } from "@/lib/types/dashboard";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export type FormSubmissionsChartProps = {
   data: Array<{
@@ -29,11 +30,15 @@ export type FormSubmissionsChartProps = {
 }
 
 export function FormSubmissionsChart({ data }: FormSubmissionsChartProps) {
+  const isMobile = useIsMobile();
+  const maxNameLength = isMobile ? 8 : 15;
+
   const chartData = data.slice(0, 10).map((item) => ({
     name:
-      item.formName.length > 15
-        ? item.formName.substring(0, 15) + "..."
+      item.formName.length > maxNameLength
+        ? item.formName.substring(0, maxNameLength) + "..."
         : item.formName,
+    fullName: item.formName,
     Pending: item.pending,
     Processing: item.processing,
     Completed: item.completed,
@@ -65,16 +70,21 @@ export function FormSubmissionsChart({ data }: FormSubmissionsChartProps) {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={400}>
-          <BarChart data={chartData}>
+          <BarChart data={chartData} margin={isMobile ? { left: -15, right: 5 } : undefined}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
             <XAxis
               dataKey="name"
               className="text-xs"
-              tick={{ fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: isMobile ? 10 : 12 }}
+              interval={isMobile ? 0 : "equidistantPreserveStart"}
+              angle={isMobile ? -45 : 0}
+              textAnchor={isMobile ? "end" : "middle"}
+              height={isMobile ? 60 : 30}
             />
             <YAxis
               className="text-xs"
-              tick={{ fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: isMobile ? 10 : 12 }}
+              width={isMobile ? 30 : 40}
             />
             <Tooltip
               contentStyle={{
@@ -82,8 +92,12 @@ export function FormSubmissionsChart({ data }: FormSubmissionsChartProps) {
                 border: "1px solid hsl(var(--border))",
                 borderRadius: "6px",
               }}
+              labelFormatter={(label: string, payload) => {
+                const item = payload?.[0]?.payload;
+                return item?.fullName || label;
+              }}
             />
-            <Legend />
+            <Legend wrapperStyle={isMobile ? { fontSize: 10 } : undefined} />
             <Bar
               dataKey="Pending"
               stackId="a"

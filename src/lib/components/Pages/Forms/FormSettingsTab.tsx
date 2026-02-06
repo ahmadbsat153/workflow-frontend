@@ -150,7 +150,7 @@ const FormSettingsTab = () => {
 
   return (
     <div className="py-6 px-2 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex max-md:flex-col max-md:items-start max-md:gap-5 items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Form Settings</h1>
           <p className="text-gray-500 mt-1">
@@ -165,7 +165,7 @@ const FormSettingsTab = () => {
 
       {/* Visibility Settings */}
       <Card className="overflow-visible">
-        <CardHeader>
+        <CardHeader className="max-md:px-2">
           <CardTitle className="flex items-center gap-2">
             <Eye className="w-5 h-5" />
             Who Can View This Form
@@ -175,7 +175,7 @@ const FormSettingsTab = () => {
             Leave all empty to allow everyone to view.
           </p>
         </CardHeader>
-        <CardContent className="space-y-4 overflow-visible">
+        <CardContent className="space-y-4 overflow-visible max-md:px-2">
           <div>
             <label className="flex items-center gap-2 text-sm font-medium mb-2">
               <Users className="w-4 h-4" />
@@ -240,7 +240,7 @@ const FormSettingsTab = () => {
 
       {/* Edit Permissions */}
       <Card className="overflow-visible">
-        <CardHeader>
+        <CardHeader className="max-md:px-2">
           <CardTitle className="flex items-center gap-2">
             <Edit className="w-5 h-5" />
             Who Can Edit This Form
@@ -250,7 +250,7 @@ const FormSettingsTab = () => {
             Leave all empty to allow only the creator to edit.
           </p>
         </CardHeader>
-        <CardContent className="space-y-4 overflow-visible">
+        <CardContent className="space-y-4 overflow-visible max-md:px-2">
           <div>
             <label className="flex items-center gap-2 text-sm font-medium mb-2">
               <Users className="w-4 h-4" />
